@@ -1,0 +1,26 @@
+MUBIEY STUDIO — QUICK START
+===========================
+1. ZIP extract cheyyuka.
+2. Node.js 20+ install cheythirikkanam.
+3. Mubiey-Studio folder VS Code-il open cheyyuka.
+4. Terminal -> New Terminal -> npm start
+5. Browser-il http://localhost:3000 open cheyyuka.
+
+OR: START-WINDOWS.bat double-click cheyyuka.
+
+My Projects / Account open cheythu username + password vechu Create account cheyyuka.
+Oro userinum private filesum invitationsum undaakum.
+Admin username: admin. Initial password terminal-il kaanikkum. Athu share cheyyaruthu.
+PUBLIC-SETUP.md-il online publishing steps undu.
+
+120 PHOTO PRESETS
+108 LIVE INVITATION VARIATIONS
+NORMAL INVITATION CARD COLLECTIONS
+PDF / PNG / JPEG exports; cards have SVG export too.
+
+Copy link / WhatsApp / Share buttons builder-il undu.
+LOCALHOST LINK mattullavarkku internet vazhi open cheyyaan pattilla.
+Full site persistent Node hosting-il deploy cheyyuka, ALLEL
+Download invitation HTML cheythu aa file static hosting-il publish cheyyuka.
+
+READ README.md FOR FULL SETUP AND FEATURE LIMITS.
