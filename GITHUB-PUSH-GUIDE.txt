@@ -1,0 +1,62 @@
+MUBIEY STUDIO — VS CODE / GITHUB / HOSTING
+
+1. ZIP extract cheythu Mubiey-Studio folder VS Code-il open cheyyuka.
+2. Terminal -> New Terminal:
+
+   npm start
+
+3. Browser: http://localhost:3000
+   My Projects / Account -> Create account.
+   Admin: username admin, initial password terminal-il kaanikkum.
+
+GITHUB-ILEKK FIRST PUSH
+
+GitHub-il puthiya EMPTY repository create cheyyuka: mubiey-studio.
+README / license / gitignore auto-add cheyyanda.
+VS Code terminal-il (Mubiey-Studio folder):
+
+   git init
+   git add .
+   git commit -m "Mubiey Studio latest update"
+   git branch -M main
+   git remote add origin https://github.com/YOUR_USERNAME/mubiey-studio.git
+   git push -u origin main
+
+YOUR_USERNAME ninte actual GitHub username aakkanam.
+Git sign-in vannal ninte account-il sign in cheyyuka. Password/code share cheyyanda.
+
+ALREADY CONNECTED REPOSITORY AANEL
+
+   git status
+   git remote -v
+
+Remote correct project aanennu urappaakki shesham:
+
+   git add .
+   git commit -m "Upgrade wedding editor and invitation tools"
+   git push
+
+Origin already exists enna error vannal veendum remote add cheyyanda.
+Wrong repo-il push cheyyaruthu. .env, .data, node_modules enniva Git-il add cheyyanda;
+bundled .gitignore athu exclude cheyyunnu. Force push venda.
+
+GITHUB PUSH != WEBSITE PUBLISH
+
+GitHub source save cheyyunnu. Complete site-inu Node.js serverum persistent diskum venam.
+Static hosting maathram accounts/invitation saving support cheyyilla.
+PUBLIC-SETUP.md-il settings undu:
+  Start command: npm start
+  HOST=0.0.0.0
+  DATA_DIR=your-host-persistent-disk-path
+  PUBLIC_ORIGIN=your-actual-https-origin
+  MUBIEY_ADMIN_PASSWORD=your-unique-long-password (first setup only)
+
+Public site ready aayaal home link customersinu share cheyyaam.
+Live Invitations -> Save -> Create share link -> WhatsApp / Copy link.
+
+THIS DOWNLOAD AND THE HOSTED EDITION
+
+This ZIP is the portable Node.js edition, using its own persistent disk/accounts.
+The hosted Sites edition uses managed database and file storage. Its accounts/files
+are separate; pushing this ZIP to GitHub will not automatically update that hosted site.
+Both editions include the same photo editor, card templates and live invitation designs.

@@ -166,3 +166,20 @@ The collection combines modern editorial type, photo-led layouts, arches, geomet
 - Email verification and forgotten-password recovery are not included. Keep passwords in a password manager.
 - This is a single-server edition; use one Node process and a persistent disk. It is not designed for serverless ephemeral disks or multiple replicas.
 - Mobile photo editor keeps preview above two scrollable control panels.
+
+## Advanced Develop update
+The wedding card and live invitation collections are retained.
+New controls: whites/blacks, vibrance, clarity, dehaze, sharpening, noise smoothing,
+shadow/highlight warmth, RGB/channel tone curves, eight-range HSL mixer, histogram,
+auto tone and neutral-colour white balance picker. Local exposure brush supports
+undo/redo. Geometry includes free crop, 90-degree rotation, straightening and flips.
+
+Album: add up to 30 photos, apply separate settings, rate photos, sync colour settings,
+and export full-resolution JPEGs in one ZIP (100 MB combined export limit).
+The album and ratings are session-only: export before closing the page. Photo recipes
+contain colour settings, curves and HSL, but not local brush/retouch operations or original photos.
+Crop/rotate/flip bake the current appearance and start a new history. Basic sharpening,
+clarity/dehaze and noise smoothing are approximate browser filters; RAW processing,
+AI subject masks/denoise/healing, lens profiles and perspective correction are not included.
+This is an independent editor, not Adobe Lightroom or a full feature-equivalent replacement.
+Automated processing/security tests pass; full browser and iPhone visual QA is outstanding.
