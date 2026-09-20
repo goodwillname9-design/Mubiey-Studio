@@ -7,3 +7,19 @@ window.Studio={
  async dataURL(file,max=2400){const bitmap=await createImageBitmap(file);if(bitmap.width*bitmap.height>80000000){bitmap.close();throw Error('Use a smaller photo for this invitation.')}const f=Math.min(1,max/Math.max(bitmap.width,bitmap.height)),c=document.createElement('canvas');c.width=Math.round(bitmap.width*f);c.height=Math.round(bitmap.height*f);c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);bitmap.close();return c.toDataURL('image/jpeg',.92)},
  async api(path,options={}){const r=await fetch(path,options),data=await r.json();if(!r.ok)throw Error(data.error||'Request failed');return data}
 };
+
+// Vercel upload transport: file bytes go straight to private object storage.
+const studioRequest=window.Studio.api.bind(window.Studio);
+window.Studio.api=async function(path,options={}){
+ const media=path.match(/^\/api\/invitations\/([a-f0-9-]{36})\/media$/);
+ if(options.method==='POST'&&options.body instanceof Blob&&(media||path==='/api/projects')){
+  const headers=new Headers(options.headers),type=headers.get('Content-Type')||options.body.type;
+  const name=decodeURIComponent(headers.get('X-File-Name')||'Wedding media');
+  const upload=await studioRequest('/api/uploads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({invite:media?.[1]||null,type,name,size:options.body.size})});
+  const form=new FormData();form.append('cacheControl','0');form.append('',new Blob([options.body],{type}),name);
+  const response=await fetch(upload.uploadUrl,{method:'PUT',headers:{'x-upsert':'false'},body:form});
+  if(!response.ok)throw Error('Upload did not finish. Please retry.');
+  for(let attempt=0;attempt<3;attempt++){try{return await studioRequest('/api/uploads/'+upload.id+'/complete',{method:'POST'})}catch(e){if(attempt===2)throw e;await new Promise(r=>setTimeout(r,400*(attempt+1)))}}
+ }
+ return studioRequest(path,options);
+};

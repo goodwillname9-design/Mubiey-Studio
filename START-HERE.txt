@@ -1,26 +1,22 @@
-MUBIEY STUDIO — QUICK START
-===========================
-1. ZIP extract cheyyuka.
-2. Node.js 20+ install cheythirikkanam.
-3. Mubiey-Studio folder VS Code-il open cheyyuka.
-4. Terminal -> New Terminal -> npm start
-5. Browser-il http://localhost:3000 open cheyyuka.
+MUBIEY STUDIO — GITHUB + VERCEL EDITION
 
-OR: START-WINDOWS.bat double-click cheyyuka.
+Ee version aanu GitHub + Vercel-il deploy cheyyendath.
+Photo editor, card collections, live invitations ellam ithil undu.
 
-My Projects / Account open cheythu username + password vechu Create account cheyyuka.
-Oro userinum private filesum invitationsum undaakum.
-Admin username: admin. Initial password terminal-il kaanikkum. Athu share cheyyaruthu.
-PUBLIC-SETUP.md-il online publishing steps undu.
+1. ZIP extract cheyyuka; Mubiey-Studio-Vercel folder VS Code-il open cheyyuka.
+2. Terminal-il:
+   npm install
+   npm start
+3. http://localhost:3000 open cheyyuka.
+   Photo/card editor config illatheyum use cheyyaam.
+   Account / online save cheyyaan Supabase settings venam.
+4. DEPLOY-VERCEL.md thurannu A -> B -> C steps follow cheyyuka.
+5. GitHub repo Vercel-il import cheytha shesham main-il git push cheyyumbo
+   production deployment automatic aakum.
 
-120 PHOTO PRESETS
-108 LIVE INVITATION VARIATIONS
-NORMAL INVITATION CARD COLLECTIONS
-PDF / PNG / JPEG exports; cards have SVG export too.
+Domain vaangan nirbandhamilla. Vercel nalkunna link use cheyyaam.
+Swantham domain vaangiyaal hosting-inu pakaram aavilla;
+Vercel Project -> Settings -> Domains-il connect cheyyaam.
 
-Copy link / WhatsApp / Share buttons builder-il undu.
-LOCALHOST LINK mattullavarkku internet vazhi open cheyyaan pattilla.
-Full site persistent Node hosting-il deploy cheyyuka, ALLEL
-Download invitation HTML cheythu aa file static hosting-il publish cheyyuka.
-
-READ README.md FOR FULL SETUP AND FEATURE LIMITS.
+Ninte existing Zion / MubiCare reposile files replace cheyyaruthu.
+Mubiey Studio-kku separate repo + Vercel project create cheyyuka.
