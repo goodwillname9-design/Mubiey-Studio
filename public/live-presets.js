@@ -1,7 +1,8 @@
 'use strict';
-const LIVE_LAYOUTS=['Grand entrance','Editorial portrait','Split story','Arched vows','Classic monogram','Garden letter','Modern romance','Soft journal','Royal celebration','Minimal promise','Photo album','Golden hour','Heritage story','Evening lights','Fine art','Together forever','Celebration book','Quiet elegance'];
+const LIVE_LAYOUTS=['Lavender wreath','Ivory editorial','Royal palace arch','Dark botanical','Porcelain garden','Watercolor meadow','European baroque','Indian marigold','Glasshouse garden','Lotus romance','Boho dried flowers','Muslim geometric','Hindu mandap','Christian chapel','Neutral letterpress','Gold medallion','Floral doorway','Garden journal','Moonlit ceremony','Fine-art stems','Silk ribbon','Ornate courtyard','Minimal monogram','Heritage columns','Celestial vows','Saffron canopy','Arabesque night'];
 const LIVE_PALETTES=[['emerald','Emerald'],['ivory','Ivory'],['rose','Rose'],['midnight','Midnight'],['saffron','Saffron'],['sage','Sage']];
-const LIVE_PRESETS=LIVE_PALETTES.flatMap(([theme,label])=>LIVE_LAYOUTS.map((name,layout)=>({id:theme+'-'+layout,theme,layout,name:name+' · '+label})));
+const LIVE_VARIANTS=[['wreath','Wreath'],['editorial','Editorial'],['arch','Arch'],['garden','Garden']];
+const LIVE_PRESETS=LIVE_LAYOUTS.flatMap((name,layout)=>LIVE_VARIANTS.map(([variant,label],index)=>({id:`premium-${layout}-${index}`,theme:LIVE_PALETTES[layout%LIVE_PALETTES.length][0],layout,variant,name:`${name} · ${label}`,premium:true})));
 function livePresetCSS(layout=0){const css=[
  '.hero{min-height:95vh}.hero h1{font-size:clamp(48px,9vw,100px)}',
  '.hero{align-items:flex-start;text-align:left;padding:100px 10%}.hero h1{font-style:italic}.amp{margin-left:20px}.frame{border-width:0 0 1px}.section h2{font-style:italic}',
