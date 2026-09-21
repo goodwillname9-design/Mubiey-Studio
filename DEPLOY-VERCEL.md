@@ -14,11 +14,14 @@ uploading this ZIP. This package has not been deployed into your Vercel account 
    It creates the app tables and a private file bucket; it does not delete other apps' tables.
 3. From **Connect**, copy the **Transaction pooler** PostgreSQL URI. Replace its database
    password placeholder with the real database password. URL-encode special characters
-   in that password. Keep the host/port exactly as Supabase shows. Add `sslmode=require`
+   in that password. Keep the host/port exactly as Supabase shows. Use `sslmode=verify-full`
    if absent. This becomes `DATABASE_URL`.
-4. Find the project's **Project URL** and backend **service_role** API key. These become
+4. In **Database -> Settings -> SSL Configuration**, download the official `prod-ca-2021.crt`.
+   Keep it at `.certs/prod-ca-2021.crt` locally. For Vercel, put its complete PEM contents in
+   `SUPABASE_DB_CA`. Do not use a certificate copied from another host or browser.
+5. Find the project's **Project URL** and backend **service_role** API key. These become
    `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Do not use the anon/publishable key here.
-5. Choose a unique admin password of at least 16 characters for `MUBIEY_ADMIN_PASSWORD`.
+6. Choose a unique admin password of at least 16 characters for `MUBIEY_ADMIN_PASSWORD`.
 
 Keep these values in environment settings. Do not put them into public JavaScript,
 commit them to GitHub, paste them in chat, or include them in screenshots.
@@ -60,6 +63,7 @@ and use the correct Mubiey repo; do not force-push or overwrite Zion/MubiCare.
 | `DATABASE_URL` | Supabase transaction pooler connection URI |
 | `SUPABASE_URL` | Your Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Backend service_role key |
+| `SUPABASE_DB_CA` | Complete PEM contents of Supabase's official `prod-ca-2021.crt` |
 | `MUBIEY_ADMIN_PASSWORD` | Your unique 16+ character admin password |
 
 6. Deploy. Open the issued Vercel URL.
@@ -108,7 +112,7 @@ in again when you change from the Vercel address to your custom domain.
 ## Local use
 
 Install Node.js 22, run `npm install`, copy `.env.example` to `.env`, and fill in the same
-four values for a test Supabase project. Run `npm start`, then open http://localhost:3000.
+values for a test Supabase project. Run `npm start`, then open http://localhost:3011.
 Without cloud settings, the editors work locally but account/save functions show a setup message.
 
 ## Storage, privacy and limits
@@ -146,3 +150,22 @@ account settings. Full mobile/browser visual testing is not claimed.
 - [Add a custom domain](https://vercel.com/docs/domains/working-with-domains/add-a-domain)
 - [Vercel function limits](https://vercel.com/docs/functions/limitations)
 - [Supabase database connections](https://supabase.com/docs/guides/database/connecting-to-postgres)
+
+## If both free Supabase projects are already in use
+
+Do not delete Zion or MubiCare. Mubiey can use either existing project: run this
+package's `supabase/setup.sql` in that project's SQL Editor, then put that same project's
+connection URL / service-role key in the new Mubiey Vercel project's environment settings.
+The application uses its own `mubiey` schema and `mubiey-private` bucket. It does not
+require a third Supabase project, and it does not require exposing the schema through
+Supabase's Data API. Keep the existing applications' settings unchanged.
+
+The apps share that project's storage, database, bandwidth and compute allowances.
+As checked September 2026, Supabase Free allows two active projects and includes
+1 GB file storage and 500 MB database per project. This is not additional free capacity
+for each app. Check usage before adding wedding photo galleries.
+Reference: https://supabase.com/pricing
+
+This update changes application code only; the previous Vercel edition's database
+schema remains compatible. If you already ran setup.sql and configured the environment,
+you can replace the application files, test, and push without recreating the database.

@@ -20,3 +20,7 @@ Vercel Project -> Settings -> Domains-il connect cheyyaam.
 
 Ninte existing Zion / MubiCare reposile files replace cheyyaruthu.
 Mubiey Studio-kku separate repo + Vercel project create cheyyuka.
+
+NEW: 120 floral cards per tradition, 100 cinematic looks, 20 live-invitation photos.
+Already have 2 Supabase projects? Use one existing project; do not delete it.
+DEPLOY-VERCEL.md -> If both free Supabase projects are already in use.

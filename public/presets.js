@@ -36,3 +36,17 @@ const PRESETS = FAMILY_DATA.flatMap((f,fi)=>VARIATIONS.map((v,vi)=>{
  return {id:`${fi+1}-${vi+1}`,family:f[0],name:VARIANT_NAMES[fi][vi],description:f[1],colours:[f[2],f[3]],index:fi*10+vi+1,settings:s};
 }));
 if(typeof module!=='undefined')module.exports={PRESETS,FAMILY_DATA};
+
+const CINEMA_FAMILIES=[
+ ['Cinema Amber','Warm portrait highlights with cool, restrained shadows.',{exposure:.06,contrast:16,saturation:-12,warmth:10,tint:2,fade:5,shadows:-6,highlights:-22,vignette:14,grain:4,shadowTint:-20,highlightTint:26}],
+ ['Cinema Teal','Teal-blue shadows and warm skin-tone accents.',{exposure:-.03,contrast:20,saturation:-15,warmth:-5,tint:-4,fade:3,shadows:-8,highlights:-18,vignette:14,grain:3,shadowTint:-32,highlightTint:28}],
+ ['Cinema Olive','Earthy greens, deep backgrounds and muted fabric colour.',{exposure:-.06,contrast:13,saturation:-20,warmth:8,tint:-7,fade:8,shadows:-5,highlights:-20,vignette:12,grain:6,shadowTint:12,highlightTint:18}],
+ ['Cinema Pearl','Soft bridal whites, gentle contrast and open shadows.',{exposure:.19,contrast:-6,saturation:-9,warmth:3,tint:3,fade:5,shadows:13,highlights:-28,vignette:5,grain:1,shadowTint:-8,highlightTint:10}],
+ ['Cinema Velvet','Low-key evening portraits with warm highlights.',{exposure:-.19,contrast:22,saturation:-14,warmth:7,tint:5,fade:4,shadows:-14,highlights:-23,vignette:23,grain:5,shadowTint:-15,highlightTint:22}],
+ ['Cinema Sunset','Warm backlight and soft orange-gold colour.',{exposure:.08,contrast:8,saturation:3,warmth:24,tint:4,fade:7,shadows:3,highlights:-24,vignette:10,grain:2,shadowTint:3,highlightTint:30}],
+ ['Cinema Blue Hour','Cool twilight with luminous, protected highlights.',{exposure:.04,contrast:12,saturation:-10,warmth:-19,tint:4,fade:5,shadows:9,highlights:-17,vignette:13,grain:4,shadowTint:-25,highlightTint:9}],
+ ['Cinema Vintage','Warm matte print tones and visible film texture.',{exposure:.02,contrast:9,saturation:-24,warmth:13,tint:-2,fade:17,shadows:5,highlights:-20,vignette:15,grain:16,shadowTint:13,highlightTint:18}],
+ ['Cinema Rosewood','Romantic rose highlights and earthy shadows.',{exposure:.08,contrast:11,saturation:-14,warmth:8,tint:15,fade:8,shadows:2,highlights:-21,vignette:10,grain:4,shadowTint:-8,highlightTint:16}],
+ ['Cinema Silver','Monochrome wedding storytelling with controlled highlights.',{exposure:.04,contrast:18,saturation:-100,warmth:0,tint:0,fade:7,shadows:5,highlights:-20,vignette:14,grain:8,shadowTint:0,highlightTint:0}]
+];
+for(let f=0;f<CINEMA_FAMILIES.length;f++){const [family,description,base]=CINEMA_FAMILIES[f];FAMILY_DATA.push([family,description,'#bd986c','#26383d',base]);for(let v=0;v<10;v++){const a=VARIATIONS[v],settings={...base,exposure:base.exposure+a[0],contrast:base.contrast+a[1],saturation:f===9?-100:base.saturation+a[2],warmth:f===9?0:base.warmth+a[3],tint:f===9?0:base.tint+a[4],fade:base.fade+a[5],vignette:Math.max(0,base.vignette+a[6])};PRESETS.push({id:`cinema-${f}-${v}`,family,name:`${family.replace('Cinema ','')} ${['Portrait','Vows','Dusk','Soft','Drama','Matte','Daylight','Story','Fine Art','Editorial'][v]}`,description,colours:['#bd986c','#26383d'],index:PRESETS.length+1,settings})}}
