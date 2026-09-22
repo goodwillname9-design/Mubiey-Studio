@@ -16,7 +16,7 @@ if(document.getElementById('live-preset')){
 }
 
 for(const id of ['font','c-font']){const picker=document.getElementById(id);if(picker)for(const [value,name]of Object.entries(ATELIER_EXTRA_FONTS)){const o=new Option(name+(value==='amiri'?' · Arabic':value==='malayalam'?' · Malayalam':''),value);o.style.fontFamily='Atelier'+name;picker.add(o)}}
-const galleryPicker=document.getElementById('galleryMode');if(galleryPicker)galleryPicker.add(new Option('Organic petals · Full-view gallery','organic'));
+const galleryPicker=document.getElementById('galleryMode');if(galleryPicker){galleryPicker.add(new Option('Organic petals · Full-view gallery','organic'));galleryPicker.value='organic';}
 if(document.getElementById('font'))document.getElementById('font').addEventListener('input',()=>document.getElementById('font').style.fontFamily=atelierFont(document.getElementById('font').value));
 if(document.getElementById('preview')){const hint=document.createElement('p');hint.className='help';hint.textContent='Tap names, the date, venue, message or photos in the preview to jump to their editing controls.';document.getElementById('preview-box').before(hint);window.addEventListener('message',event=>{if(event.source!==document.getElementById('preview').contentWindow||event.data?.type!=='mubiey-edit')return;const allowed=['name1','name2','heading','event-date','venue','address','message','photos','schedule','font'];if(!allowed.includes(event.data.field))return;const input=document.getElementById(event.data.field);if(input){input.scrollIntoView({behavior:'smooth',block:'center'});input.focus({preventScroll:true});input.style.outline='2px solid #d4b074';setTimeout(()=>input.style.outline='',1600)}})}
 
