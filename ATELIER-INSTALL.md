@@ -47,3 +47,12 @@ EMERALD NIKAH TEMPLATE · SEPTEMBER 27
 - The supplied green/ivory reference artwork is retained as the visual artwork layer; invitation wording is rebuilt as editable SVG text.
 - Editable fields include Arabic Bismillah, bride/groom names, parent lines, invitation wording, month/year, highlighted date, Nikah time, venue label, best-wishes line, arch colour and text colour.
 - The template is added as one collection item only; existing invitation templates are left unchanged.
+
+
+FATHIMA NIZAR TEMPLATE COLLECTION · SEPTEMBER 28
+- Added "Fathima Nizar" (emerald floral arch with the couple illustration) as a template in BOTH Invitation cards and Live invitations, plus 4 modified editions: Royal Burgundy, Midnight Navy, Sage Mist and Dusty Rose (5 in total).
+- Nothing existing was removed or changed: the 448 Atelier editions, the classic designs and the earlier "Emerald Nikah · Floral Arch" card are all still there. The five new designs are listed first.
+- Invitation cards: the arch, flowers, couple and Bismillah are artwork; names, "F ♡ N" initials (follow the first letters of the names), parents' lines, wording, date, event line, venue and message are editable text. Export to PNG/JPEG/PDF/SVG works like other cards.
+- Live invitations: choose from the "Fathima Nizar · Floral Arch" tiles (Preview / Use design) or the top group of the design list. Countdown, gallery, schedule, directions, music and the opening (seal / locket / direct) work the same as other premium live designs. Guest links render the same design.
+- Files: new public/fathima-nizar.js and public/assets/premium/fn-*.jpg; updated public/cards.html, invitations.html, guest.html (one script line each) and tests/atelier.test.mjs (+1 test). No database migration; saved live invitations store the template ids fn-emerald, fn-burgundy, fn-navy, fn-sage, fn-rose.
+- Install as before: copy public/, lib/ and tests/ over your project, run npm test and npm run build, then commit and deploy.
