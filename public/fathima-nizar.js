@@ -125,6 +125,7 @@ ${noteLines.map((s, i) => t1(s, 252, 556 + dateLines.length * 22 + 34 + venueLin
   function liveCSS(v, n1, n2) {
     const len = Math.max(n1.length, n2.length, 8);
     const fs = Math.max(3.8, Math.min(8.6, 150 / len));
+    const nameFont = typeof root.atelierFont === 'function' ? root.atelierFont('script') : 'cursive';
     return `:root{--paper:${PAPER};--ink:${v.ink};--gold:${v.gold}}body{background:${PAPER}}
 .hero.fn{max-width:800px;margin:0 auto;padding:0!important;min-height:0!important;aspect-ratio:1448/2048;display:block;container-type:inline-size;overflow:hidden;text-align:center;color:${v.ink}}
 .hero.fn .hero-art{position:absolute;inset:0;z-index:-2;background:${PAPER}}.hero.fn .hero-art img{display:block;width:100%;height:100%;object-fit:cover}
@@ -138,7 +139,73 @@ ${noteLines.map((s, i) => t1(s, 252, 556 + dateLines.length * 22 + 34 + venueLin
 .hero.fn .petal{background:${v.gold};z-index:1}
 .section h2,.countdown b,.event h3{color:${v.ink}}
 @media(max-width:600px){.hero.fn{min-height:0!important;padding:0!important}.hero.fn .overline{font-size:2.3cqw}.hero.fn .date{font-size:3cqw}}
+.hero.fn{position:relative;isolation:isolate;background:${PAPER};color:${v.ink};overflow:hidden}.hero.fn .fn-art{z-index:-2}.hero.fn .fn-copy{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;color:${v.ink};padding:19% 16% 12%;font-family:AtelierSerif,Georgia,serif}.hero.fn .fn-bismillah-backdrop{position:absolute;z-index:0;left:25%;top:18%;width:50%;height:10%;background:${PAPER}e8;border-radius:50%;filter:blur(2px)}.hero.fn .fn-bismillah{position:relative;z-index:1;font:clamp(13px,3.3cqw,27px)/1.5 AtelierAmiri,serif;min-height:1.5em;max-width:90%;margin-bottom:5%;direction:rtl}.hero.fn .fn-overline{position:relative;z-index:1;font:clamp(8px,2cqw,16px)/1.5 Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;margin:0 0 2%;max-width:90%;color:${v.ink}}.hero.fn .fn-names{position:relative;z-index:1;display:grid;justify-items:center;line-height:1}.hero.fn .fn-names h1{font-family:AtelierScript,${nameFont},cursive!important;font-size:clamp(30px,8.4cqw,72px)!important;font-weight:400;line-height:1.04;margin:0;color:${v.ink};max-width:100%}.hero.fn .fn-amp{font:italic clamp(20px,5cqw,44px)/1 AtelierSerif,serif;color:${v.gold};margin:1.2cqw 0}.hero.fn .fn-editable{display:inline;overflow-wrap:anywhere}.hero.fn .fn-parents{font:clamp(7px,1.55cqw,13px)/1.45 Arial,sans-serif;max-width:90%;margin:3% 0 0;color:${v.ink};opacity:.8}.hero.fn .fn-invite{font:clamp(7px,1.6cqw,14px)/1.45 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;max-width:78%;margin:3% 0;color:${v.ink}}.hero.fn .fn-date{display:grid;grid-template-columns:auto auto auto;align-items:end;gap:0 1.1cqw;margin-top:1%;color:${v.ink}}.hero.fn .fn-day{font:clamp(25px,6cqw,54px)/1 AtelierSerif,serif}.hero.fn .fn-month,.hero.fn .fn-year{font:clamp(8px,1.8cqw,15px)/1.2 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}.hero.fn .fn-time{grid-column:1/-1;font:italic clamp(8px,1.8cqw,15px)/1.5 AtelierSerif,serif;margin-top:1cqw}.hero.fn .fn-venue{display:grid;gap:1px;max-width:80%;margin-top:2%;font:clamp(8px,1.8cqw,15px)/1.3 AtelierSerif,serif}.hero.fn .fn-address{font:clamp(7px,1.45cqw,12px)/1.35 Arial,sans-serif;opacity:.75}.hero.fn .fn-footer-copy{display:flex;gap:4cqw;max-width:90%;margin-top:2%;font:clamp(7px,1.45cqw,12px)/1.3 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase}.hero.fn .fn-rsvp{color:${v.gold}}.hero.fn .fn-editable[data-fn-field]{cursor:pointer}.hero.fn .fn-editable[data-fn-field]:hover{outline:1px dashed ${v.gold};outline-offset:3px}
+@media print{.hero.fn .fn-editable[data-fn-field]{outline:0}}.hero.fn .fn-copy{color:var(--fn-ink)}.hero.fn .fn-overline,.hero.fn .fn-invite{letter-spacing:var(--fn-letter-spacing)}.hero.fn .fn-names h1{font-size:clamp(24px,var(--fn-name-size),96px)!important}.hero.fn .fn-date{color:var(--fn-ink)}
 @media print{.hero.fn{min-height:0!important}}`;
+  }
+  const FN_DEFAULTS = {
+    bismillah: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+    parent1: "(D/o Mr. Bride's Father & Mrs. Bride's Mother)",
+    parent2: "(S/o Mr. Groom's Father & Mrs. Groom's Mother)",
+    invite: 'INVITE YOU WITH JOYFUL HEARTS TO WITNESS AND BE BLESSED ON THE AUSPICIOUS OCCASION OF OUR WEDDING',
+    time: 'Nikah · After Asr',
+    rsvp: 'RSVP',
+    button: 'OPEN DIRECTIONS ↗',
+    wishes: 'Your presence will make our day complete.'
+  };
+  const fnValue = (data, key) => String(data?.['fn' + key[0].toUpperCase() + key.slice(1)] ?? FN_DEFAULTS[key] ?? '');
+  const fnDateParts = data => {
+    const raw = String(data?.date || '');
+    const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    if (!match) return {day: data?.fnDay || '22', month: data?.fnMonth || 'November', year: data?.fnYear || '2026', time: fnValue(data, 'time')};
+    return {
+      day: data?.fnDay || match[3],
+      month: data?.fnMonth || months[Math.max(0, Number(match[2]) - 1)] || 'November',
+      year: data?.fnYear || match[1],
+      time: fnValue(data, 'time') || `${match[4]}:${match[5]}`
+    };
+  };
+  const fnLine = (value, key, extra = '') => `<span class="fn-editable ${extra}" data-fn-field="${key}" data-edit="${key}">${esc(value)}</span>`;
+  function fnHero(data, v) {
+    const parts = fnDateParts(data);
+    const n1 = data.name1 || 'Fathima', n2 = data.name2 || 'Nizar';
+    const heading = data.heading || 'With the blessings of Allah';
+    const ink = hex(data.fnTextColor) ? data.fnTextColor : v.ink;
+    const nameSize = Math.max(24, Math.min(96, Number(data.fnNameSize) || 52));
+    const letterSpacing = Math.max(0, Math.min(12, Number(data.fnLetterSpacing) || 2));
+    return `<section id="top" class="hero fn" style="--fn-ink:${ink};--fn-name-size:${nameSize}px;--fn-letter-spacing:${letterSpacing}px" aria-label="Fathima Nizar wedding invitation">
+      <div class="fn-art hero-art" aria-hidden="true"><img src="${esc(embedded[v.id] || artURL(v))}" alt=""></div>
+      <div class="fn-bismillah-backdrop" aria-hidden="true"></div>
+      <div class="fn-copy">
+        <div class="fn-bismillah" dir="rtl">${fnLine(fnValue(data, 'bismillah'), 'fnBismillah')}</div>
+        <p class="fn-overline">${fnLine(heading, 'heading')}</p>
+        <div class="fn-names">
+          <h1>${fnLine(n1, 'name1')}</h1>
+          <div class="fn-amp" aria-hidden="true">&</div>
+          <h1>${fnLine(n2, 'name2')}</h1>
+        </div>
+        <p class="fn-parents">${fnLine(fnValue(data, 'parent1'), 'fnParent1')}<br>${fnLine(fnValue(data, 'parent2'), 'fnParent2')}</p>
+        <p class="fn-invite">${fnLine(fnValue(data, 'invite'), 'fnInvite')}</p>
+        <div class="fn-date" aria-label="Wedding date">
+          <span class="fn-day">${fnLine(parts.day, 'fnDay')}</span>
+          <span class="fn-month">${fnLine(parts.month, 'fnMonth')}</span>
+          <span class="fn-year">${fnLine(parts.year, 'fnYear')}</span>
+          <span class="fn-time">${fnLine(parts.time, 'fnTime')}</span>
+        </div>
+        <div class="fn-venue">
+          <span class="fn-venue-name">${fnLine(data.venue || 'Venue, city', 'venue')}</span>
+          <span class="fn-address">${fnLine(data.address || '', 'address')}</span>
+        </div>
+        <div class="fn-footer-copy">
+          <span>${fnLine(fnValue(data, 'wishes'), 'fnWishes')}</span>
+          <span class="fn-rsvp">${fnLine(fnValue(data, 'rsvp'), 'fnRsvp')}</span>
+        </div>
+      </div>
+    </section>`;
+  }
+  function fnIntroCSS(intro) {
+    return `.fn-intro{background:#f3f2ef!important}.fn-intro .envelope-card{overflow:hidden}.fn-intro.intro-curtain:before,.fn-intro.intro-curtain:after{content:'';position:absolute;top:0;bottom:0;width:50%;z-index:-1;background:linear-gradient(90deg,#fff,#e8e1d7 45%,#fff);box-shadow:inset 0 0 50px #8d765333;transition:transform 1.4s cubic-bezier(.2,.75,.2,1)}.fn-intro.intro-curtain:before{left:0;transform-origin:left}.fn-intro.intro-curtain:after{right:0;transform-origin:right;background:linear-gradient(270deg,#fff,#e8e1d7 45%,#fff)}.fn-intro.intro-curtain.open:before{transform:translateX(-100%)}.fn-intro.intro-curtain.open:after{transform:translateX(100%)}.fn-intro.intro-arch .envelope-card{border:0;background:linear-gradient(#0c3d2a,#102d24);color:#f4ead4;border-radius:220px 220px 12px 12px;box-shadow:0 0 0 8px #ae945455,0 25px 80px #0005}.fn-intro.intro-arch .envelope-card:before{inset:18px;border-color:#ae9454}.fn-intro.intro-arch.open .envelope-card{transform:scale(1.12);opacity:0;transition:transform 1.1s ease,opacity .8s 1s}.fn-intro.intro-floral{background:radial-gradient(circle at 50% 40%,#fffdf8,#eee8dd)}.fn-intro.intro-floral:before{content:'✦  ❀  ✦  ❀  ✦';position:absolute;top:13%;left:0;right:0;color:#ae9454;font-size:34px;letter-spacing:18px;opacity:.7;animation:fn-floral-float 8s ease-in-out infinite}.fn-intro.intro-floral .envelope-card{background:#ffffffcc;backdrop-filter:blur(5px);border-color:#ae9454}.fn-intro.intro-floral.open .envelope-card{transform:translateY(-24px) scale(1.08);opacity:0;transition:transform 1s ease,opacity .8s}.fn-intro.intro-locket .envelope-card{background:radial-gradient(circle at 50% 35%,#fffdf5,#e8e0d4)}@keyframes fn-floral-float{50%{transform:translateY(18px) rotate(3deg)}}@media(prefers-reduced-motion:reduce){.fn-intro.intro-curtain:before,.fn-intro.intro-curtain:after,.fn-intro.intro-arch .envelope-card,.fn-intro.intro-floral .envelope-card{transition:none!important}.fn-intro.intro-floral:before{animation:none}}`;
   }
   if (typeof root.invitationDocument === 'function') {
     const prev = root.invitationDocument;
@@ -146,11 +213,22 @@ ${noteLines.map((s, i) => t1(s, 252, 556 + dateLines.length * 22 + 34 + venueLin
       if (!isFN(data?.template)) return prev(data);
       const v = BY[data.template];
       let html = prev({...data, template: LIVE_BASE});
-      const src = embedded[v.id] || artURL(v);
-      html = html.replace(/<div class="hero-art" aria-hidden="true">[\s\S]*?<\/svg><\/div>/, `<div class="hero-art" aria-hidden="true"><img src="${esc(src)}" alt=""></div>`)
-        .replace('<section id="top" class="hero ', '<section id="top" class="hero fn ');
+      html = html.replace(/<section id="top" class="hero[^>]*>[\s\S]*?<\/section>/, fnHero(data, v));
       const n1 = String(data.name1 || 'Fathima'), n2 = String(data.name2 || 'Nizar');
-      return html.replace('</head>', `<style>${liveCSS(v, n1, n2)}</style></head>`);
+      html = html.replace(/OPEN DIRECTIONS(?: ↗)?/g, esc(fnValue(data, 'button')));
+      const intro = ['locket','curtain','arch','floral'].includes(data.introStyle) ? data.introStyle : 'locket';
+      html = html.replace(/class="envelope" id="envelope"/, `class="envelope fn-intro intro-${intro}" id="envelope"`);
+      if (intro === 'locket' && !html.includes('locket-half')) {
+        html = html.replace(`class="envelope fn-intro intro-${intro}"`, `class="envelope fn-intro intro-${intro} locket-opening"`)
+          .replace('aria-label="Open wedding invitation">&</button>', `aria-label="Open wedding locket"><span class="locket-half left">${esc(n1[0] || 'A')}</span><span class="locket-half right">${esc(n2[0] || 'F')}</span></button>`)
+          .replace('TOUCH THE SEAL TO OPEN', 'TOUCH THE LOCKET TO OPEN');
+      }
+      if (data.openingStyle === 'none') html = html.replace(/<div class="envelope[^>]*id="envelope"[\s\S]*?<\/script>/, '');
+      const sections = data.fnSections || {};
+      const hidden = ['countdown','gallery','schedule','music','wishes'].filter(key => sections[key] === false).map(key => `fn-hide-${key}`).join(' ');
+      if (hidden) html = html.replace('<body>', `<body class="${hidden}">`);
+      const sectionCSS = hidden ? `<style>.fn-hide-countdown #countdown,.fn-hide-countdown #countdown-note{display:none!important}.fn-hide-gallery #gallery{display:none!important}.fn-hide-schedule .events-card{display:none!important}.fn-hide-music .music{display:none!important}.fn-hide-wishes .end{display:none!important}</style>` : '';
+      return html.replace('</head>', `<style>${liveCSS(v, n1, n2)}${fnIntroCSS(intro)}</style>${sectionCSS}</head>`);
     };
   }
 
@@ -158,6 +236,87 @@ ${noteLines.map((s, i) => t1(s, 252, 556 + dateLines.length * 22 + 34 + venueLin
   if (!inBrowser) return;
   const css = `.fn-block{margin:18px 0 6px;padding:14px 0;border-top:1px solid #b49b6744}.fn-block h3{margin:0 0 4px;font:26px AtelierSerif,Georgia,serif;color:#f5e6c9}.fn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:12px}.fn-tile{background:#17222a;border:1px solid #35434c;border-radius:8px;overflow:hidden}.fn-tile.selected{outline:2px solid #d3b47a}.fn-thumb{cursor:pointer;aspect-ratio:5/7;overflow:hidden}.fn-thumb svg{display:block;width:100%;height:100%}.fn-tile footer{padding:9px}.fn-tile strong{display:block;font:15px AtelierSerif,Georgia,serif;line-height:1.2}.fn-tile small{display:block;font-size:10px;color:#9dabb7;margin:3px 0 8px}.fn-actions{display:flex;gap:5px}.fn-actions button{flex:1;font-size:11px;padding:8px 3px}`;
   const select = document.getElementById('live-preset');
+  const FN_EDITOR_FIELDS = ['fnBismillah','fnParent1','fnParent2','fnInvite','fnDay','fnMonth','fnYear','fnTime','fnRsvp','fnButton','fnWishes'];
+  const fnEditorDefaults = {
+    fnBismillah: FN_DEFAULTS.bismillah, fnParent1: FN_DEFAULTS.parent1, fnParent2: FN_DEFAULTS.parent2,
+    fnInvite: FN_DEFAULTS.invite, fnDay: '22', fnMonth: 'November', fnYear: '2026', fnTime: FN_DEFAULTS.time,
+    fnRsvp: FN_DEFAULTS.rsvp, fnButton: FN_DEFAULTS.button, fnWishes: FN_DEFAULTS.wishes
+  };
+  function fnFieldsVisible() {
+    const id = select?.value || document.getElementById('design-title')?.dataset.template || '';
+    return isFN(id);
+  }
+  function ensureLiveFathimaFields() {
+    if (!select || document.getElementById('fn-live-fields')) return;
+    const box = document.createElement('section');
+    box.id = 'fn-live-fields';
+    box.className = 'panel fn-live-fields';
+    box.innerHTML = `<h2>Fathima Nizar · Editable invitation layers</h2>
+      <p class="help">Every line in the floral arch is independent. Changes appear in the preview immediately; the artwork, flowers and illustrated couple remain responsive.</p>
+      <div class="field-grid">
+        <label class="wide">Arabic Bismillah<input id="fnBismillah" maxlength="180"></label>
+        <label>Bride's parents<input id="fnParent1" maxlength="180"></label>
+        <label>Groom's parents<input id="fnParent2" maxlength="180"></label>
+        <label class="wide">Invitation wording<textarea id="fnInvite" maxlength="500"></textarea></label>
+        <label>Day<input id="fnDay" maxlength="2" inputmode="numeric"></label>
+        <label>Month<input id="fnMonth" maxlength="20"></label>
+        <label>Year<input id="fnYear" maxlength="4" inputmode="numeric"></label>
+        <label>Nikah / event time<input id="fnTime" maxlength="100"></label>
+        <label>RSVP text<input id="fnRsvp" maxlength="140"></label>
+        <label>Button text<input id="fnButton" maxlength="80"></label>
+        <label class="wide">Wishes / footer line<input id="fnWishes" maxlength="180"></label>
+        <label>Intro animation<select id="intro-style"><option value="locket">Luxury locket</option><option value="curtain">White curtains</option><option value="arch">Royal arch</option><option value="floral">Floral reveal</option></select></label>
+        <label>Name size<input id="fn-name-size" type="range" min="24" max="96" value="52"><output id="fn-name-size-value">52px</output></label>
+        <label>Text colour<input id="fn-text-color" type="color" value="#0d2f22"></label>
+        <label>Letter spacing<input id="fn-letter-spacing" type="range" min="0" max="12" step=".1" value="2"><output id="fn-letter-spacing-value">2px</output></label>
+      </div>
+      <fieldset class="fn-sections"><legend>Live sections</legend><label><input id="fn-section-countdown" type="checkbox" checked> Countdown</label><label><input id="fn-section-gallery" type="checkbox" checked> Gallery</label><label><input id="fn-section-schedule" type="checkbox" checked> Events</label><label><input id="fn-section-music" type="checkbox" checked> Music</label><label><input id="fn-section-wishes" type="checkbox" checked> Wishes</label></fieldset>`;
+    select.closest('.panel').after(box);
+    for (const key of FN_EDITOR_FIELDS) {
+      const el = document.getElementById(key);
+      if (el) el.value = fnEditorDefaults[key];
+    }
+    const syncRange = (id, output, suffix) => {
+      const el = document.getElementById(id), out = document.getElementById(output);
+      el?.addEventListener('input', () => { if (out) out.value = `${el.value}${suffix}`; markDirty(); });
+    };
+    syncRange('fn-name-size', 'fn-name-size-value', 'px');
+    syncRange('fn-letter-spacing', 'fn-letter-spacing-value', 'px');
+    box.querySelectorAll('input,textarea,select').forEach(el => el.addEventListener('input', markDirty));
+    box.querySelectorAll('select').forEach(el => el.addEventListener('change', markDirty));
+    box.hidden = true;
+  }
+  function setFathimaFields(data = {}) {
+    ensureLiveFathimaFields();
+    for (const key of FN_EDITOR_FIELDS) {
+      const el = document.getElementById(key);
+      if (el) el.value = data[key] ?? fnEditorDefaults[key];
+    }
+    const intro = document.getElementById('intro-style');
+    if (intro) intro.value = data.introStyle || 'locket';
+    const size = document.getElementById('fn-name-size');
+    if (size) { size.value = data.fnNameSize || 52; document.getElementById('fn-name-size-value').value = `${size.value}px`; }
+    const color = document.getElementById('fn-text-color');
+    if (color) color.value = data.fnTextColor || '#0d2f22';
+    for (const key of ['countdown','gallery','schedule','music','wishes']) {
+      const el = document.getElementById(`fn-section-${key}`);
+      if (el) el.checked = data.fnSections?.[key] !== false;
+    }
+    const box = document.getElementById('fn-live-fields');
+    if (box) box.hidden = !fnFieldsVisible();
+  }
+  root.collectFathimaFields = () => {
+    if (!fnFieldsVisible()) return {};
+    const out = {};
+    for (const key of FN_EDITOR_FIELDS) out[key] = document.getElementById(key)?.value || '';
+    out.fnNameSize = Number(document.getElementById('fn-name-size')?.value || 52);
+    out.fnTextColor = document.getElementById('fn-text-color')?.value || '';
+    out.fnLetterSpacing = Number(document.getElementById('fn-letter-spacing')?.value || 2);
+    out.fnSections = Object.fromEntries(['countdown','gallery','schedule','music','wishes'].map(key => [key, document.getElementById(`fn-section-${key}`)?.checked !== false]));
+    return out;
+  };
+  root.loadFathimaFields = setFathimaFields;
+  if (select) { ensureLiveFathimaFields(); setFathimaFields(); }
   if (select) {
     // Live invitations: add the collection at the top of the list and as its own tile section.
     const group = document.createElement('optgroup');
@@ -192,14 +351,15 @@ ${noteLines.map((s, i) => t1(s, 252, 556 + dateLines.length * 22 + 34 + venueLin
       peek.onclick = () => { const d = collect(); d.template = v.id; d.theme = 'ivory'; d.photos = photos.map(p => p.preview || p.value); dialog.querySelector('iframe').srcdoc = invitationDocument(d); dialog.showModal(); };
       const use = document.createElement('button');
       use.type = 'button'; use.className = 'primary'; use.textContent = 'Use design';
-      use.onclick = () => { select.value = v.id; document.getElementById('theme').value = 'ivory'; markDirty(); mark(); };
+      use.onclick = () => { select.value = v.id; document.getElementById('theme').value = 'ivory'; setFathimaFields(); markDirty(); mark(); };
       thumb.onclick = peek.onclick;
       actions.append(peek, use); footer.append(actions); tile.append(thumb, footer);
       block.querySelector('.fn-grid').append(tile);
       tiles.push([v.id, tile]);
     }
-    select.addEventListener('change', mark);
+    select.addEventListener('change', () => { mark(); setFathimaFields(); });
     mark();
+    setFathimaFields();
     preview();
   }
 
