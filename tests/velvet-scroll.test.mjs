@@ -1,0 +1,58 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import fs from 'node:fs';
+import {validate} from '../lib/validate.js';
+function renderer(){const c=vm.createContext({location:{origin:'https://studio.example'},Studio:{escape:s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))},URL,console});
+ for(const f of ['live-presets','invitation-renderer','floral-cards','card-renderer','atelier','atelier-experience','royal-curtain','velvet-scroll']){const p='public/'+f+'.js';if(fs.existsSync(p))vm.runInContext(fs.readFileSync(p,'utf8'),c)}return c}
+const render=(c,d)=>{c.data=d;return vm.runInContext('invitationDocument(data)',c)};
+const base={template:'heavy-luxury',name1:'Hashir Ali Khan',name2:'Yusra Usman',date:'2026-12-25T21:00+03:00',venue:'Grand Hall',address:'Salmiya, Kuwait',family:'MR. & MRS. YASIR ALI KHAN',mapUrl:'https://maps.google.com/?q=Kuwait',rsvpUrl:'https://wa.me/96500000000',photos:['/media/a','/media/b'],music:'/media/song',animation:true,musicAutoplay:true,schedule:[{title:'Nikah',time:'9:00 PM',detail:'Ceremony'}]};
+
+test('validator keeps the new Velvet fields and limits their length',()=>{
+ const d=validate({verse:'v',verseArabic:'ا',blessing:'b',blessingArabic:'ب',rsvpText:'r',monogram:'ABCDE'});
+ assert.equal(d.verse,'v');assert.equal(d.monogram,'ABC');assert.equal(validate({}).blessing,'');
+});
+test('guest document has envelope, all pages, scratch date, countdown and music',()=>{
+ const html=render(renderer(),base);
+ for(const k of ['id="vn-cover"','id="vn-open"','id="vn-letter"','id="vn-p1"','id="vn-datepage"','id="vn-final"','id="vn-last"','id="vn-scratch"','id="vn-reveal"','id="vn-count"','id="music"','vn-gallery','Moments of the day','GET DIRECTIONS','RSVP ↗','prefers-reduced-motion'])assert.ok(html.includes(k),k);
+ assert.ok(html.includes('Dawat-e-Nikah'));assert.ok(html.includes('And we created you in pairs'));
+ assert.ok(!html.includes('mubiey-direct'));
+});
+test('date, weekday, time and calendar grid are computed correctly',()=>{
+ const html=render(renderer(),base);
+ assert.ok(html.includes('DECEMBER'));assert.ok(html.includes('FRI'));assert.ok(html.includes('9:00 PM'));assert.ok(html.includes('2026'));
+ assert.equal((html.match(/class="vn-day/g)||[]).length,31);assert.equal((html.match(/vn-day vn-target">25</g)||[]).length,1);
+ assert.ok(html.includes('<div class="vn-grid"><span></span><span></span><span class="vn-day">1<'));  // 1 Dec 2026 is a Tuesday
+ assert.ok(render(renderer(),{...base,date:''}).includes('Date to be announced'));
+});
+test('owner texts are used, defaults fill gaps, input is escaped',()=>{
+ const c=renderer();
+ const html=render(c,{...base,verse:'Custom line',monogram:'HY',blessing:'Custom dua',rsvpText:'Please reply',name1:'<script>alert(1)</script>',family:'<img src=x onerror=1>'});
+ assert.ok(html.includes('Custom line'));assert.ok(html.includes('>HY<'));assert.ok(html.includes('Custom dua'));assert.ok(html.includes('Please reply'));
+ assert.ok(!html.includes('<script>alert'));assert.ok(!html.includes('<img src=x'));
+ assert.ok(render(c,{...base,rsvpUrl:'javascript:alert(1)'}).includes('RSVP ↗')===false);
+});
+test('envelope is skipped for editor preview, animation off and direct opening; music OFF respected',()=>{
+ const c=renderer();
+ for(const o of [{_editorPreview:true},{animation:false},{openingStyle:'none'}])assert.ok(!render(c,{...base,...o}).includes('id="vn-cover"'));
+ assert.ok(render(c,{...base,_editorPreview:true}).includes('mubiey-direct-text'));
+ assert.ok(!render(c,{...base,musicAutoplay:false}).includes('startMusic();cover'));
+ assert.ok(render(c,{...base}).includes('startMusic();cover.classList.add'));
+});
+test('Heavy Luxury details page: parents, time range, compliments, directions; page order',()=>{
+ const c=renderer();
+ const html=render(c,{...base,parents1:'S/O Mr. & Mrs. Khan',parents2:'D/O Mr. & Mrs. Usman',timeText:'7 p.m. to 10 p.m.',compliments:'With best compliments from the Khan family'});
+ for(const k of ['S/O Mr. &amp; Mrs. Khan','D/O Mr. &amp; Mrs. Usman','7 p.m. to 10 p.m.','With best compliments from the Khan family','GET DIRECTIONS'])assert.ok(html.includes(k),k);
+ const order=['id="vn-p1"','id="vn-datepage"','id="vn-gallery-page"','id="vn-final"','id="vn-last"'].map(k=>html.indexOf(k));
+ assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])),'page order '+order);
+ assert.ok(render(c,base).includes('With best compliments from our family'));
+ assert.ok(render(c,{...base,template:'velvet-nikah-scroll'}).includes('id="vn-cover"'));
+});
+test('other templates are untouched',()=>{
+ const c=renderer();const html=render(c,{name1:'A',name2:'B',template:'premium-0-0'});
+ assert.ok(!html.includes('vn-cover'));assert.ok(html.includes('id="countdown"'));
+});
+test('generated inline scripts are valid JavaScript',()=>{
+ const html=render(renderer(),base);const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);assert.ok(scripts.length>=1);
+ for(const s of scripts)new vm.Script(s);
+});
