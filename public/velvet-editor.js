@@ -26,8 +26,8 @@ add('timeText','Time shown (e.g. 7 p.m. to 10 p.m.)','input','Leave empty to sho
 add('compliments','Bottom line (with best compliments from…)','input','With best compliments from our family');
 add('verseArabic','Page 1 · Arabic line','input','Leave empty for the default',true);
 add('verse','Page 1 · English line','input','And we created you in pairs');
-add('blessingArabic','Page 2 · Arabic blessing','area','Leave empty for the default dua',true);
-add('blessing','Page 2 · English blessing','area','May Allah bless you both…');
+add('blessingArabic','Last page · Arabic blessing (type or paste any dua)','area','Leave empty for the default dua',true);
+add('blessing','Last page · English blessing','area','May Allah bless you both…');
 add('rsvpText','Final page · RSVP wording','area','R.S.V.P\nAll family members, relatives and friends');
 
 const holder=document.createElement('div');holder.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-top:10px';

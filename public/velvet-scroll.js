@@ -194,26 +194,102 @@ const dustMarkup=n=>`<div class="vn-dust" aria-hidden="true">${Array.from({lengt
 const sparkMarkup=`<div aria-hidden="true">${Array.from({length:18},(_,i)=>{const a=i/18*Math.PI*2,r=110+(i%4)*45;return `<i class="vn-spark" style="--x:${Math.round(Math.cos(a)*r)}px;--y:${Math.round(Math.sin(a)*r)}px"></i>`}).join('')}</div>`;
 const miniSparks=`<div class="vn-sparks" aria-hidden="true">${Array.from({length:16},(_,i)=>{const a=i/16*Math.PI*2,r=60+(i%3)*28;return `<i style="--x:${Math.round(Math.cos(a)*r*1.6)}px;--y:${Math.round(Math.sin(a)*r)}px"></i>`}).join('')}</div>`;
 const showerMarkup=`<div class="vn-shower" id="vn-shower" aria-hidden="true">${Array.from({length:26},(_,i)=>`<i style="--x:${(i*37+5)%100}%;--w:${9+(i%4)*3}px;--d:${(.1+(i%9)*.3).toFixed(2)}s;--t:${(3.6+(i%5)*.5).toFixed(2)}s;--r:${(i*47)%360}deg;--dx:${((i%7)-3)*22}px"></i>`).join('')}</div>`;
+
+/* ===== 777: artwork pages (the four supplied background images) ===== */
+const ART=((typeof location!=='undefined'&&location.origin)?location.origin:'')+'/assets/777/';
+const A7CSS=`
+.a7p{padding:0;min-height:100svh;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;overflow:hidden;background:#1f060d}
+.a7{--w:max(min(100vw,560px),calc(100svh*var(--r)));position:relative;width:var(--w);container-type:inline-size;flex:none}
+.a7>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;transition:transform 1.8s cubic-bezier(.2,.7,.2,1),filter 1.4s ease}
+.vn-page:not(.in) .a7>img{transform:scale(1.07);filter:brightness(.65)}
+.t7{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.2cqw;color:#5a1020}
+.t7.fill{justify-content:space-between}
+@media(min-width:620px){.a7{-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}}
+.t7>*{opacity:0}.vn-page.in .t7>*{opacity:1;animation:vn-up .9s both}
+.t7>:nth-child(1){animation-delay:.15s!important}.t7>:nth-child(2){animation-delay:.3s!important}.t7>:nth-child(3){animation-delay:.45s!important}.t7>:nth-child(4){animation-delay:.6s!important}.t7>:nth-child(5){animation-delay:.75s!important}.t7>:nth-child(n+6){animation-delay:.9s!important}
+.vn-page.in .a7-title,.vn-page.in .a7-nm,.vn-page.in .a7-mono,.vn-page.in .a7-amp{animation:vn-up .9s both,vn-write 1.9s both}
+.vn-page.instant .t7>*{animation:none!important;opacity:1}.vn-page.instant .a7>img{transition:none!important}
+.a7-ar{font:400 6.4cqw/1.7 AtelierAmiri,Amiri,'Traditional Arabic',serif;color:#7a1426;margin:0}.a7-ar.big{font-size:8cqw}
+.a7-en{font:italic 3cqw/1.5 AtelierSerif,Georgia,serif;color:#6b3a3a;margin:0}.a7-en.big{font-size:3.4cqw}
+.a7-orn{width:22cqw;height:1px;background:linear-gradient(90deg,transparent,#b0864a,transparent);position:relative;margin:1cqw 0;flex:none}
+.a7-orn:after{content:'◆';position:absolute;left:calc(50% - 1.2cqw);top:-1.5cqw;width:2.4cqw;font-size:2.2cqw;line-height:1;text-align:center;color:#b0864a}
+.a7-title{font:400 6.8cqw/1.1 AtelierAllura,AtelierParisienne,'Brush Script MT',cursive;color:#3f1620}
+.a7-mono{font:400 15cqw/1 AtelierAllura,AtelierParisienne,'Brush Script MT',cursive;color:#7a1426}
+.a7-cap{font:600 2.1cqw/1.6 Arial,sans-serif;letter-spacing:.5cqw;text-transform:uppercase;color:#4a1722;margin:0}
+.a7-it{font:italic 2.7cqw/1.5 AtelierSerif,Georgia,serif;color:#5a2a2e;margin:0;text-wrap:balance}
+.a7-nm{font:400 7.6cqw/1.05 AtelierAllura,AtelierParisienne,'Brush Script MT',cursive;color:#7a1426;overflow-wrap:anywhere}
+.a7-amp{font:400 5.2cqw/1 AtelierAllura,AtelierParisienne,cursive;color:#7a1426}
+.a7-p{font:600 max(8.5px,2cqw)/1.45 Arial,sans-serif;letter-spacing:.2cqw;text-transform:uppercase;color:#4a1722;margin:0}.a7-p.b{font-weight:700}
+.a7-top,.a7-mid,.a7-bot{display:flex;flex-direction:column;align-items:center;gap:.9cqw;width:100%}
+.vn-scratchbox.a7s{width:100%;aspect-ratio:2.5/1;margin:0}
+.d7{display:flex;flex-direction:column;align-items:center;gap:.3cqw;color:#4a1722}.d7 i{font:600 1.9cqw Arial,sans-serif;letter-spacing:.5cqw;font-style:normal}.d7 b{font:700 2.4cqw Arial,sans-serif;letter-spacing:.6cqw}
+.d7r{display:flex;align-items:center;gap:1.4cqw;border-top:1px solid #8a1a2e66;border-bottom:1px solid #8a1a2e66;padding:.6cqw 1.6cqw}.d7r span{font:600 2cqw Arial,sans-serif;letter-spacing:.35cqw;text-transform:uppercase}.d7r em{font:400 5.6cqw/1 Georgia,serif;font-style:normal;color:#8a1428}
+.vn-skip.a7k{min-height:max(30px,4.2cqw);font-size:max(10px,1.8cqw);margin-top:0;white-space:nowrap}
+.a7-btns{display:flex;gap:1.2cqw;justify-content:center;flex-wrap:nowrap}
+.a7-link{display:inline-flex;align-items:center;min-height:max(36px,4.4cqw);padding:0 2.2cqw;border-radius:6cqw;background:linear-gradient(135deg,#8a1428,#5a0c1a);color:#f7e6c2;font:700 max(9px,1.75cqw) Arial,sans-serif;letter-spacing:.3cqw;text-decoration:none;white-space:nowrap}
+.a7-comp{font:italic max(10px,2.5cqw)/1.35 AtelierSerif,Georgia,serif;color:#6b3a3a;margin:0;border-top:1px solid #8a1a2e44;padding-top:1cqw;width:90%}
+.a7-ev{width:100%;border-top:1px solid #b0864a66;padding:1.4cqw 0}.a7-ev h3{font:400 5.2cqw/1.1 AtelierAllura,cursive;color:#7a1426;margin:0}.a7-ev p{margin:.3cqw 0;font:2.7cqw/1.4 Georgia,serif;color:#4a1722;white-space:pre-wrap}
+/* cover */
+.a7c{background:#1f060d}.a7w{position:absolute;inset:0;overflow:hidden}.a7wi{min-height:100svh;display:grid;grid-template-columns:minmax(0,1fr);place-items:center}
+.a7-cov>img{transition:transform 1.8s cubic-bezier(.5,0,.2,1),filter 1.8s ease;transform-origin:50% 56%}
+.a7-flare{position:absolute;left:50%;top:64%;width:12cqw;aspect-ratio:1;margin:-6cqw 0 0 -6cqw;border-radius:50%;background:radial-gradient(circle,#fff8d8,#f0c860 38%,transparent 68%);mix-blend-mode:screen;opacity:0;transform:scale(.4);pointer-events:none}
+.a7-monob{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);z-index:2;background:none;border:0;padding:3cqw 6cqw;cursor:pointer;font:400 15cqw/1 AtelierAllura,AtelierParisienne,'Brush Script MT',cursive;color:#f6e8c8;text-shadow:0 2px 12px #000c,0 0 18px #e9c98788;animation:a7-glow 2.6s ease-in-out infinite;transition:transform 1s ease,opacity .9s ease}
+.a7-monob{-webkit-tap-highlight-color:transparent}.a7-monob:focus{outline:none}.a7-monob:focus-visible{outline:2px solid #f3dca1;outline-offset:2px;border-radius:14px}
+@keyframes a7-glow{50%{text-shadow:0 2px 12px #000c,0 0 34px #ffe9a8,0 0 60px #e9c98788}}
+.a7-tap{position:absolute;left:0;right:0;top:79.5%;text-align:center;font:600 max(9px,1.8cqw) Arial,sans-serif;letter-spacing:.7cqw;color:#f1dcae;text-transform:uppercase;text-shadow:0 2px 8px #000;transition:opacity .5s}
+.a7-cov .vn-spark{top:64%}
+.vn-cover.opening .a7-cov>img{transform:scale(1.34);filter:brightness(1.25) saturate(1.1)}
+.vn-cover.opening .a7-flare{animation:a7-flare 1.7s .15s ease-out forwards}
+@keyframes a7-flare{0%{opacity:0;transform:scale(.4)}30%{opacity:.9}100%{opacity:0;transform:scale(4.2)}}
+.vn-cover.opening .a7-monob{animation:none;opacity:0;transform:translate(-50%,-50%) scale(1.3);pointer-events:none}.vn-cover.opening .a7-tap{opacity:0}
+.a7wb{clip-path:inset(100% 0 0 0)}.a7wb .a7>img{transform:translateY(7%) scale(1.04);transition:none}
+.vn-cover.emerge .a7wb{animation:a7-emerge 2.2s cubic-bezier(.22,.7,.2,1) forwards}.vn-cover.emerge .a7wb .a7>img{transition:transform 2.4s cubic-bezier(.22,.7,.2,1);transform:none}
+@keyframes a7-emerge{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
+.vn-cover.emerge .a7wa{opacity:0;transition:opacity 1.3s ease .2s}
+.a7wb .t7>*{opacity:0}.vn-cover.emerge .a7wb .t7>*{animation:vn-up .9s both}
+.vn-cover.emerge .a7wb .t7>:nth-child(1){animation-delay:1.8s}.vn-cover.emerge .a7wb .t7>:nth-child(2){animation-delay:1.95s}.vn-cover.emerge .a7wb .t7>:nth-child(3){animation-delay:2.1s}.vn-cover.emerge .a7wb .t7>:nth-child(4){animation-delay:2.25s}.vn-cover.emerge .a7wb .t7>:nth-child(5){animation-delay:2.4s}.vn-cover.emerge .a7wb .t7>:nth-child(n+6){animation-delay:2.55s}
+@media(prefers-reduced-motion:reduce){.a7>img,.a7-cov>img,.a7wb .a7>img{transition:none!important}.vn-page:not(.in) .a7>img{transform:none;filter:none}.a7-monob{animation:none}.t7>*{opacity:1!important;animation:none!important}}
+`;
+function artPages(data,p){
+ const e2=e,n1=data.name1||'Name one',n2=data.name2||'Name two';
+ const mono=((typeof data.monogram==='string'&&data.monogram.trim())||((n1[0]||'')+(n2[0]||''))).slice(0,3);
+ const verseAr=pick(data.verseArabic,'verseArabic'),verse=pick(data.verse,'verse'),blAr=pick(data.blessingArabic,'blessingArabic'),bl=pick(data.blessing,'blessing');
+ const heading=pick(data.heading==='Together with our families'?'':data.heading,'heading');
+ const wording=pick(data.message&&!/^With joy in our hearts/.test(data.message)?data.message:'','message');
+ const map=mapLink(data.mapUrl||''),rsvp=httpsLink(data.rsvpUrl||'');
+ const timeShown=(typeof data.timeText==='string'&&data.timeText.trim())||(p?p.time:'');
+ const sched=(data.schedule||[]).filter(s=>s.title);
+ const photos=(data.photos||[]).filter(s=>typeof s==='string'&&/^data:image\/(jpeg|png|webp);base64,|^\/media\//.test(s));
+ const art=(file,w,h,box,inner,attrs,cls)=>`<section class="vn-page a7p"${attrs||''}><div class="a7" style="--r:${(w/h).toFixed(4)};aspect-ratio:${w}/${h}"><img src="${ART}${file}" alt="" decoding="async"><div class="t7${cls?' '+cls:''}" style="left:${box[0]}%;top:${box[1]}%;width:${box[2]}%;height:${box[3]}%">${inner}</div></div></section>`;
+ const par=(v,f)=>(typeof v==='string'&&v.trim())?`<p class="a7-p" data-edit="${f}" style="font-weight:400">${lines(v.trim())}</p>`:'';
+ const pages=[];
+ /* 1 · the card that comes out of the envelope */
+ pages.push(art('card.jpg',832,1288,[25,24,50,37],`<div class="a7-ar" data-edit="verseArabic" dir="rtl" lang="ar">${e(verseAr)}</div><p class="a7-en" data-edit="verse">${lines(verse)}</p><div class="a7-orn"></div><div class="a7-title" data-edit="heading">${e(heading)}</div><div class="a7-mono" data-edit="monogram">${e(mono)}</div><p class="a7-cap">${e(n1)} &amp; ${e(n2)}</p>`,' id="vn-p1"'));
+ /* 2 · details, directions, SCRATCH the date */
+ const dateInner=p?`<div class="d7"><i>ON</i><b>${MONTHS[p.mo-1]}</b><div class="d7r"><span>${DAYS[p.wd]}</span><em>${p.d}</em><span>${e(timeShown)}</span></div><b>${p.y}</b></div>`:'<div class="d7"><b>DATE TO BE ANNOUNCED</b></div>';
+ const host=(data.family||'').trim()?`<p class="a7-p" data-edit="family">${lines(data.family.trim())}</p>`:'';
+ pages.push(art('details.jpg',784,1334,[23,22,54,53],`<div class="a7-top">${host}<p class="a7-it" data-edit="message">${lines(wording)}</p><div class="a7-nm" data-edit="name1">${e(n1)}</div>${par(data.parents1,'parents1')}<div class="a7-amp">&amp;</div><div class="a7-nm" data-edit="name2">${e(n2)}</div>${par(data.parents2,'parents2')}</div><div class="a7-mid"><div class="vn-scratchbox a7s" id="vn-scratchbox"><div class="vn-secret" data-edit="event-date">${dateInner}</div><canvas id="vn-scratch" aria-label="Scratch to reveal the wedding date"></canvas>${miniSparks}</div><button type="button" class="vn-skip a7k" id="vn-reveal">Or tap here to reveal</button></div><div class="a7-bot"><p class="a7-p b" data-edit="venue">VENUE: ${e(data.venue||'To be announced')}</p>${data.address?`<p class="a7-p" data-edit="address" style="font-weight:400">${lines(data.address)}</p>`:''}<div class="a7-btns">${map?`<a class="a7-link" href="${e(map)}" target="_blank" rel="noopener noreferrer">GET DIRECTIONS ↗</a>`:''}${rsvp?`<a class="a7-link" href="${e(rsvp)}" target="_blank" rel="noopener noreferrer">RSVP ↗</a>`:''}</div><p class="a7-comp" data-edit="compliments">${lines(pick(data.compliments,'compliments'))}</p></div>`,' id="vn-final"','fill'));
+ if(sched.length)pages.push(art('blessing.jpg',816,1306,[24,20,52,58],`<div class="a7-title">Moments of the day</div><div class="a7-orn"></div><div style="width:100%" data-edit="schedule">${sched.map(s=>`<article class="a7-ev"><h3>${e(s.title)}</h3><p>${e(s.time)}</p><p>${e(s.detail)}</p></article>`).join('')}</div>`));
+ if(photos.length)pages.push(`<section class="vn-page" id="vn-gallery-page"><div class="vn-gallery" data-edit="photos"><h2>${e(data.galleryTitle||'Our favourite memories')}</h2>${photos.map((s,i)=>`<img src="${e(s)}" alt="Wedding memory ${i+1}" loading="lazy">`).join('')}</div></section>`);
+ /* 3 · last page: Arabic + English blessing */
+ pages.push(art('blessing.jpg',816,1306,[24,20,52,58],`<div class="a7-ar big" data-edit="blessingArabic" dir="rtl" lang="ar">${e(blAr)}</div><div class="a7-orn"></div><p class="a7-en big" data-edit="blessing">“${lines(bl)}”</p><p class="a7-cap" data-edit="rsvpText" style="margin-top:5cqw;font-weight:400">${lines(pick(data.rsvpText,'rsvpText'))}</p>`,' id="vn-last"'));
+ return pages.join('');
+}
+function artCover(data,mono){
+ return `<div class="vn-cover a7c" id="vn-cover" role="dialog" aria-modal="true" aria-label="Open the invitation"><div class="a7w a7wa"><div class="a7wi"><div class="a7 a7-cov" style="--r:.6102;aspect-ratio:800/1311"><img src="${ART}cover.jpg" alt=""><div class="a7-flare"></div><button type="button" class="a7-monob" id="vn-open" aria-label="Open the invitation">${e(mono)}</button><p class="a7-tap">Tap the monogram to open</p>${sparkMarkup}</div></div></div>${dustMarkup(16)}</div>`;
+}
+
 function velvetDocument(data){
  const p=parseDate(data.date);
- const {pages,card1}=pageCards(data,p,data.template===T777);
+ const is777=data.template===T777;
+ const {pages,card1}=is777?{pages:artPages(data,p),card1:''}:pageCards(data,p,false);
  const n1=data.name1||'Name one',n2=data.name2||'Name two';
  const mono=((typeof data.monogram==='string'&&data.monogram.trim())||((n1[0]||'')+(n2[0]||''))).slice(0,3);
  const music=typeof data.music==='string'&&/^data:audio\/[\w.+-]+;base64,|^\/media\//.test(data.music)?data.music:null;
  const cover=!data._editorPreview&&data.animation!==false&&data.openingStyle!=='none';
  const target=JSON.stringify(data.date||'').replace(/</g,'\\u003c');
  const autoplay=data.musicAutoplay!==false;
- const coverHTML=cover?`<div class="vn-cover" id="vn-cover" role="dialog" aria-modal="true" aria-label="Open the invitation">${roses}<div class="vn-castle-bg" aria-hidden="true"></div><div class="vn-bow-big" aria-hidden="true"></div><div class="vn-pearls" aria-hidden="true"></div><div class="vn-env" id="vn-env"><div class="vn-aura"></div><div class="vn-env-back"></div><div class="vn-card vn-letter" id="vn-letter" style="transform:translate(0,0) scale(.6)"></div><div class="vn-env-front"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 50L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 44L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel" style="top:calc(50% - 3%)"></div></div><div class="vn-flap"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 100L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 92L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel"></div></div><button type="button" class="vn-seal" id="vn-open" aria-label="Open the invitation">${e(mono)}</button></div><p class="vn-tap">Tap the seal to open</p>${sparkMarkup}${dustMarkup(16)}</div>`:'';
- const script=`<script>(()=>{
-const html=document.documentElement,pagesEls=[...document.querySelectorAll('.vn-page')];
-const audio=document.getElementById('music'),mb=document.getElementById('music-button');
-function startMusic(){if(!audio)return;audio.play().then(()=>{if(mb)mb.textContent='Ⅱ Pause music'}).catch(()=>{if(mb)mb.textContent='♫ Tap to play music'})}
-if(mb)mb.onclick=()=>{if(audio.paused)startMusic();else{audio.pause();mb.textContent='♫ Play music'}};
-const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const cover=document.getElementById('vn-cover');
-function watch(){const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.3}):null;pagesEls.forEach(pg=>io?io.observe(pg):pg.classList.add('in'))}
-const page1=document.getElementById('vn-p1');
-if(cover){
+ const OPENENV=`if(cover){
  html.classList.add('vn-lock');page1.classList.add('in','instant');const mainEl=document.querySelector('main');mainEl.inert=true;
  const env=document.getElementById('vn-env'),letter=document.getElementById('vn-letter'),btn=document.getElementById('vn-open'),card1=document.getElementById('vn-card1');
  letter.innerHTML=card1.innerHTML;
@@ -225,7 +301,27 @@ if(cover){
   setTimeout(()=>{letter.style.transform='translate(0,'+(-eh*.62)+'px) scale(.6)'},850);
   setTimeout(()=>{cover.classList.add('reveal');letter.classList.add('top');const c=card1.getBoundingClientRect(),dx=c.left+c.width/2-cx0,dy=c.top+c.height/2-cy0,s=c.width/wb;letter.style.transition='transform 1.3s cubic-bezier(.5,0,.15,1)';letter.style.transform='translate('+dx+'px,'+dy+'px) scale('+s+')'},2100);
   setTimeout(finish,3600)};
-}else watch();
+}else watch();`;
+ const OPEN777=`if(cover){
+ html.classList.add('vn-lock');page1.classList.add('in','instant');const mainEl=document.querySelector('main');mainEl.inert=true;
+ const btn=document.getElementById('vn-open'),src=page1.querySelector('.a7');btn.addEventListener('keydown',()=>{});
+ const wb=document.createElement('div');wb.className='a7w a7wb';const wi=document.createElement('div');wi.className='a7wi';wi.append(src.cloneNode(true));wb.append(wi);cover.insertBefore(wb,cover.querySelector('.vn-dust'));
+ const finish=()=>{const sh=document.getElementById('vn-shower');if(sh&&!reduce){sh.classList.add('go');setTimeout(()=>sh.remove(),9000)}cover.classList.add('gone');html.classList.remove('vn-lock');mainEl.inert=false;watch();window.scrollTo(0,0)};
+ btn.onclick=()=>{if(cover.classList.contains('opening'))return;${autoplay?'startMusic();':''}cover.classList.add('opening');
+  if(reduce){finish();return}
+  setTimeout(()=>cover.classList.add('emerge'),1300);setTimeout(finish,5000)};
+}else watch();`;
+ const coverHTML=cover?(is777?artCover(data,mono):`<div class="vn-cover" id="vn-cover" role="dialog" aria-modal="true" aria-label="Open the invitation">${roses}<div class="vn-castle-bg" aria-hidden="true"></div><div class="vn-bow-big" aria-hidden="true"></div><div class="vn-pearls" aria-hidden="true"></div><div class="vn-env" id="vn-env"><div class="vn-aura"></div><div class="vn-env-back"></div><div class="vn-card vn-letter" id="vn-letter" style="transform:translate(0,0) scale(.6)"></div><div class="vn-env-front"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 50L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 44L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel" style="top:calc(50% - 3%)"></div></div><div class="vn-flap"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 100L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 92L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel"></div></div><button type="button" class="vn-seal" id="vn-open" aria-label="Open the invitation">${e(mono)}</button></div><p class="vn-tap">Tap the seal to open</p>${sparkMarkup}${dustMarkup(16)}</div>`):'';
+ const script=`<script>(()=>{
+const html=document.documentElement,pagesEls=[...document.querySelectorAll('.vn-page')];
+const audio=document.getElementById('music'),mb=document.getElementById('music-button');
+function startMusic(){if(!audio)return;audio.play().then(()=>{if(mb)mb.textContent='Ⅱ Pause music'}).catch(()=>{if(mb)mb.textContent='♫ Tap to play music'})}
+if(mb)mb.onclick=()=>{if(audio.paused)startMusic();else{audio.pause();mb.textContent='♫ Play music'}};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cover=document.getElementById('vn-cover');
+function watch(){const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.3}):null;pagesEls.forEach(pg=>io?io.observe(pg):pg.classList.add('in'))}
+const page1=document.getElementById('vn-p1');
+${is777?OPEN777:OPENENV}
 /* scroll progress + gentle parallax */
 const bar=document.getElementById('vn-progress');let ticking=false;
 function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(()=>{ticking=false;const y=window.scrollY,h=document.documentElement.scrollHeight-innerHeight;if(bar)bar.style.transform='scaleX('+(h>0?Math.min(1,y/h):0)+')';if(!reduce)html.style.setProperty('--sy',y)})}
@@ -236,7 +332,7 @@ const target=Date.parse(${target});function tick(){const box=document.getElement
 const dp=document.getElementById('vn-datepage')||document.getElementById('vn-final'),box=document.getElementById('vn-scratchbox'),cv=document.getElementById('vn-scratch'),skip=document.getElementById('vn-reveal');
 let revealed=false;function reveal(){if(revealed)return;revealed=true;dp.classList.add('revealed');if(cv){cv.style.opacity='0';cv.style.pointerEvents='none'}if(skip)skip.style.display='none'}
 if(skip)skip.onclick=reveal;
-if(cv&&cv.getContext&&box){const ctx=cv.getContext('2d'),dpr=Math.min(window.devicePixelRatio||1,2);let drawing=false,last=null,moves=0;
+if(cv&&cv.getContext&&box){const ctx=cv.getContext('2d',{willReadFrequently:true}),dpr=Math.min(window.devicePixelRatio||1,2);let drawing=false,last=null,moves=0;
  const W=Math.max(2,Math.round(box.clientWidth*dpr)),H=Math.max(2,Math.round(box.clientHeight*dpr));cv.width=W;cv.height=H;
  const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#b8862d');g.addColorStop(.35,'#f3dca1');g.addColorStop(.55,'#c9a050');g.addColorStop(.8,'#f6e3ac');g.addColorStop(1,'#a8782a');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
  ctx.strokeStyle='#ffffff40';ctx.lineWidth=1*dpr;for(let x=-H;x<W;x+=14*dpr){ctx.beginPath();ctx.moveTo(x,H);ctx.lineTo(x+H,0);ctx.stroke()}
@@ -252,7 +348,7 @@ if(cv&&cv.getContext&&box){const ctx=cv.getContext('2d'),dpr=Math.min(window.dev
 document.querySelectorAll('.vn-gallery img').forEach(img=>{img.tabIndex=0;img.setAttribute('role','button');const open=()=>{const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:90;background:#000e;display:grid;place-items:center;cursor:zoom-out';const i=new Image();i.src=img.src;i.alt=img.alt;i.style.cssText='max-width:96vw;max-height:94vh;object-fit:contain';o.append(i);o.onclick=()=>o.remove();document.body.append(o)};img.onclick=open;img.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}}});
 ${data._editorPreview?`const known={name1:1,name2:1,heading:1,venue:1,address:1,message:1,schedule:1};document.querySelectorAll('[data-edit]').forEach(n=>{const f=n.getAttribute('data-edit');n.style.cursor='pointer';n.addEventListener('click',ev=>{if(f==='photos')return;ev.stopPropagation();parent.postMessage({type:known[f]?'mubiey-direct-text':'mubiey-edit',field:f},'*')})});`:''}
 })();<\/script>`;
- return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${e(n1)} &amp; ${e(n2)} — Wedding invitation</title><style>${fontCSS()}${CSS}</style><noscript><style>.vn-cover{display:none}.vn-card{opacity:1;transform:none}html.vn-lock,html.vn-lock body{overflow:auto}</style></noscript></head><body><div class="vn-bg"></div><div class="vn-progress" id="vn-progress"></div>${dustMarkup(20)}${defs}${coverHTML}${cover?showerMarkup:''}<main>${pages}<section class="vn-extra"><div class="vn-count" id="vn-count"><div><b id="vn-d">—</b><small>DAYS</small></div><div><b id="vn-h">—</b><small>HOURS</small></div><div><b id="vn-m">—</b><small>MINUTES</small></div><div><b id="vn-s">—</b><small>SECONDS</small></div></div><p class="vn-end">Made with Mubiey Studio</p></section></main>${music?`<audio id="music" loop preload="none" src="${e(music)}"></audio><button class="vn-music" id="music-button" type="button">♫ Play music</button>`:''}${script}</body></html>`;
+ return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${e(n1)} &amp; ${e(n2)} — Wedding invitation</title><style>${fontCSS()}${CSS}${is777?A7CSS:''}</style><noscript><style>.vn-cover{display:none}.vn-card{opacity:1;transform:none}html.vn-lock,html.vn-lock body{overflow:auto}</style></noscript></head><body><div class="vn-bg"></div><div class="vn-progress" id="vn-progress"></div>${dustMarkup(20)}${defs}${coverHTML}${cover?showerMarkup:''}<main>${pages}<section class="vn-extra"><div class="vn-count" id="vn-count"><div><b id="vn-d">—</b><small>DAYS</small></div><div><b id="vn-h">—</b><small>HOURS</small></div><div><b id="vn-m">—</b><small>MINUTES</small></div><div><b id="vn-s">—</b><small>SECONDS</small></div></div><p class="vn-end">Made with Mubiey Studio</p></section></main>${music?`<audio id="music" loop preload="none" src="${e(music)}"></audio><button class="vn-music" id="music-button" type="button">♫ Play music</button>`:''}${script}</body></html>`;
 }
 
 invitationDocument=function(data){return data&&(data.template===T777||data.template===VELVET||data.template===LEGACY)?velvetDocument(data):baseDocument(data)};

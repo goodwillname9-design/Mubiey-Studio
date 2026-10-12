@@ -54,18 +54,23 @@ test('extra luxury motion is present and respects reduced motion',()=>{
  assert.ok(/prefers-reduced-motion:reduce\)\{\.vn-dust/.test(html));
  const preview=render(renderer(),{...base,_editorPreview:true});assert.ok(!preview.includes('id="vn-shower"'));
 });
-test('777: four-page flow, scratch sits on the details page date, no calendar page',()=>{
+test('777: uses the four artwork images, scratch on the details page date, last-page Arabic blessing',()=>{
  const c=renderer();
- const html=render(c,{...base,template:'777',parents1:'S/O Mr. & Mrs. Kazi',timeText:'7p.m to 10p.m.'});
+ const html=render(c,{...base,template:'777',parents1:'S/O Mr. & Mrs. Kazi',timeText:'7p.m to 10p.m.',blessingArabic:'دعاء مخصص',blessing:'Custom English blessing'});
  assert.ok(html.includes('id="vn-cover"'));assert.ok(!html.includes('id="vn-datepage"'));
- for(const k of ['id="vn-p1"','id="vn-final"','id="vn-last"','id="vn-scratch"','id="vn-reveal"','vn-scratchbox big','vn-page full'])assert.ok(html.includes(k),k);
+ for(const f of ['cover.jpg','card.jpg','details.jpg','blessing.jpg'])assert.ok(html.includes('https://studio.example/assets/777/'+f),f);
+ for(const k of ['id="vn-p1"','id="vn-final"','id="vn-last"','id="vn-scratch"','id="vn-reveal"','a7-monob','OPEN777'.toLowerCase()==='x'?'':'a7-flare'])assert.ok(html.includes(k),k);
  assert.equal((html.match(/id="vn-scratch"/g)||[]).length,1);
- const finalStart=html.indexOf('id="vn-final"'),lastStart=html.indexOf('id="vn-last"'),scratch=html.indexOf('id="vn-scratch"');
- assert.ok(scratch>finalStart&&scratch<lastStart,'scratch inside details page');
+ const f=html.indexOf('id="vn-final"'),l=html.indexOf('id="vn-last"'),sc=html.indexOf('id="vn-scratch"');
+ assert.ok(sc>f&&sc<l,'scratch inside details page');
+ const lastPage=html.slice(l);assert.ok(lastPage.includes('دعاء مخصص')&&lastPage.includes('Custom English blessing'),'blessing on the last page');
  assert.ok(html.includes('7p.m to 10p.m.'));assert.ok(html.includes('GET DIRECTIONS'));
  const order=['id="vn-p1"','id="vn-final"','id="vn-last"'].map(k=>html.indexOf(k));assert.ok(order[0]<order[1]&&order[1]<order[2]);
+ assert.ok(html.includes('a7wb'));assert.ok(html.includes("cover.classList.add('emerge')"));
  assert.ok(render(c,{...base,template:'heavy-luxury'}).includes('id="vn-datepage"'));
  assert.ok(!render(c,{...base,template:'777',_editorPreview:true}).includes('id="vn-cover"'));
+ assert.ok(render(c,{...base,template:'777',_editorPreview:true}).includes('mubiey-direct-text'));
+ const x=render(c,{...base,template:'777',name1:'<script>alert(1)</script>',blessingArabic:'<img src=x onerror=1>'});assert.ok(!x.includes('<script>alert')&&!x.includes('<img src=x'));
 });
 test('other templates are untouched',()=>{
  const c=renderer();const html=render(c,{name1:'A',name2:'B',template:'premium-0-0'});
