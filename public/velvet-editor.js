@@ -3,13 +3,13 @@
 'use strict';
 (()=>{
 const $=s=>document.querySelector(s);
-const VELVET='heavy-luxury';
+const VELVET='heavy-luxury',T777='777';
 const preset=$('#live-preset');
 if(!preset||typeof fields==='undefined'||typeof markDirty!=='function')return;
 const grid=preset.closest('.field-grid');
 if(!grid)return;
 
-const ensureTemplate=()=>{if(![...preset.options].some(o=>o.value===VELVET)){const o=new Option('Heavy Luxury · Envelope scroll story (scratch date)',VELVET);o.dataset.layout='0';preset.add(o)}};
+const ensureTemplate=()=>{for(const [v,label] of [[T777,'777 · Envelope story (scratch the date)'],[VELVET,'Heavy Luxury · Envelope story + save-the-date page']])if(![...preset.options].some(o=>o.value===v)){const o=new Option(label,v);o.dataset.layout='0';preset.add(o)}};
 ensureTemplate();
 new MutationObserver(ensureTemplate).observe(preset,{childList:true});
 
@@ -31,12 +31,12 @@ add('blessing','Page 2 · English blessing','area','May Allah bless you both…'
 add('rsvpText','Final page · RSVP wording','area','R.S.V.P\nAll family members, relatives and friends');
 
 const holder=document.createElement('div');holder.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-top:10px';
-const tryBtn=document.createElement('button');tryBtn.type='button';tryBtn.className='primary';tryBtn.textContent='Try Heavy Luxury';
-tryBtn.onclick=()=>{ensureTemplate();preset.value=VELVET;if($('#animation'))$('#animation').checked=true;if($('#music-autoplay'))$('#music-autoplay').checked=true;markDirty()};
+const tryBtn=document.createElement('button');tryBtn.type='button';tryBtn.className='primary';tryBtn.textContent='Try 777';
+tryBtn.onclick=()=>{ensureTemplate();preset.value=T777;if($('#animation'))$('#animation').checked=true;if($('#music-autoplay'))$('#music-autoplay').checked=true;markDirty()};
 const previewBtn=document.createElement('button');previewBtn.type='button';previewBtn.textContent='Preview envelope opening';
 previewBtn.onclick=async()=>{
  try{
-  const d=collect();d.template=VELVET;d.animation=true;d._editorPreview=false;if(d.openingStyle==='none')d.openingStyle='seal';
+  const d=collect();if(d.template!==T777&&d.template!==VELVET)d.template=T777;d.animation=true;d._editorPreview=false;if(d.openingStyle==='none')d.openingStyle='seal';
   d.photos=photos.map(p=>p.preview||p.value);d.music=music?.preview||music?.value||null;
   if(typeof atelierFontsReady==='function')await atelierFontsReady().catch(()=>{});
   const dialog=document.createElement('dialog');
@@ -47,5 +47,6 @@ previewBtn.onclick=async()=>{
   dialog.append(frame,close);document.body.append(dialog);dialog.showModal();
  }catch{const t=$('#toast');if(t){t.textContent='Could not open the preview. Please try again.';t.classList.add('show')}}
 };
-holder.append(tryBtn,previewBtn);grid.append(holder);
+const tryHL=document.createElement('button');tryHL.type='button';tryHL.textContent='Try Heavy Luxury';tryHL.onclick=()=>{ensureTemplate();preset.value=VELVET;if($('#animation'))$('#animation').checked=true;markDirty()};
+holder.append(tryBtn,tryHL,previewBtn);grid.append(holder);
 })();

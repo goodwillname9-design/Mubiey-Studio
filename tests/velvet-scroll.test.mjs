@@ -54,6 +54,19 @@ test('extra luxury motion is present and respects reduced motion',()=>{
  assert.ok(/prefers-reduced-motion:reduce\)\{\.vn-dust/.test(html));
  const preview=render(renderer(),{...base,_editorPreview:true});assert.ok(!preview.includes('id="vn-shower"'));
 });
+test('777: four-page flow, scratch sits on the details page date, no calendar page',()=>{
+ const c=renderer();
+ const html=render(c,{...base,template:'777',parents1:'S/O Mr. & Mrs. Kazi',timeText:'7p.m to 10p.m.'});
+ assert.ok(html.includes('id="vn-cover"'));assert.ok(!html.includes('id="vn-datepage"'));
+ for(const k of ['id="vn-p1"','id="vn-final"','id="vn-last"','id="vn-scratch"','id="vn-reveal"','vn-scratchbox big','vn-page full'])assert.ok(html.includes(k),k);
+ assert.equal((html.match(/id="vn-scratch"/g)||[]).length,1);
+ const finalStart=html.indexOf('id="vn-final"'),lastStart=html.indexOf('id="vn-last"'),scratch=html.indexOf('id="vn-scratch"');
+ assert.ok(scratch>finalStart&&scratch<lastStart,'scratch inside details page');
+ assert.ok(html.includes('7p.m to 10p.m.'));assert.ok(html.includes('GET DIRECTIONS'));
+ const order=['id="vn-p1"','id="vn-final"','id="vn-last"'].map(k=>html.indexOf(k));assert.ok(order[0]<order[1]&&order[1]<order[2]);
+ assert.ok(render(c,{...base,template:'heavy-luxury'}).includes('id="vn-datepage"'));
+ assert.ok(!render(c,{...base,template:'777',_editorPreview:true}).includes('id="vn-cover"'));
+});
 test('other templates are untouched',()=>{
  const c=renderer();const html=render(c,{name1:'A',name2:'B',template:'premium-0-0'});
  assert.ok(!html.includes('vn-cover'));assert.ok(html.includes('id="countdown"'));
