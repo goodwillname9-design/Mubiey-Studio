@@ -48,6 +48,12 @@ test('Heavy Luxury details page: parents, time range, compliments, directions; p
  assert.ok(render(c,base).includes('With best compliments from our family'));
  assert.ok(render(c,{...base,template:'velvet-nikah-scroll'}).includes('id="vn-cover"'));
 });
+test('extra luxury motion is present and respects reduced motion',()=>{
+ const html=render(renderer(),base);
+ for(const k of ['class="vn-dust"','class="vn-aura"','class="vn-spark"','id="vn-shower"','id="vn-progress"','class="vn-sparks"','vn-shine','@keyframes vn-write','@keyframes vn-burst'])assert.ok(html.includes(k),k);
+ assert.ok(/prefers-reduced-motion:reduce\)\{\.vn-dust/.test(html));
+ const preview=render(renderer(),{...base,_editorPreview:true});assert.ok(!preview.includes('id="vn-shower"'));
+});
 test('other templates are untouched',()=>{
  const c=renderer();const html=render(c,{name1:'A',name2:'B',template:'premium-0-0'});
  assert.ok(!html.includes('vn-cover'));assert.ok(html.includes('id="countdown"'));
