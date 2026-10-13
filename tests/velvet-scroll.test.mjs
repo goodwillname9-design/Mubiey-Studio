@@ -72,6 +72,26 @@ test('777: uses the four artwork images, scratch on the details page date, last-
  assert.ok(render(c,{...base,template:'777',_editorPreview:true}).includes('mubiey-direct-text'));
  const x=render(c,{...base,template:'777',name1:'<script>alert(1)</script>',blessingArabic:'<img src=x onerror=1>'});assert.ok(!x.includes('<script>alert')&&!x.includes('<img src=x'));
 });
+test('111 / 222 / 333 / 444 colourways: own artwork folder, own colours, same story flow',()=>{
+ const c=renderer();
+ const colours={'111':'#0f5a43','222':'#1d3a78','333':'#5a2a7e','444':'#2b2b30'};
+ for(const [id,ink] of Object.entries(colours)){
+  const html=render(c,{...base,template:id});
+  for(const f of ['cover','card','details','blessing'])assert.ok(html.includes(`https://studio.example/assets/${id}/${f}.jpg`),id+' '+f);
+  assert.ok(html.includes('--ink:'+ink),id+' colour');assert.ok(html.includes('id="vn-cover"')&&html.includes('id="vn-scratch"')&&html.includes('id="vn-last"'));
+  assert.ok(!html.includes('/assets/777/'));assert.ok(html.includes('class="a7-tw"'));
+ }
+ assert.ok(render(c,{...base,template:'777'}).includes('--ink:#7a1426'));
+});
+test('Arabic font choice: whitelisted, defaults to Amiri, CSS variable present',()=>{
+ assert.equal(validate({arabicFont:'ruqaa'}).arabicFont,'ruqaa');assert.equal(validate({arabicFont:'evil;}'}).arabicFont,'amiri');assert.equal(validate({}).arabicFont,'amiri');
+ const html=render(renderer(),{...base,template:'777',arabicFont:'ruqaa'});assert.ok(html.includes('--arf:AtelierAmiri'));assert.ok(html.includes('var(--arf)'));
+});
+test('extra motion: twinkles, sheen, sweep and ken-burns respect reduced motion',()=>{
+ const html=render(renderer(),{...base,template:'777'});
+ for(const k of ['@keyframes a7-tw','@keyframes a7-kb','@keyframes a7-sheen','@keyframes a7-sweep'])assert.ok(html.includes(k),k);
+ assert.ok(/prefers-reduced-motion:reduce\)\{\.a7-tw/.test(html));
+});
 test('other templates are untouched',()=>{
  const c=renderer();const html=render(c,{name1:'A',name2:'B',template:'premium-0-0'});
  assert.ok(!html.includes('vn-cover'));assert.ok(html.includes('id="countdown"'));

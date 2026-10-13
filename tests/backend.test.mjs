@@ -2,10 +2,10 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 const pg=new PGlite();await pg.exec("CREATE ROLE anon; CREATE ROLE authenticated; CREATE SCHEMA storage; CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean,file_size_limit bigint,allowed_mime_types text[])");await pg.exec(fs.readFileSync(new URL('../supabase/setup.sql',import.meta.url),'utf8'));
 const query=async(q,p=[])=>{const r=await pg.query(q,p);return{rows:r.rows,rowCount:r.affectedRows||r.rows.length}};const pool={query,connect:async()=>({query,release(){}})};
 const objects=new Map();const env={DB:database(pool),BUCKET:{async delete(k){objects.delete(k)},async signUpload(k){return 'https://storage.example.test/upload/'+k},async info(k){if(!objects.has(k))throw Error('Not uploaded');return objects.get(k)},async signed(k){return 'https://storage.example.test/read/'+k}},ADMIN_PASSWORD:'private-admin-password-1234'};
-const origin='https://mubiey.example.test';const call=(p,method='GET',data,cookie='',headers={})=>worker.fetch(new Request(origin+p,{method,headers:{Origin:origin,...(cookie?{Cookie:cookie}:{}),...(data?{'Content-Type':'application/json'}:{}),...headers},body:data?JSON.stringify(data):undefined}),env);
+const origin='https://mubiey.example.test';const call=(p,method='GET',data,cookie='',headers={},targetEnv=env)=>worker.fetch(new Request(origin+p,{method,headers:{Origin:origin,...(cookie?{Cookie:cookie}:{}),...(data?{'Content-Type':'application/json'}:{}),...headers},body:data?JSON.stringify(data):undefined}),targetEnv);
 async function user(name){const r=await call('/api/register','POST',{username:name,password:'strong-'+name+'-password'});assert.equal(r.status,200,await r.clone().text());return r.headers.get('set-cookie').split(';')[0]}
 test('Postgres accounts, signed uploads, ownership, quota, admin and sessions',async()=>{
- const a=await user('alice'),b=await user('bobby');let r=await call('/api/invitations','POST',{name1:'One',name2:'Two',date:'2029-01-01T10:00+05:30'},a);assert.equal(r.status,201,await r.clone().text());const d=await r.json(),p='/api/invitations/'+d.id;
+ const a=await user('alice'),b=await user('bobby');let r=await call('/api/login','POST',{username:'alice',password:'incorrect-password'});assert.equal(r.status,401);assert.match((await r.json()).error,/Incorrect username or password/);r=await call('/api/invitations','POST',{name1:'One',name2:'Two',date:'2029-01-01T10:00+05:30'},a);assert.equal(r.status,201,await r.clone().text());const d=await r.json(),p='/api/invitations/'+d.id;
  assert.equal((await call(p,'GET',null,b)).status,404);assert.equal((await call(p,'PUT',{},b)).status,404);assert.equal((await call(p,'DELETE',null,b)).status,404);
  assert.equal((await call('/api/uploads','POST',{invite:d.id,type:'image/png',size:100},b)).status,404);
  r=await call('/api/uploads','POST',{invite:d.id,type:'image/png',size:100},a);assert.equal(r.status,200,await r.clone().text());const f=await r.json();objects.set('files/'+f.id,{size:100,contentType:'image/png'});
@@ -18,7 +18,17 @@ test('Postgres accounts, signed uploads, ownership, quota, admin and sessions',a
  assert.equal((await call('/api/projects/'+upload.id,'GET',null,b)).status,404);assert.equal((await call('/api/projects/'+upload.id,'DELETE',null,b)).status,404);assert.equal((await call('/api/projects/'+upload.id,'GET',null,a)).status,302);assert.equal((await(await call('/api/projects','GET',null,a)).json()).items.length,1);
  assert.equal((await call('/api/admin/users','GET',null,a)).status,403);r=await call('/api/login','POST',{username:'admin',password:env.ADMIN_PASSWORD});assert.equal(r.status,200,await r.clone().text());const admin=r.headers.get('set-cookie').split(';')[0];r=await call('/api/admin/users','GET',null,admin);assert.equal(r.status,200,await r.clone().text());assert.equal((await r.json()).items.find(u=>u.username==='alice').storageBytes,2200);
  assert.equal((await call(p,'PUT',{},a,{Origin:'https://evil.test'})).status,403);await call('/api/logout','POST',null,a);assert.equal((await call('/api/projects','GET',null,a)).status,401);
- r=await call('/api/login','POST',{username:'alice',password:'strong-alice-password'});const aa=r.headers.get('set-cookie').split(';')[0];await call('/api/projects/'+upload.id,'DELETE',null,aa);await call(p,'DELETE',null,aa);assert.equal((await query('SELECT used FROM mubiey.users WHERE username=$1',['alice'])).rows[0].used,0);
+ r=await call('/api/login','POST',{username:'alice',password:'strong-alice-password'});assert.equal(r.status,200);const aa=r.headers.get('set-cookie').split(';')[0];await call('/api/projects/'+upload.id,'DELETE',null,aa);await call(p,'DELETE',null,aa);assert.equal((await query('SELECT used FROM mubiey.users WHERE username=$1',['alice'])).rows[0].used,0);
  await query('UPDATE mubiey.users SET used=$1 WHERE username=$2',[250*1048576,'alice']);assert.equal((await call('/api/uploads','POST',{type:'application/pdf',size:100},aa)).status,413);
  await pg.close();
+});
+
+test('login reports unavailable database and safe server errors',async()=>{
+ const brokenEnv=code=>({...env,DB:{prepare(){return{bind(){return this},async first(){throw Object.assign(Error('private connection details'),{code})}}}}});
+ let r=await call('/api/login','POST',{username:'alice',password:'strong-alice-password'},'',{},brokenEnv('ECONNREFUSED'));
+ assert.equal(r.status,503);assert.equal((await r.json()).error,'The database is temporarily unavailable. Please try again shortly.');
+ r=await call('/api/login','POST',{username:'alice',password:'strong-alice-password'},'',{},brokenEnv('28P01'));
+ assert.equal(r.status,503);assert.equal((await r.json()).error,'The database is temporarily unavailable. Please try again shortly.');
+ r=await call('/api/login','POST',{username:'alice',password:'strong-alice-password'},'',{},brokenEnv('XX000'));
+ assert.equal(r.status,500);const body=await r.json();assert.equal(body.error,'Could not complete this request. Please retry.');assert.ok(!JSON.stringify(body).includes('private connection details'));
 });
