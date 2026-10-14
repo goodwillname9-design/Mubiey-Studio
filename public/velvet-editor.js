@@ -5,7 +5,7 @@
 (()=>{
 const $=s=>document.querySelector(s);
 const VELVET='heavy-luxury';
-const TEMPLATES=[['111','111 · Emerald envelope story'],['222','222 · Midnight blue envelope story'],['333','333 · Royal purple envelope story'],['444','444 · Noir & gold envelope story'],['777','777 · Burgundy envelope story'],[VELVET,'Heavy Luxury · envelope story + save-the-date page']];
+const TEMPLATES=[['111','111 · Emerald envelope story'],['222','222 · Midnight blue envelope story'],['333','333 · Royal purple envelope story'],['444','444 · Noir & gold envelope story'],['777','777 · Burgundy envelope story'],['888','888 · Real boards walkthrough (wax seal)'],[VELVET,'Heavy Luxury · envelope story + save-the-date page']];
 const STORY=TEMPLATES.map(t=>t[0]);
 const preset=$('#live-preset');
 if(!preset||typeof fields==='undefined'||typeof markDirty!=='function')return;

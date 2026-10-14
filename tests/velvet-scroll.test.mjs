@@ -92,6 +92,21 @@ test('extra motion: twinkles, sheen, sweep and ken-burns respect reduced motion'
  for(const k of ['@keyframes a7-tw','@keyframes a7-kb','@keyframes a7-sheen','@keyframes a7-sweep'])assert.ok(html.includes(k),k);
  assert.ok(/prefers-reduced-motion:reduce\)\{\.a7-tw/.test(html));
 });
+test('888 real boards: wax seal cover, four boards in one scroll scene, scratch on board 3, fields written on boards',()=>{
+ const c=renderer();
+ const html=render(c,{...base,template:'888',parents1:'S/O Mr. Kazi',parents2:'D/O Mr. Khan',timeText:'7 p.m. to 10 p.m.',blessing:'Custom blessing',blessingArabic:'دعاء'});
+ for(const f of ['cover','b1','b2','b3','b4'])assert.ok(html.includes(`https://studio.example/assets/888/${f}.jpg`),f);
+ for(const k of ['id="vn-cover"','w8-seal','id="w8-track"','id="w8-stage"','id="vn-final"','id="vn-last"','id="vn-scratch"','id="vn-reveal"','GET DIRECTIONS','S/O Mr. Kazi','D/O Mr. Khan','7 p.m. to 10 p.m.','Custom blessing','دعاء','id="w8-track"'])assert.ok(html.includes(k),k);
+ assert.equal((html.match(/class="w8-scene"/g)||[]).length,4);
+ const f=html.indexOf('id="vn-final"'),l=html.indexOf('id="vn-last"'),sc=html.indexOf('id="vn-scratch"');assert.ok(f<sc&&sc<l);
+ for(const k of ['@keyframes w8-intro','clip-path:inset(0 calc(100%','prefers-reduced-motion'])assert.ok(html.includes(k),k);
+ assert.ok(!render(c,{...base,template:'888',_editorPreview:true}).includes('id="vn-cover"'));
+ assert.ok(render(c,{...base,template:'888',_editorPreview:true}).includes('mubiey-direct-text'));
+ assert.ok(!render(c,{...base,template:'888',musicAutoplay:false}).includes('startMusic();cover.classList.add'));
+ const x=render(c,{...base,template:'888',name1:'<script>alert(1)</script>',family:'<img src=x onerror=1>'});assert.ok(!x.includes('<script>alert')&&!x.includes('<img src=x'));
+ for(const s of [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]))new vm.Script(s);
+ assert.ok(render(c,{...base,template:'777'}).includes('id="vn-p1"'));
+});
 test('other templates are untouched',()=>{
  const c=renderer();const html=render(c,{name1:'A',name2:'B',template:'premium-0-0'});
  assert.ok(!html.includes('vn-cover'));assert.ok(html.includes('id="countdown"'));
