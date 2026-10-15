@@ -107,6 +107,24 @@ test('888 real boards: wax seal cover, four boards in one scroll scene, scratch 
  for(const s of [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]))new vm.Script(s);
  assert.ok(render(c,{...base,template:'777'}).includes('id="vn-p1"'));
 });
+test('999 photo journey: own photos in scenes, calendar + live clock, scratch date, photo/background picks',()=>{
+ const c=renderer();
+ const photos=['/media/a','/media/b','/media/c','/media/d','/media/e','/media/f'];
+ const html=render(c,{...base,template:'999',photos,scene1:2,scene2:1,bgPhoto:6,focus3:'center'});
+ for(const k of ['id="j-track"','id="j-stage"','id="j-fx"','id="vn-cover"','j-begin','id="vn-scratch"','id="vn-reveal"','id="vn-final"','id="vn-count"','id="r-s"','GET DIRECTIONS','data-mode="full"','data-mode="spark"','LIVE'.toLowerCase()==='x'?'':'Live countdown','December 2026'])assert.ok(html.includes(k),k);
+ assert.equal((html.match(/id="vn-count"/g)||[]).length,1,'only one countdown');assert.equal((html.match(/id="vn-s"/g)||[]).length,1);
+ assert.equal((html.match(/<section class="j-scene"/g)||[]).length,5);
+ const order=[...html.matchAll(/class="j-fg" src="([^"]+)"/g)].map(m=>m[1]);assert.deepEqual(order,['/media/b','/media/a','/media/c','/media/d']);
+ assert.ok(html.includes("background-image:url('/media/f')"),'background photo');
+ assert.ok(html.includes('--fy:50%'),'zoom point');assert.ok(html.includes('class="vn-gallery" data-edit="photos"')&&html.includes('/media/e'),'unused photos go to the gallery');
+ const noPhotos=render(c,{...base,template:'999',photos:[]});assert.ok(noPhotos.includes('j-ph')&&!noPhotos.includes('class="j-fg"'));
+ const few=render(c,{...base,template:'999',photos:['/media/a']});assert.equal([...few.matchAll(/class="j-fg" src="([^"]+)"/g)].length,4);
+ assert.ok(!render(c,{...base,template:'999',_editorPreview:true}).includes('id="vn-cover"'));assert.ok(render(c,{...base,template:'999',_editorPreview:true}).includes('mubiey-direct-text'));
+ assert.ok(render(c,{...base,template:'999',date:''}).includes('Date to be announced'));
+ const x=render(c,{...base,template:'999',name1:'<script>alert(1)</script>',photos:['/media/a"onerror="x']});assert.ok(!x.includes('<script>alert')&&!x.includes('onerror="x'));
+ for(const s of [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]))new vm.Script(s);
+ for(const k of ['scene1','scene2','scene3','scene4','bgPhoto'])assert.equal(validate({[k]:'7'})[k],7);assert.equal(validate({focus2:'center'}).focus2,'center');assert.equal(validate({focus2:'x'}).focus2,'upper');
+});
 test('other templates are untouched',()=>{
  const c=renderer();const html=render(c,{name1:'A',name2:'B',template:'premium-0-0'});
  assert.ok(!html.includes('vn-cover'));assert.ok(html.includes('id="countdown"'));

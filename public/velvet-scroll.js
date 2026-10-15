@@ -449,10 +449,186 @@ if(track){
 }
 `;
 
+
+/* ===== 999 · Photo journey: the couple's own photos, flown through one after another, with sparkler / petal / bokeh effects,
+   a calendar with the scratch-to-reveal date and a live countdown clock ===== */
+const JCSS=`
+:root{--bg:#0b0a10;--bg1:#2a1f3a;--bg2:#1a1424;--p1:#ff5a6e;--p2:#a01a36;--box:#ffffff14}
+html{scroll-snap-type:none}
+.j-track{position:relative;height:calc(100svh*(var(--n)*1.4 + 1));background:#0b0a10}
+.j-stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#0b0a10}
+.j-stage:after{content:'';position:absolute;inset:0;pointer-events:none;z-index:6;background:radial-gradient(ellipse at 50% 42%,transparent 58%,#000a 100%)}
+.j-stage.intro{animation:j-intro 1.9s cubic-bezier(.2,.7,.2,1) both}@keyframes j-intro{from{opacity:0;transform:scale(1.5)}to{opacity:1;transform:none}}
+.j-scene{position:absolute;inset:0;opacity:0;visibility:hidden;overflow:hidden}
+.j-photo{position:absolute;inset:0;will-change:transform}
+.j-bd{position:absolute;inset:-8%;background-size:cover;background-position:center;filter:blur(28px) brightness(.5) saturate(1.25)}
+.j-fg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% var(--fy,40%);display:block;user-select:none;-webkit-user-drag:none}
+.j-fg[data-fit=cover]{object-fit:cover}
+.j-ph{position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#6b3a5a,#2a1f3a 55%,#0b0a10)}
+.j-pass{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 40%,#fff5d8 0,#ffe9a888 30%,transparent 62%);opacity:var(--g,0);z-index:2}
+.j-bokeh{position:absolute;inset:0;pointer-events:none;z-index:2}
+.j-bokeh i{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:50%;background:radial-gradient(circle at 36% 30%,#fff9 0,var(--c) 38%,transparent 70%);mix-blend-mode:screen;filter:blur(1.2px);opacity:0;animation:j-bk var(--t) var(--d) ease-in-out infinite}
+@keyframes j-bk{0%,100%{opacity:0;transform:translateY(6px) scale(.9)}50%{opacity:.78;transform:translateY(-10px) scale(1.08)}}
+.j-text{position:absolute;left:0;right:0;bottom:0;z-index:4;padding:15svh 7vw max(5.5svh,26px);display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.1svh;color:#fff4dc;text-shadow:0 2px 14px #000b;background:linear-gradient(transparent,#000a 38%,#000d);opacity:var(--to,0);transform:translateY(calc((1 - var(--to,0))*18px))}
+.j-text>*{max-width:560px}
+.j-l{clip-path:inset(0 calc(100% - 100%*clamp(0,calc(var(--k,0)*var(--n,6) - var(--i,0)),1)) 0 0)}
+.j-f{opacity:clamp(0,calc(var(--k,0)*var(--n,6) - var(--i,0)),1)}
+.j-cap{font:600 clamp(9px,2.4vw,13px)/1.6 Arial,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:#e9c98a;margin:0}
+.j-h{font:400 clamp(30px,9vw,46px)/1.1 AtelierAllura,AtelierParisienne,'Brush Script MT',cursive;color:#f3dca1}
+.j-nm{font:400 clamp(42px,14vw,74px)/1 AtelierAllura,AtelierParisienne,'Brush Script MT',cursive;color:#fff4dc;overflow-wrap:anywhere}
+.j-amp{font:400 clamp(24px,7vw,36px)/1 AtelierAllura,AtelierParisienne,cursive;color:#e9c98a}
+.j-en{font:italic clamp(14px,4vw,19px)/1.5 AtelierSerif,Georgia,serif;margin:0}
+.j-ar{font-family:var(--arf);font-weight:400;font-size:calc(clamp(24px,7.5vw,38px)*var(--ars,1));line-height:var(--arl,1.7);color:#f3dca1;margin:0}
+.j-p{font:600 clamp(10px,2.8vw,14px)/1.5 Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;margin:0}
+.j-orn{width:90px;height:1px;background:linear-gradient(90deg,transparent,#e9c98a,transparent)}
+#j-fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
+/* calendar + live clock scene */
+.j-cal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:max(1.2svh,8px);padding:3svh 6vw;text-align:center;color:#fff4dc;z-index:4}
+.j-cbg{position:absolute;inset:-6%;background:radial-gradient(circle at 50% 30%,#3a2a4e,#14101c 60%,#0b0a10) center/cover;filter:saturate(1.1)}
+.j-cbg.img{filter:blur(22px) brightness(.38) saturate(1.2)}
+.j-month{font:400 clamp(26px,8vw,40px)/1 AtelierAllura,AtelierParisienne,cursive;color:#f3dca1}
+.j-g,.j-w{display:grid;grid-template-columns:repeat(7,1fr);width:min(88vw,380px);text-align:center}
+.j-w b{font:700 clamp(9px,2.6vw,12px) Arial,sans-serif;color:#e9c98a;padding-bottom:.6svh}
+.j-day{font:clamp(13px,4vw,17px)/clamp(26px,4.4svh,36px) Georgia,serif;position:relative}
+.j-calbox{opacity:.32;transition:opacity 1.2s ease}.revealed .j-calbox{opacity:1}
+.j-target:after{content:'';position:absolute;left:50%;top:50%;width:clamp(28px,8.5vw,40px);height:clamp(28px,8.5vw,40px);margin:calc(clamp(28px,8.5vw,40px)/-2) 0 0 calc(clamp(28px,8.5vw,40px)/-2);border:2px solid #ff5a6e;border-radius:50% 50% 45% 45%;transform:scale(0);opacity:0}
+.revealed .j-target{color:#ff9aa8;font-weight:700}.revealed .j-target:after{animation:j-pop .9s .5s cubic-bezier(.2,1.4,.4,1) forwards}@keyframes j-pop{to{transform:scale(1);opacity:1}}
+.j-cal .vn-scratchbox{width:min(86%,360px);aspect-ratio:3.3/1;margin:0;overflow:visible;background:linear-gradient(#fff8ea,#f3e3c5)}
+.j-cal .vn-secret,.j-cal #vn-scratch{border-radius:12px}.j-cal .vn-secret{overflow:hidden;color:#4a2a2a}
+.jd{display:flex;flex-direction:column;align-items:center;gap:2px}.jd b{font:700 clamp(10px,2.8vw,13px) Arial,sans-serif;letter-spacing:.25em;color:#8a1428}.jd span{font:400 clamp(24px,7.4vw,34px)/1.05 AtelierAllura,cursive;color:#3f1620}.jd small{font:600 clamp(9px,2.6vw,12px) Arial,sans-serif;letter-spacing:.2em;color:#4a1722}
+.j-cal .vn-skip{margin:0;min-height:30px;font-size:11px;color:#e9c98a}
+.j-dials{display:grid;grid-template-columns:repeat(4,1fr);gap:2.4vw;width:min(90vw,400px)}
+.j-dial{position:relative;aspect-ratio:1}.j-dial svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}.j-dial circle{fill:none;stroke-width:4}.j-dial .bg{stroke:#ffffff22}.j-dial .fg{stroke:#e9c98a;stroke-linecap:round;stroke-dasharray:276.46;stroke-dashoffset:276.46;transition:stroke-dashoffset .6s linear;filter:drop-shadow(0 0 3px #e9c98a88)}
+.j-dial b{position:absolute;inset:0;display:grid;place-items:center;font:400 clamp(18px,6vw,26px) Georgia,serif;color:#fff4dc}.j-dial small{position:absolute;left:0;right:0;bottom:12%;text-align:center;font:600 8px Arial,sans-serif;letter-spacing:.2em;color:#e9c98a}
+.j-live{font:600 clamp(9px,2.4vw,11px) Arial,sans-serif;letter-spacing:.3em;color:#e9c98a;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin:0}.j-live:before{content:'';width:7px;height:7px;border-radius:50%;background:#ff5a6e;box-shadow:0 0 8px #ff5a6e;animation:j-blink 1.4s infinite}@keyframes j-blink{50%{opacity:.25}}
+.j-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.j-link{display:inline-flex;align-items:center;min-height:42px;padding:0 20px;border-radius:30px;background:linear-gradient(135deg,#f3dca1,#c9a050);color:#3b0711;font:700 11px Arial,sans-serif;letter-spacing:.18em;text-decoration:none;white-space:nowrap}
+.j-venue{font:600 clamp(10px,2.8vw,13px) Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;margin:0}
+/* intro cover */
+.j-cover{background:#0b0a10}.j-cbgc{position:absolute;inset:-6%;background:radial-gradient(circle at 50% 38%,#4a2a5e,#1a1424 55%,#0b0a10) center/cover;transition:transform 1.6s cubic-bezier(.5,0,.2,1)}.j-cbgc.img{filter:blur(18px) brightness(.45) saturate(1.2)}
+.j-cin{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.4svh;text-align:center;color:#fff4dc;padding:0 6vw;transition:transform 1.5s cubic-bezier(.5,0,.2,1),opacity 1.1s ease}
+.j-begin{margin-top:3svh;min-height:48px;padding:0 30px;border-radius:40px;border:1px solid #f3dca1aa;background:#ffffff12;color:#f3dca1;font:600 12px Arial,sans-serif;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;animation:j-ring 2.4s ease-out infinite;-webkit-tap-highlight-color:transparent}
+.j-begin:focus{outline:none}.j-begin:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@keyframes j-ring{0%{box-shadow:0 0 0 0 #f3dca188}70%{box-shadow:0 0 0 18px #f3dca100}100%{box-shadow:0 0 0 0 #f3dca100}}
+.j-cover.opening .j-cin{transform:scale(2.2);opacity:0}.j-cover.opening .j-cbgc{transform:scale(1.7)}
+.j-static .j-track{height:auto}.j-static .j-stage{position:static;height:auto;overflow:visible}.j-static .j-stage:after{display:none}
+.j-static .j-scene{position:relative;opacity:1;visibility:visible;height:100svh}.j-static .j-text{--to:1;--k:1}
+.j-gal{background:#0b0a10;padding:30px 0;display:grid;place-items:center}
+@media(prefers-reduced-motion:reduce){.j-begin{animation:none}.j-stage.intro{animation:none}.j-bokeh,#j-fx{display:none}}
+`;
+const J_FOCUS={top:24,upper:38,center:50,lower:64};
+const J_BOKEH=[[12,18,70,'#ff4d5e'],[28,10,46,'#ffd37a'],[8,44,38,'#ffffff'],[22,66,90,'#ff3a55'],[70,12,58,'#ffffff'],[88,28,80,'#ffb347'],[82,62,44,'#ff6b7e'],[60,24,34,'#ffe9a8'],[46,8,60,'#ff8fa0'],[92,80,52,'#ffd37a'],[14,86,60,'#ff5a6e'],[54,74,40,'#ffffff']];
+const bokehMarkup=n=>`<div class="j-bokeh" aria-hidden="true">${J_BOKEH.slice(0,n).map((b,i)=>`<i style="--x:${b[0]}%;--y:${b[1]}%;--s:${b[2]}px;--c:${b[3]}88;--t:${(4+(i%4)*1.3).toFixed(1)}s;--d:${(-i*.7).toFixed(1)}s"></i>`).join('')}</div>`;
+function jPages(data,p){
+ const n1=data.name1||'Name one',n2=data.name2||'Name two';
+ const verseAr=pick(data.verseArabic,'verseArabic'),verse=pick(data.verse,'verse'),blAr=pick(data.blessingArabic,'blessingArabic'),bl=pick(data.blessing,'blessing');
+ const heading=pick(data.heading==='Together with our families'?'':data.heading,'heading');
+ const wording=pick(data.message&&!/^With joy in our hearts/.test(data.message)?data.message:'','message');
+ const map=mapLink(data.mapUrl||''),rsvp=httpsLink(data.rsvpUrl||'');
+ const timeShown=(typeof data.timeText==='string'&&data.timeText.trim())||(p?p.time:'');
+ const photos=(data.photos||[]).filter(s=>typeof s==='string'&&/^data:image\/(jpeg|png|webp);base64,|^\/media\//.test(s));
+ const sched=(data.schedule||[]).filter(s=>s.title);
+ const used=new Set();
+ const photoFor=k=>{if(!photos.length)return null;let n=parseInt(data['scene'+k],10);if(!(n>=1&&n<=photos.length))n=((k-1)%photos.length)+1;used.add(n);return photos[n-1]};
+ const fy=k=>J_FOCUS[data['focus'+k]]||38;
+ const bgn=parseInt(data.bgPhoto,10),bg=(bgn>=1&&bgn<=photos.length)?photos[bgn-1]:null;
+ const line=(arr)=>{let i=0;const n=arr.length;return {n,html:arr.map(([kind,cls,inner,attr])=>`<div class="${kind==='f'?'j-f':'j-l'} ${cls}" style="--i:${i++}"${attr||''}>${inner}</div>`).join('')}};
+ const par=(v,f)=>(typeof v==='string'&&v.trim())?['l','j-p',lines(v.trim()),` data-edit="${f}"`]:null;
+ const scene=(k,src,mode,arr)=>{const L=line(arr);return `<section class="j-scene" data-mode="${mode}" data-fy="${fy(k)}"><div class="j-photo" style="transform-origin:50% ${Math.min(70,fy(k)+3)}%">${src?`<div class="j-bd"></div><img class="j-fg" src="${e(src)}" alt="" style="--fy:${fy(k)}%" decoding="async"${k===1?'':' loading="lazy"'}>`:'<div class="j-ph"></div>'}</div>${mode==='full'||mode==='spark'?bokehMarkup(mode==='full'?12:9):''}<div class="j-pass"></div><div class="j-text" style="--n:${L.n}">${L.html}</div></section>`};
+ const hostLine=(data.family||'').trim()?data.family.trim():'Together with their families';
+ const s1=scene(1,photoFor(1),'full',[['l','j-cap',lines(hostLine),' data-edit="family"'],['l','j-h',e(heading),' data-edit="heading"'],['l','j-nm',e(n1),' data-edit="name1"'],['l','j-amp','&amp;'],['l','j-nm',e(n2),' data-edit="name2"']]);
+ const s2=scene(2,photoFor(2),'spark',[['l','j-ar',e(verseAr),' dir="rtl" lang="ar" data-edit="verseArabic"'],['l','j-orn',''],['l','j-en',lines(verse),' data-edit="verse"']]);
+ const pr=[par(data.parents1,'parents1'),data.parents1&&data.parents2?['l','j-amp','&amp;']:null,par(data.parents2,'parents2')].filter(Boolean);
+ const s3=scene(3,photoFor(3),'calm',[['l','j-en',lines(wording),' data-edit="message"']].concat(pr));
+ const s4=scene(4,photoFor(4),'calm',[['l','j-ar',e(blAr),' dir="rtl" lang="ar" data-edit="blessingArabic"'],['l','j-en',`“${lines(bl)}”`,' data-edit="blessing"'],['l','j-p',lines(pick(data.compliments,'compliments')),' data-edit="compliments"']]);
+ /* calendar + live clock */
+ let calHTML='<p class="j-en">The date will be announced soon.</p>',secret='<div class="jd"><span>Date to be announced</span></div>';
+ if(p){
+  const first=new Date(Date.UTC(p.y,p.mo-1,1)).getUTCDay(),dim=new Date(Date.UTC(p.y,p.mo,0)).getUTCDate();
+  let cells='';for(let i=0;i<first;i++)cells+='<span></span>';for(let d=1;d<=dim;d++)cells+=`<span class="j-day${d===p.d?' j-target':''}">${d}</span>`;
+  calHTML=`<div class="j-calbox"><div class="j-month">${MONTHS[p.mo-1].charAt(0)+MONTHS[p.mo-1].slice(1).toLowerCase()} ${p.y}</div><div class="j-w">${['S','M','T','W','T','F','S'].map(x=>`<b>${x}</b>`).join('')}</div><div class="j-g">${cells}</div></div>`;
+  secret=`<div class="jd"><b>${DAYS[p.wd]}</b><span>${p.d} ${MONTHS[p.mo-1].charAt(0)+MONTHS[p.mo-1].slice(1).toLowerCase()} ${p.y}</span><small>${e(timeShown)}</small></div>`;
+ }
+ const dial=(id,label)=>`<div class="j-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="bg" cx="50" cy="50" r="44"/><circle class="fg" id="r-${id}" cx="50" cy="50" r="44"/></svg><b id="vn-${id}">—</b><small>${label}</small></div>`;
+ const cal=`<section class="j-scene" data-mode="none" id="vn-final"><div class="j-cbg${bg?' img':''}"${bg?` style="background-image:url('${e(bg)}')"`:''}></div><div class="j-cal"><p class="j-cap">Save the date</p>${calHTML}<div class="vn-scratchbox" id="vn-scratchbox"><div class="vn-secret" data-edit="event-date">${secret}</div><canvas id="vn-scratch" aria-label="Scratch to reveal the wedding date"></canvas>${miniSparks}</div><button type="button" class="vn-skip" id="vn-reveal">Or tap here to reveal</button><p class="j-live">Live countdown</p><div class="j-dials" id="vn-count">${dial('d','DAYS')}${dial('h','HOURS')}${dial('m','MIN')}${dial('s','SEC')}</div><p class="j-venue" data-edit="venue">${e(data.venue||'Venue to be announced')}</p>${data.address?`<p class="j-p" style="font-weight:400;opacity:.8" data-edit="address">${lines(data.address)}</p>`:''}<div class="j-btns">${map?`<a class="j-link" href="${e(map)}" target="_blank" rel="noopener noreferrer">GET DIRECTIONS ↗</a>`:''}${rsvp?`<a class="j-link" href="${e(rsvp)}" target="_blank" rel="noopener noreferrer">RSVP ↗</a>`:''}</div><p class="j-p" style="font-weight:400;opacity:.75;font-size:11px" data-edit="rsvpText">${lines(pick(data.rsvpText,'rsvpText'))}</p></div></section>`;
+ const extra=photos.map((s,i)=>used.has(i+1)?'':`<img src="${e(s)}" alt="Wedding memory ${i+1}" loading="lazy">`).join('');
+ const gal=(extra||sched.length)?`<div class="j-gal">${extra?`<div class="vn-gallery" data-edit="photos"><h2>${e(data.galleryTitle||'Our favourite memories')}</h2>${extra}</div>`:''}${sched.length?`<div class="vn-gallery" style="grid-template-columns:1fr" data-edit="schedule"><h2>Moments of the day</h2>${sched.map(x=>`<article style="text-align:center;color:#f3e3bd"><h3 style="font:400 34px AtelierAllura,cursive;margin:6px 0">${e(x.title)}</h3><p style="margin:2px 0;opacity:.85">${e(x.time)}</p><p style="margin:2px 0;opacity:.7;white-space:pre-wrap">${e(x.detail)}</p></article>`).join('')}</div>`:''}</div>`:'';
+ return `<div class="j-track" id="j-track" style="--n:5"><div class="j-stage" id="j-stage">${s1}${s2}${s3}${s4}${cal}<canvas id="j-fx" aria-hidden="true"></canvas></div></div>${gal}`;
+}
+function jCover(data){
+ const n1=data.name1||'Name one',n2=data.name2||'Name two';
+ const photos=(data.photos||[]).filter(s=>typeof s==='string'&&/^data:image\/(jpeg|png|webp);base64,|^\/media\//.test(s));
+ const bgn=parseInt(data.bgPhoto,10),bg=(bgn>=1&&bgn<=photos.length)?photos[bgn-1]:null;
+ return `<div class="vn-cover j-cover" id="vn-cover" role="dialog" aria-modal="true" aria-label="Open the invitation"><div class="j-cbgc${bg?' img':''}"${bg?` style="background-image:url('${e(bg)}')"`:''}></div><div class="j-cin"><p class="j-cap">You are invited</p><div class="j-nm">${e(n1)}</div><div class="j-amp">&amp;</div><div class="j-nm">${e(n2)}</div><button type="button" class="j-begin" id="vn-open">Tap to begin</button></div>${dustMarkup(14)}</div>`;
+}
+const JJS=String.raw`
+/* photo journey: scroll flies the camera through each photo into the next */
+const track=document.getElementById('j-track');
+if(track){
+ const stage=document.getElementById('j-stage'),scenes=[...track.querySelectorAll('.j-scene')],N=scenes.length;
+ const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),ease=x=>x*x*(3-2*x);
+ const photoEls=scenes.map(sc=>sc.querySelector('.j-photo')),texts=scenes.map(sc=>sc.querySelector('.j-text'));
+ const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(still){track.classList.add('j-static');html.classList.add('j-static')}
+ /* fit each photo: portrait-ish photos fill the screen, wide photos stay whole over a blurred copy of themselves */
+ function fit(img){const va=innerWidth/innerHeight,ar=img.naturalWidth/Math.max(1,img.naturalHeight);img.dataset.fit=ar<va*1.15?'cover':'contain'}
+ scenes.forEach(sc=>{const img=sc.querySelector('.j-fg'),bd=sc.querySelector('.j-bd');if(!img)return;const go=()=>{fit(img);if(bd)bd.style.backgroundImage='url("'+(img.currentSrc||img.src)+'")'};if(img.complete&&img.naturalWidth)go();else img.addEventListener('load',go)});
+ window.addEventListener('resize',()=>scenes.forEach(sc=>{const img=sc.querySelector('.j-fg');if(img&&img.naturalWidth)fit(img)}));
+ /* sparkler / petal particles */
+ const fx=document.getElementById('j-fx'),cx=fx&&fx.getContext('2d');
+ let FW=0,FH=0,DPR=1,parts=[],mode='none',last=performance.now();
+ const EMREL={full:[[.3,.74],[.7,.76]],spark:[[.72,.72]],calm:[],none:[]};let curEm=[];
+ function fxSize(){if(!fx)return;DPR=Math.min(window.devicePixelRatio||1,1.5);FW=fx.width=Math.round(innerWidth*DPR);FH=fx.height=Math.round(innerHeight*DPR)}
+ function loop(now){
+  requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(!cx||still||document.hidden||mode==='none'){if(cx&&parts.length){cx.clearRect(0,0,FW,FH);parts=[]}return}
+  const em=curEm;
+  if(parts.length<320)for(const [ex,ey] of em){const n=Math.round(dt*(mode==='full'?120:70));for(let i=0;i<n;i++){const a=Math.random()*6.283,sp=(80+Math.random()*340)*DPR;parts.push({k:0,x:ex*FW,y:ey*FH,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-40*DPR,l:.45+Math.random()*.7,a:0})}}
+  const rate=mode==='full'?9:mode==='spark'?4.5:1.3;
+  if(Math.random()<dt*rate&&parts.length<320)parts.push({k:1,x:Math.random()*FW,y:-20*DPR,vx:(Math.random()-.5)*40*DPR,vy:(50+Math.random()*80)*DPR,r:Math.random()*6.28,vr:(Math.random()-.5)*3,s:(5+Math.random()*7)*DPR,l:14,a:0,c:Math.random()<.7?'#d81f3c':'#f3a6b4'});
+  cx.clearRect(0,0,FW,FH);
+  for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.a+=dt;if(q.a>q.l||q.y>FH+40){parts.splice(i,1);continue}
+   if(q.k===0){q.vy+=520*DPR*dt;q.x+=q.vx*dt;q.y+=q.vy*dt;const f=1-q.a/q.l;cx.globalCompositeOperation='lighter';cx.strokeStyle='rgba(255,'+Math.round(170+80*f)+','+Math.round(70+120*f)+','+f.toFixed(2)+')';cx.lineWidth=1.4*DPR;cx.beginPath();cx.moveTo(q.x,q.y);cx.lineTo(q.x-q.vx*.035,q.y-q.vy*.035);cx.stroke()}
+   else{q.x+=q.vx*dt+Math.sin(q.a*2+q.r)*20*DPR*dt;q.y+=q.vy*dt;q.r+=q.vr*dt;cx.globalCompositeOperation='source-over';cx.save();cx.translate(q.x,q.y);cx.rotate(q.r);cx.scale(1,Math.abs(Math.cos(q.r*1.3))*.7+.3);cx.fillStyle=q.c;cx.globalAlpha=.9;cx.beginPath();cx.ellipse(0,0,q.s,q.s*.62,0,0,6.283);cx.fill();cx.restore()}}
+  cx.globalCompositeOperation='lighter';cx.globalAlpha=1;
+  for(const [ex,ey] of em){const g=cx.createRadialGradient(ex*FW,ey*FH,0,ex*FW,ey*FH,26*DPR);g.addColorStop(0,'rgba(255,240,200,.95)');g.addColorStop(1,'rgba(255,170,60,0)');cx.fillStyle=g;cx.fillRect(ex*FW-28*DPR,ey*FH-28*DPR,56*DPR,56*DPR)}
+  cx.globalCompositeOperation='source-over';
+ }
+ fxSize();window.addEventListener('resize',fxSize);if(!still)requestAnimationFrame(loop);
+ /* camera */
+ let vh=window.innerHeight,ticking=false;const ZMAX=3.4;
+ function frame(){
+  ticking=false;if(still)return;vh=window.innerHeight;
+  const r=track.getBoundingClientRect(),total=Math.max(1,track.offsetHeight-vh),y=clamp(-r.top,0,total),pp=y/(vh*1.4);
+  let best=0,bo=-1;
+  scenes.forEach((sc,i)=>{
+   const t=pp-i,last=i===N-1;
+   const op=clamp((t+.4)/.4,0,1)*(last?1:1-clamp((t-.72)/.28,0,1));
+   let s;if(t<0)s=.5+.5*ease(clamp(t+1,0,1));else if(last)s=1+.04*clamp(t/.5,0,1);else if(t<.5)s=1+.12*t/.5;else s=1.12+(ZMAX-1.12)*ease(clamp((t-.5)/.5,0,1));
+   sc.style.opacity=op.toFixed(3);sc.style.visibility=op<.01?'hidden':'visible';sc.style.pointerEvents=op>.55?'auto':'none';
+   photoEls[i]&&(photoEls[i].style.transform='scale('+s.toFixed(4)+')');
+   const to=clamp((t-.05)/.2,0,1)*(last?1:1-clamp((t-.55)/.2,0,1));
+   sc.style.setProperty('--to',to.toFixed(3));sc.style.setProperty('--k',clamp((t-.02)/.3,0,1).toFixed(3));sc.style.setProperty('--g',(last?0:clamp((t-.7)/.3,0,1)*.6).toFixed(3));
+   if(op>bo){bo=op;best=i}
+  });
+  mode=scenes[best].dataset.mode||'none';
+  const img=scenes[best].querySelector('.j-fg');
+  if(img&&img.naturalWidth&&EMREL[mode]&&EMREL[mode].length){const b=img.getBoundingClientRect();let cw=b.width,ch=b.height,x0=b.left,y0=b.top;if(img.dataset.fit!=='cover'){const sc=Math.min(b.width/img.naturalWidth,b.height/img.naturalHeight);cw=img.naturalWidth*sc;ch=img.naturalHeight*sc;x0=b.left+(b.width-cw)/2;y0=b.top+(b.height-ch)*(parseFloat(scenes[best].dataset.fy||'38')/100)}
+   curEm=EMREL[mode].map(e=>[(x0+cw*e[0])/innerWidth,(y0+ch*e[1])/innerHeight])}else curEm=EMREL[mode]?EMREL[mode].map(e=>[e[0],e[1]*.8]):[];
+ }
+ function req(){if(!ticking){ticking=true;requestAnimationFrame(frame)}}
+ window.addEventListener('scroll',req,{passive:true});window.addEventListener('resize',req);
+ frame();window.__j={frame,stage};
+ /* live clock rings */
+ const rings={d:[365],h:[24],m:[60],s:[60]};
+ function dials(){const box=document.getElementById('vn-count');if(!box||box.hidden)return;for(const k in rings){const b=document.getElementById('vn-'+k),c=document.getElementById('r-'+k);if(!b||!c)continue;const v=parseInt(b.textContent,10);if(Number.isNaN(v))continue;const f=Math.min(1,v/rings[k][0]);c.style.strokeDashoffset=(276.46*(1-f)).toFixed(1)}}
+ setInterval(dials,1000);setTimeout(dials,300);
+}
+`;
+
 function velvetDocument(data){
  const p=parseDate(data.date);
- const is888=data.template==='888',theme=THEMES[data.template]||null,is777=!!theme;
- const {pages,card1}=is888?{pages:w8Pages(data,p),card1:''}:is777?{pages:artPages(data,p,theme),card1:''}:pageCards(data,p,false);
+ const is888=data.template==='888',is999=data.template==='999',theme=THEMES[data.template]||null,is777=!!theme;
+ const {pages,card1}=is999?{pages:jPages(data,p),card1:''}:is888?{pages:w8Pages(data,p),card1:''}:is777?{pages:artPages(data,p,theme),card1:''}:pageCards(data,p,false);
  const n1=data.name1||'Name one',n2=data.name2||'Name two';
  const mono=((typeof data.monogram==='string'&&data.monogram.trim())||((n1[0]||'')+(n2[0]||''))).slice(0,3);
  const music=typeof data.music==='string'&&/^data:audio\/[\w.+-]+;base64,|^\/media\//.test(data.music)?data.music:null;
@@ -472,6 +648,15 @@ function velvetDocument(data){
   setTimeout(()=>{cover.classList.add('reveal');letter.classList.add('top');const c=card1.getBoundingClientRect(),dx=c.left+c.width/2-cx0,dy=c.top+c.height/2-cy0,s=c.width/wb;letter.style.transition='transform 1.3s cubic-bezier(.5,0,.15,1)';letter.style.transform='translate('+dx+'px,'+dy+'px) scale('+s+')'},2100);
   setTimeout(finish,3600)};
 }else watch();`;
+ const OPEN999=`if(cover){
+ html.classList.add('vn-lock');const mainEl=document.querySelector('main');mainEl.inert=true;
+ const btn=document.getElementById('vn-open'),stg=document.getElementById('j-stage');
+ const finish=()=>{const sh=document.getElementById('vn-shower');if(sh&&!reduce){sh.classList.add('go');setTimeout(()=>sh.remove(),9000)}cover.classList.add('gone');html.classList.remove('vn-lock');mainEl.inert=false;if(window.__j)window.__j.frame();window.scrollTo(0,0)};
+ btn.onclick=()=>{if(cover.classList.contains('opening'))return;${autoplay?'startMusic();':''}cover.classList.add('opening');
+  if(reduce){finish();return}
+  setTimeout(()=>{if(stg)stg.classList.add('intro');cover.classList.add('fade')},900);
+  setTimeout(finish,1700)};
+}`;
  const OPEN888=`if(cover){
  html.classList.add('vn-lock');const mainEl=document.querySelector('main');mainEl.inert=true;
  const btn=document.getElementById('vn-open'),stg=document.getElementById('w8-stage');
@@ -492,7 +677,7 @@ function velvetDocument(data){
   if(reduce){finish();return}
   setTimeout(()=>cover.classList.add('emerge'),1300);setTimeout(finish,5000)};
 }else watch();`;
- const coverHTML=cover?(is888?w8Cover(data,mono):is777?artCover(data,mono,theme):`<div class="vn-cover" id="vn-cover" role="dialog" aria-modal="true" aria-label="Open the invitation">${roses}<div class="vn-castle-bg" aria-hidden="true"></div><div class="vn-bow-big" aria-hidden="true"></div><div class="vn-pearls" aria-hidden="true"></div><div class="vn-env" id="vn-env"><div class="vn-aura"></div><div class="vn-env-back"></div><div class="vn-card vn-letter" id="vn-letter" style="transform:translate(0,0) scale(.6)"></div><div class="vn-env-front"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 50L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 44L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel" style="top:calc(50% - 3%)"></div></div><div class="vn-flap"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 100L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 92L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel"></div></div><button type="button" class="vn-seal" id="vn-open" aria-label="Open the invitation">${e(mono)}</button></div><p class="vn-tap">Tap the seal to open</p>${sparkMarkup}${dustMarkup(16)}</div>`):'';
+ const coverHTML=cover?(is999?jCover(data):is888?w8Cover(data,mono):is777?artCover(data,mono,theme):`<div class="vn-cover" id="vn-cover" role="dialog" aria-modal="true" aria-label="Open the invitation">${roses}<div class="vn-castle-bg" aria-hidden="true"></div><div class="vn-bow-big" aria-hidden="true"></div><div class="vn-pearls" aria-hidden="true"></div><div class="vn-env" id="vn-env"><div class="vn-aura"></div><div class="vn-env-back"></div><div class="vn-card vn-letter" id="vn-letter" style="transform:translate(0,0) scale(.6)"></div><div class="vn-env-front"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 50L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 44L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel" style="top:calc(50% - 3%)"></div></div><div class="vn-flap"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 100L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 92L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel"></div></div><button type="button" class="vn-seal" id="vn-open" aria-label="Open the invitation">${e(mono)}</button></div><p class="vn-tap">Tap the seal to open</p>${sparkMarkup}${dustMarkup(16)}</div>`):'';
  const script=`<script>(()=>{
 const html=document.documentElement,pagesEls=[...document.querySelectorAll('.vn-page')];
 const audio=document.getElementById('music'),mb=document.getElementById('music-button');
@@ -502,8 +687,8 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cover=document.getElementById('vn-cover');
 function watch(){const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.3}):null;pagesEls.forEach(pg=>io?io.observe(pg):pg.classList.add('in'))}
 const page1=document.getElementById('vn-p1');
-${is888?OPEN888:is777?OPEN777:OPENENV}
-${is888?W8JS:''}
+${is999?OPEN999:is888?OPEN888:is777?OPEN777:OPENENV}
+${is888?W8JS:''}${is999?JJS:''}
 /* scroll progress + gentle parallax */
 const bar=document.getElementById('vn-progress');let ticking=false;
 function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(()=>{ticking=false;const y=window.scrollY,h=document.documentElement.scrollHeight-innerHeight;if(bar)bar.style.transform='scaleX('+(h>0?Math.min(1,y/h):0)+')';if(!reduce)html.style.setProperty('--sy',y)})}
@@ -530,8 +715,8 @@ if(cv&&cv.getContext&&box){const ctx=cv.getContext('2d',{willReadFrequently:true
 document.querySelectorAll('.vn-gallery img').forEach(img=>{img.tabIndex=0;img.setAttribute('role','button');const open=()=>{const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:90;background:#000e;display:grid;place-items:center;cursor:zoom-out';const i=new Image();i.src=img.src;i.alt=img.alt;i.style.cssText='max-width:96vw;max-height:94vh;object-fit:contain';o.append(i);o.onclick=()=>o.remove();document.body.append(o)};img.onclick=open;img.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}}});
 ${data._editorPreview?`const known={name1:1,name2:1,heading:1,venue:1,address:1,message:1,schedule:1};document.querySelectorAll('[data-edit]').forEach(n=>{const f=n.getAttribute('data-edit');n.style.cursor='pointer';n.addEventListener('click',ev=>{if(f==='photos')return;ev.stopPropagation();parent.postMessage({type:known[f]?'mubiey-direct-text':'mubiey-edit',field:f},'*')})});`:''}
 })();<\/script>`;
- return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${e(n1)} &amp; ${e(n2)} — Wedding invitation</title><style>${fontCSS()}${is777||is888?arCSS(data.arabicFont):''}${is777?themeVars(theme):''}${CSS}${is777?A7CSS:''}${is888?W8CSS:''}</style><noscript><style>.w8-track{height:auto}.w8-stage{position:static;height:auto}.w8-scene{position:relative;opacity:1;visibility:visible;min-height:100svh}.w8-text{--k:1}.vn-cover{display:none}</style></noscript><noscript><style>.vn-cover{display:none}.vn-card{opacity:1;transform:none}html.vn-lock,html.vn-lock body{overflow:auto}</style></noscript></head><body><div class="vn-bg"></div><div class="vn-progress" id="vn-progress"></div>${dustMarkup(20)}${defs}${coverHTML}${cover?showerMarkup:''}<main>${pages}<section class="vn-extra"><div class="vn-count" id="vn-count"><div><b id="vn-d">—</b><small>DAYS</small></div><div><b id="vn-h">—</b><small>HOURS</small></div><div><b id="vn-m">—</b><small>MINUTES</small></div><div><b id="vn-s">—</b><small>SECONDS</small></div></div><p class="vn-end">Made with Mubiey Studio</p></section></main>${music?`<audio id="music" loop preload="none" src="${e(music)}"></audio><button class="vn-music" id="music-button" type="button">♫ Play music</button>`:''}${script}</body></html>`;
+ return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${e(n1)} &amp; ${e(n2)} — Wedding invitation</title><style>${fontCSS()}${is777||is888||is999?arCSS(data.arabicFont):''}${is777?themeVars(theme):''}${CSS}${is777?A7CSS:''}${is888?W8CSS:''}${is999?JCSS:''}</style><noscript><style>.j-track{height:auto}.j-stage{position:static;height:auto}.j-scene{position:relative;opacity:1;visibility:visible;height:100svh}.j-text{--to:1;--k:1}.w8-track{height:auto}.w8-stage{position:static;height:auto}.w8-scene{position:relative;opacity:1;visibility:visible;min-height:100svh}.w8-text{--k:1}.vn-cover{display:none}</style></noscript><noscript><style>.vn-cover{display:none}.vn-card{opacity:1;transform:none}html.vn-lock,html.vn-lock body{overflow:auto}</style></noscript></head><body><div class="vn-bg"></div><div class="vn-progress" id="vn-progress"></div>${dustMarkup(20)}${defs}${coverHTML}${cover?showerMarkup:''}<main>${pages}${is999?`<section class="vn-extra"><p class="vn-end">Made with Mubiey Studio</p></section>`:`<section class="vn-extra"><div class="vn-count" id="vn-count"><div><b id="vn-d">—</b><small>DAYS</small></div><div><b id="vn-h">—</b><small>HOURS</small></div><div><b id="vn-m">—</b><small>MINUTES</small></div><div><b id="vn-s">—</b><small>SECONDS</small></div></div><p class="vn-end">Made with Mubiey Studio</p></section>`}</main>${music?`<audio id="music" loop preload="none" src="${e(music)}"></audio><button class="vn-music" id="music-button" type="button">♫ Play music</button>`:''}${script}</body></html>`;
 }
 
-invitationDocument=function(data){return data&&(THEMES[data.template]||data.template==='888'||data.template===VELVET||data.template===LEGACY)?velvetDocument(data):baseDocument(data)};
+invitationDocument=function(data){return data&&(THEMES[data.template]||data.template==='888'||data.template==='999'||data.template===VELVET||data.template===LEGACY)?velvetDocument(data):baseDocument(data)};
 })();

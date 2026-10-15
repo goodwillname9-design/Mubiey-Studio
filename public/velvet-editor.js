@@ -5,7 +5,7 @@
 (()=>{
 const $=s=>document.querySelector(s);
 const VELVET='heavy-luxury';
-const TEMPLATES=[['111','111 · Emerald envelope story'],['222','222 · Midnight blue envelope story'],['333','333 · Royal purple envelope story'],['444','444 · Noir & gold envelope story'],['777','777 · Burgundy envelope story'],['888','888 · Real boards walkthrough (wax seal)'],[VELVET,'Heavy Luxury · envelope story + save-the-date page']];
+const TEMPLATES=[['111','111 · Emerald envelope story'],['222','222 · Midnight blue envelope story'],['333','333 · Royal purple envelope story'],['444','444 · Noir & gold envelope story'],['777','777 · Burgundy envelope story'],['888','888 · Real boards walkthrough (wax seal)'],['999','999 · Photo journey (fly through your photos)'],[VELVET,'Heavy Luxury · envelope story + save-the-date page']];
 const STORY=TEMPLATES.map(t=>t[0]);
 const preset=$('#live-preset');
 if(!preset||typeof fields==='undefined'||typeof markDirty!=='function')return;
@@ -33,6 +33,13 @@ add('verse','Page 1 · English line','input','And we created you in pairs');
 add('blessingArabic','Last page · Arabic blessing (type or paste any dua)','area','Leave empty for the default dua',true);
 add('blessing','Last page · English blessing','area','May Allah bless you both…');
 add('rsvpText','Final page · RSVP wording','area','R.S.V.P\nAll family members, relatives and friends');
+
+/* ---- photo journey (999): which uploaded photo goes in which scene, where to zoom, calendar background ---- */
+function addSel(id,label,opts){if($('#'+id))return;const sel=document.createElement('select');sel.id=id;opts.forEach(([v,l])=>sel.append(new Option(l,String(v))));wrap(label,sel);sel.onchange=markDirty;fields.push(id);return sel}
+const PH=(zero)=>[[0,zero]].concat(Array.from({length:12},(_,i)=>[i+1,'Photo '+(i+1)]));
+const FOCUS=[['top','Faces near the top'],['upper','Faces upper-middle (default)'],['center','Centre of the photo'],['lower','Lower part']];
+for(let k=1;k<=4;k++){addSel('scene'+k,'999 · Scene '+k+' photo',PH('Automatic (photo '+k+')'));addSel('focus'+k,'999 · Scene '+k+' zoom point',FOCUS)}
+addSel('bgPhoto','999 · Calendar & start-screen background photo',PH('None (dark default)'));
 
 /* ---- ready-made Arabic texts (always check wording with a trusted source before printing) ---- */
 const VERSES=[
