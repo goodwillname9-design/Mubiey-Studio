@@ -625,10 +625,201 @@ if(track){
 }
 `;
 
+
+/* ===== 555 · Butterfly letter: wax-sealed envelope rises and opens, a butterfly flies out, lands on the page, then
+   cuts a ribbon with a tiny blade to unlock the date ===== */
+const BF={
+ a:{file:'open.jpg',w:647,h:1024,box:[21.5,29.5,63,13.5]},
+ b:{file:'card.jpg',w:679,h:1024,box:[33,27,36,49]},
+ c:{file:'page.jpg',w:570,h:890,box:[16,24,68,62]},
+ d:{file:'card.jpg',w:679,h:1024,box:[33,27,36,49]}
+};
+const BF_SC=[{s:0,e:1.0,zoom:1},{s:1.0,e:2.0,zoom:1},{s:2.0,e:4.5,zoom:0},{s:4.5,e:5.5,zoom:1}];
+const BFCSS=`
+:root{--bg:#1a120c;--bg1:#4a3322;--bg2:#2f2016;--p1:#ead9c0;--p2:#8d1f2d;--box:#ffffff12}
+html{scroll-snap-type:none}
+.bf-track{position:relative;height:calc(100svh*8.7);background:#1a120c}
+.bf-stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#1a120c}
+.bf-stage:after{content:'';position:absolute;inset:0;pointer-events:none;z-index:6;background:radial-gradient(ellipse at 50% 45%,transparent 62%,#0005 100%)}
+.bf-scene{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;opacity:0;visibility:hidden}
+.bf-art{--w:min(max(100vw,calc(100svh*var(--r))),calc(100svh*var(--r)*1.25));position:relative;width:var(--w);flex:none;will-change:transform}
+.bf-art>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none}
+.bf-text{position:absolute;container-type:inline-size;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2.4cqw;color:#5b3a29}
+.bf-text.fill{justify-content:space-between}
+.bf-grp{display:flex;flex-direction:column;align-items:center;gap:1.6cqw;width:100%}
+.bf-l{clip-path:inset(-10% calc(100% - 100%*clamp(0,calc(var(--k,0)*var(--n,8) - var(--i,0)),1)) -10% 0);max-width:100%}
+.bf-f{opacity:clamp(0,calc(var(--k,0)*var(--n,8) - var(--i,0)),1);width:100%;display:flex;flex-direction:column;align-items:center;gap:1.4cqw}
+.bf-cap{font:600 3.4cqw/1.5 Arial,sans-serif;letter-spacing:.8cqw;text-transform:uppercase;color:#8d1f2d;margin:0}
+.bf-h{font:400 11cqw/1.1 AtelierAllura,AtelierParisienne,'Brush Script MT',cursive;color:#7a1624}
+.bf-nm{font:400 9.6cqw/1.15 AtelierAllura,AtelierParisienne,'Brush Script MT',cursive;color:#3f2a1d;overflow-wrap:anywhere}.bf-nm span{color:#8d1f2d;margin:0 1.4cqw}
+.bf-nm.big{font-size:13cqw;line-height:1.05}.bf-amp{font:400 8cqw/1 AtelierAllura,AtelierParisienne,cursive;color:#8d1f2d}
+.bf-en{font:italic 4.4cqw/1.45 AtelierSerif,Georgia,serif;color:#6b4a38;margin:0}.bf-en.sm{font-size:3.8cqw}
+.bf-ar{font-family:var(--arf);font-weight:400;font-size:calc(9cqw*var(--ars,1));line-height:var(--arl,1.7);color:#7a1624;margin:0}.bf-ar.sm{font-size:calc(7.6cqw*var(--ars,1))}
+.bf-p{font:600 3.2cqw/1.5 Arial,sans-serif;letter-spacing:.4cqw;text-transform:uppercase;color:#4a3022;margin:0}.bf-p.t{font-size:2.8cqw;font-weight:400}
+.bf-v{font:400 8cqw/1.15 AtelierAllura,AtelierParisienne,cursive;color:#3f2a1d;overflow-wrap:anywhere;text-wrap:balance}
+.bf-orn{width:30cqw;height:1px;background:linear-gradient(90deg,transparent,#8d1f2d,transparent);opacity:.55}
+/* sealed date: ribbon + scratch foil */
+.bf-sealed{position:relative;width:84%;padding:3cqw 0}
+.bf-sealed .vn-scratchbox{width:100%;aspect-ratio:2.7/1;margin:0;overflow:visible;box-shadow:inset 0 0 0 1px #b0864a,0 4px 12px #4b3a2d33}
+.bf-sealed .vn-secret{border-radius:3cqw;overflow:hidden}.bf-sealed #vn-scratch{border-radius:3cqw}
+.bf-sealed:not(.cut) #vn-scratch{pointer-events:none}
+.dd{display:flex;flex-direction:column;align-items:center;gap:.4cqw;color:#4a3022}.dd i{font:600 2.8cqw Arial,sans-serif;letter-spacing:.8cqw;font-style:normal}.dd b{font:700 3.8cqw Arial,sans-serif;letter-spacing:.9cqw;color:#8d1f2d}
+.ddr{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.6cqw 2cqw;border-top:1px solid #8d1f2d66;border-bottom:1px solid #8d1f2d66;padding:1cqw 2cqw}.ddr span{font:600 2.7cqw Arial,sans-serif;letter-spacing:.3cqw;text-transform:uppercase}.ddr em{font:400 9cqw/1 Georgia,serif;font-style:normal;color:#8d1f2d}
+.bf-ribbon{position:absolute;left:-9%;right:-9%;top:50%;height:11cqw;margin-top:-5.5cqw;z-index:3;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.bf-ribbon:focus{outline:none}.bf-ribbon:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.bf-rb{position:absolute;inset:0;transform-origin:50% 50%}
+.bf-rb.l{clip-path:inset(-60% 50% -60% 0)}.bf-rb.r{clip-path:inset(-60% 0 -60% 50%)}
+.bf-band{position:absolute;left:0;right:0;top:18%;bottom:18%;background:linear-gradient(180deg,#c4313f 0,#9d2233 28%,#6e1422 62%,#a82738 100%);box-shadow:0 3px 8px #0006,inset 0 1px 0 #ffffff55}
+.bf-band:after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffff44 46%,transparent 62%);animation:bf-shine 4.6s ease-in-out infinite}
+@keyframes bf-shine{0%,55%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+.bf-bowsvg{position:absolute;left:50%;top:50%;width:26cqw;height:15.6cqw;margin:-8.6cqw 0 0 -13cqw;overflow:visible;filter:drop-shadow(0 3px 4px #0007)}
+.bf-sealed.cut .bf-rb{transition:transform 1.15s cubic-bezier(.55,0,.85,.45),opacity .9s ease .25s;opacity:0;pointer-events:none}
+.bf-sealed.cut .bf-rb.l{transform:translate(-16%,190%) rotate(-30deg)}.bf-sealed.cut .bf-rb.r{transform:translate(16%,190%) rotate(30deg)}
+.bf-sealed.cut .bf-ribbon{pointer-events:none}
+.bf-sp{position:absolute;left:50%;top:50%;pointer-events:none}.bf-sp i{position:absolute;width:6px;height:6px;margin:-3px;border-radius:50%;background:#ffe9a8;box-shadow:0 0 10px 3px #e9bf62;opacity:0}
+.bf-sealed.cut .bf-sp i{animation:vn-burst 1.3s ease-out forwards}
+.bf-cutbtn,.bf-reveal{margin:0;font:600 max(10px,2.9cqw) Arial,sans-serif;letter-spacing:.3cqw;color:#8d1f2d;background:none;border:0;text-decoration:underline;cursor:pointer;min-height:max(32px,7cqw)}
+.bf-sealed:not(.cut)~.bf-reveal,.bf-sealed.cut~.bf-cutbtn{display:none}
+.bf-btns{display:flex;gap:2cqw;justify-content:center}
+.bf-link{display:inline-flex;align-items:center;min-height:max(36px,9cqw);padding:0 3.6cqw;border-radius:9cqw;background:linear-gradient(135deg,#a82738,#6e1422);color:#fff3e4;font:700 max(9px,2.9cqw) Arial,sans-serif;letter-spacing:.5cqw;text-decoration:none;white-space:nowrap}
+/* butterfly */
+.bf-fly{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.bf-b{position:absolute;left:0;top:0;will-change:transform;opacity:0}
+.bf-spr{--bw:min(46vw,230px);position:relative;width:var(--bw);aspect-ratio:376/268;animation:bf-bob 2.6s ease-in-out infinite alternate;filter:drop-shadow(0 6px 8px #0006)}
+.bf-spr img{position:absolute;inset:0;width:100%;height:100%}
+.bf-wl,.bf-wr{transform-origin:48.9% 52%;animation:bf-flap var(--fd,.24s) ease-in-out infinite alternate}
+@keyframes bf-flap{from{transform:scaleX(1)}to{transform:scaleX(.22)}}@keyframes bf-bob{to{translate:0 3px}}
+.bf-scis{position:absolute;left:50%;top:64%;width:46%;transform:translateX(-50%);opacity:0;transition:opacity .4s}
+.bf-b.hold .bf-scis{opacity:1}
+.bf-scis .blade{transform-origin:50% 62%;animation:bf-snip .42s ease-in-out infinite alternate}.bf-scis .blade.b2{animation-direction:alternate-reverse}
+@keyframes bf-snip{from{transform:rotate(-2deg)}to{transform:rotate(22deg)}}
+/* wax-seal cover */
+.bf-cover{background:#1a120c}.bf-cvwrap{position:absolute;inset:0;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;background:#1a120c}
+.bf-cv{--w:min(max(100vw,calc(100svh*var(--r))),calc(100svh*var(--r)*1.3));position:relative;width:var(--w);container-type:inline-size;flex:none}
+.bf-cv>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.bf-cimg{transform-origin:50.3% 59.8%;transition:transform 1.5s cubic-bezier(.45,0,.2,1),opacity 1.2s ease .15s}
+.bf-limg{opacity:0;transform:scale(1.5);transform-origin:51% 47.3%;transition:transform 1.9s cubic-bezier(.2,.7,.2,1),opacity 1.1s ease .35s}
+.bf-seal{position:absolute;left:50.3%;top:59.8%;width:30cqw;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:none;border:0;cursor:pointer;animation:w8-ring 2.4s ease-out infinite;-webkit-tap-highlight-color:transparent;z-index:2}
+.bf-seal:focus{outline:none}.bf-seal:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.bf-glow{position:absolute;left:50.3%;top:59.8%;width:70cqw;aspect-ratio:1;margin:-35cqw 0 0 -35cqw;border-radius:50%;background:radial-gradient(circle,#fff3c8,#f0c860aa 35%,transparent 68%);opacity:0;transform:scale(.3);pointer-events:none;z-index:2}
+.bf-cover.opening .bf-glow{animation:w8-glow 1.3s ease-out forwards}
+.bf-crack{position:absolute;left:50.3%;top:59.8%;width:30cqw;aspect-ratio:1;transform:translate(-50%,-50%);opacity:0;pointer-events:none;background:url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g fill="none" stroke="#fff3c8" stroke-width="2.2" stroke-linecap="round"><path d="M50 8L46 28L54 40L47 56L55 70L50 92"/><path d="M54 40L72 34L86 40"/><path d="M47 56L28 62L14 58"/></g></svg>')}") center/contain no-repeat;z-index:2}
+.bf-cover.opening .bf-crack{animation:w8-cr 1s .05s ease-out forwards}
+.bf-tap{position:absolute;left:0;right:0;top:88%;text-align:center;font:600 max(9px,2.6cqw) Arial,sans-serif;letter-spacing:.9cqw;text-transform:uppercase;color:#f3dfb8;text-shadow:0 2px 8px #000;margin:0;transition:opacity .5s}
+.bf-cover.opening .bf-tap{opacity:0}.bf-cover.opening .bf-seal{animation:none;pointer-events:none}
+.bf-cover.rise .bf-cimg{transform:scale(1.55);opacity:0}.bf-cover.rise .bf-limg{opacity:1;transform:scale(1.12) translateY(-1.5%)}
+.bf-cover .vn-spark{left:50.3%;top:59.8%}
+.bf-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,#fffaf0,#f6e3b8 55%,#e8dcc6);opacity:0;transition:opacity .55s ease;pointer-events:none;z-index:3}
+.bf-cover.flash .bf-flash{opacity:1}.bf-cover.fade{opacity:0}
+.bf-static .bf-track{height:auto}.bf-static .bf-stage{position:static;height:auto;overflow:visible}.bf-static .bf-stage:after,.bf-static .bf-fly{display:none}
+.bf-static .bf-scene{position:relative;opacity:1;visibility:visible;min-height:100svh}.bf-static .bf-text{--k:1}
+.bf-gal{background:#1a120c;padding:30px 0;display:grid;place-items:center}
+@media(prefers-reduced-motion:reduce){.bf-seal{animation:none}.bf-spr,.bf-wl,.bf-wr,.bf-band:after{animation:none}}
+`;
+function bfPages(data,p){
+ const n1=data.name1||'Name one',n2=data.name2||'Name two';
+ const verseAr=pick(data.verseArabic,'verseArabic'),verse=pick(data.verse,'verse'),blAr=pick(data.blessingArabic,'blessingArabic'),bl=pick(data.blessing,'blessing');
+ const heading=pick(data.heading==='Together with our families'?'':data.heading,'heading');
+ const wording=pick(data.message&&!/^With joy in our hearts/.test(data.message)?data.message:'','message');
+ const map=mapLink(data.mapUrl||''),rsvp=httpsLink(data.rsvpUrl||'');
+ const timeShown=(typeof data.timeText==='string'&&data.timeText.trim())||(p?p.time:'');
+ const photos=(data.photos||[]).filter(s=>typeof s==='string'&&/^data:image\/(jpeg|png|webp);base64,|^\/media\//.test(s));
+ const sched=(data.schedule||[]).filter(s=>s.title);
+ const ART=ARTBASE+'555/';
+ const hostLine=(data.family||'').trim()?data.family.trim():'Together with their families';
+ const mk=(kind,cls,inner,attr)=>({kind,cls,inner,attr:attr||''});
+ const scene=(key,items,opts)=>{opts=opts||{};const b=BF[key];let i=0;const body=items.map(it=>`<div class="${it.kind==='f'?'bf-f':'bf-l'} ${it.cls}" style="--i:${i++}"${it.attr}>${it.inner}</div>`).join('');
+  return `<section class="bf-scene"${opts.id?` id="${opts.id}"`:''}><div class="bf-art" style="--r:${(b.w/b.h).toFixed(4)};aspect-ratio:${b.w}/${b.h}" data-box="${b.box.join(',')}"><img src="${ART}${b.file}" alt="" decoding="async"><div class="bf-text${opts.fill?' fill':''}" style="left:${b.box[0]}%;top:${b.box[1]}%;width:${b.box[2]}%;height:${b.box[3]}%;--n:${opts.n||i||items.length}">${opts.raw?opts.raw:body}</div></div></section>`};
+ const par=(v,f)=>(typeof v==='string'&&v.trim())?mk('l','bf-p',lines(v.trim()),` data-edit="${f}"`):null;
+ /* A · the letter inside the envelope */
+ const A=[mk('l','bf-cap',lines(hostLine),' data-edit="family"'),mk('l','bf-h',e(heading),' data-edit="heading"'),mk('l','bf-nm',`<span data-edit="name1" style="margin:0">${e(n1)}</span><span>&amp;</span><span data-edit="name2" style="margin:0">${e(n2)}</span>`)];
+ /* B · the embossed card */
+ const pr=[par(data.parents1,'parents1'),data.parents1&&data.parents2?mk('l','bf-amp','&amp;'):null,par(data.parents2,'parents2')].filter(Boolean);
+ const B=[mk('l','bf-ar',e(verseAr),' dir="rtl" lang="ar" data-edit="verseArabic"'),mk('l','bf-en',lines(verse),' data-edit="verse"'),mk('l','bf-orn',''),mk('l','bf-en',lines(wording),' data-edit="message"')].concat(pr);
+ /* C · the butterfly page: details, ribbon, date */
+ const dateInner=p?`<div class="dd"><i>ON</i><b>${MONTHS[p.mo-1]}</b><div class="ddr"><span>${DAYS[p.wd]}</span><em>${p.d}</em><span>${e(timeShown)}</span></div><b>${p.y}</b></div>`:'<div class="dd"><b>DATE TO BE ANNOUNCED</b></div>';
+ const bow='<svg class="bf-bowsvg" viewBox="0 0 100 60" aria-hidden="true"><path d="M50 30C38 6 6 4 6 22c0 14 30 14 44 8z" fill="#a82738" stroke="#5a0e18" stroke-width="1.4"/><path d="M50 30C62 6 94 4 94 22c0 14-30 14-44 8z" fill="#a82738" stroke="#5a0e18" stroke-width="1.4"/><path d="M46 34L34 58l12-6 4 8zM54 34l12 24-12-6-4 8z" fill="#8d1f2d" stroke="#5a0e18" stroke-width="1.2"/><rect x="43" y="23" width="14" height="14" rx="5" fill="#c4313f" stroke="#5a0e18" stroke-width="1.2"/></svg>';
+ const ribbon=`<div class="bf-ribbon" id="bf-ribbon" role="button" tabindex="0" aria-label="Cut the ribbon to reveal the date"><div class="bf-rb l"><div class="bf-band"></div>${bow}</div><div class="bf-rb r"><div class="bf-band"></div>${bow}</div></div>`;
+ const sparks=`<div class="bf-sp" aria-hidden="true">${Array.from({length:16},(_,i)=>{const a=i/16*Math.PI*2,r=50+(i%3)*26;return `<i style="--x:${Math.round(Math.cos(a)*r*1.7)}px;--y:${Math.round(Math.sin(a)*r)}px"></i>`}).join('')}</div>`;
+ const C=`<div class="bf-grp"><div class="bf-l bf-cap" style="--i:0" >You are cordially invited</div><div class="bf-l bf-v" style="--i:1" data-edit="venue">${e(data.venue||'Venue to be announced')}</div>${data.address?`<div class="bf-l bf-p t" style="--i:2" data-edit="address">${lines(data.address)}</div>`:''}<div class="bf-l bf-p" style="--i:3;margin-top:1cqw">${e(timeShown)}</div></div><div class="bf-grp bf-f" style="--i:4"><div class="bf-sealed" id="bf-sealed"><div class="vn-scratchbox" id="vn-scratchbox"><div class="vn-secret" data-edit="event-date">${dateInner}</div><canvas id="vn-scratch" aria-label="Scratch to reveal the wedding date"></canvas>${miniSparks}</div>${ribbon}${sparks}</div><button type="button" class="bf-cutbtn" id="bf-cutbtn">Tap here to cut the ribbon</button><button type="button" class="vn-skip bf-reveal" id="vn-reveal">Or tap here to reveal</button></div><div class="bf-grp bf-f" style="--i:5"><div class="bf-btns">${map?`<a class="bf-link" href="${e(map)}" target="_blank" rel="noopener noreferrer">GET DIRECTIONS ↗</a>`:''}${rsvp?`<a class="bf-link" href="${e(rsvp)}" target="_blank" rel="noopener noreferrer">RSVP ↗</a>`:''}</div></div>`;
+ /* D · blessing */
+ const D=[mk('l','bf-ar sm',e(blAr),' dir="rtl" lang="ar" data-edit="blessingArabic"'),mk('l','bf-en',`“${lines(bl)}”`,' data-edit="blessing"'),mk('l','bf-orn',''),mk('l','bf-en sm',lines(pick(data.compliments,'compliments')),' data-edit="compliments"'),mk('l','bf-p t',lines(pick(data.rsvpText,'rsvpText')),' data-edit="rsvpText"')];
+ const sc=[scene('a',A),scene('b',B),scene('c',[],{id:'vn-final',fill:true,raw:C,n:6}),scene('d',D)].join('');
+ const fly=`<div class="bf-fly" id="bf-fly" aria-hidden="true"><div class="bf-b" id="bf-b"><div class="bf-spr" id="bf-spr"><img class="bf-wl" src="${ART}wing-l.webp" alt=""><img class="bf-wr" src="${ART}wing-r.webp" alt=""><img src="${ART}body.webp" alt=""><svg class="bf-scis" viewBox="0 0 60 60"><g fill="none" stroke="#c9ccd2" stroke-width="3" stroke-linecap="round"><circle cx="16" cy="48" r="6" stroke="#d9b46a"/><circle cx="44" cy="48" r="6" stroke="#d9b46a"/><path class="blade b1" d="M16 42L40 6" style="transform-origin:30px 28px"/><path class="blade b2" d="M44 42L20 6" style="transform-origin:30px 28px"/></g></svg></div></div></div>`;
+ const extras=(photos.length?`<div class="bf-gal"><div class="vn-gallery" data-edit="photos"><h2>${e(data.galleryTitle||'Our favourite memories')}</h2>${photos.map((x,i)=>`<img src="${e(x)}" alt="Wedding memory ${i+1}" loading="lazy">`).join('')}</div></div>`:'')+(sched.length?`<div class="bf-gal"><div class="vn-gallery" style="grid-template-columns:1fr" data-edit="schedule"><h2>Moments of the day</h2>${sched.map(x=>`<article style="text-align:center;color:#ead9c0"><h3 style="font:400 34px AtelierAllura,cursive;margin:6px 0">${e(x.title)}</h3><p style="margin:2px 0;opacity:.85">${e(x.time)}</p><p style="margin:2px 0;opacity:.7;white-space:pre-wrap">${e(x.detail)}</p></article>`).join('')}</div></div>`:'');
+ return `<div class="bf-track" id="bf-track" data-sc='${JSON.stringify(BF_SC)}'><div class="bf-stage" id="bf-stage">${sc}${fly}</div></div>${extras}`;
+}
+function bfCover(data){
+ const ART=ARTBASE+'555/';
+ return `<div class="vn-cover bf-cover" id="vn-cover" role="dialog" aria-modal="true" aria-label="Open the invitation"><div class="bf-cvwrap"><div class="bf-cv" style="--r:.6562;aspect-ratio:584/890"><img class="bf-limg" src="${ART}lift.jpg" alt=""><img class="bf-cimg" src="${ART}cover.jpg" alt=""><div class="bf-glow"></div><div class="bf-crack"></div><button type="button" class="bf-seal" id="vn-open" aria-label="Break the wax seal to open the invitation"></button><p class="bf-tap">Tap the wax seal to open</p>${sparkMarkup}</div></div><div class="bf-flash"></div>${dustMarkup(10)}</div>`;
+}
+const BFJS=String.raw`
+/* butterfly letter: scroll moves the camera over the letter; the butterfly follows a flight path */
+const track=document.getElementById('bf-track');
+if(track){
+ const SC=JSON.parse(track.dataset.sc),scenes=[...track.querySelectorAll('.bf-scene')],N=scenes.length;
+ const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),ease=x=>x*x*(3-2*x),lerp=(a,b,t)=>a+(b-a)*t;
+ const arts=scenes.map(sc=>sc.querySelector('.bf-art')),boxes=arts.map(a=>a.dataset.box.split(',').map(Number));
+ const fly=document.getElementById('bf-b'),spr=document.getElementById('bf-spr'),sealed=document.getElementById('bf-sealed'),cutBtn=document.getElementById('bf-cutbtn'),ribbon=document.getElementById('bf-ribbon');
+ const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ let vw=0,vh=0,geo=[],forced=false,intro=null,ribFrac=.5,colW=0,colX=0;
+ if(still){track.classList.add('bf-static');html.classList.add('bf-static');if(sealed)sealed.classList.add('cut')}
+ function measure(){vw=window.innerWidth;vh=window.innerHeight;geo=arts.map((a,i)=>{const W=a.offsetWidth,H=a.offsetHeight,b=boxes[i];const bw=b[2]/100*W,bh=b[3]/100*H;let Z=Math.min(vw*.9,520)/bw;Z=Math.max(1,Math.min(Z,(vh*.8)/bh,3.2));if(!SC[i].zoom)Z=1;return{W,H,dx:((b[0]+b[2]/2)/100-.5)*W,dy:((b[1]+b[3]/2)/100-.5)*H,Z}});
+  colW=Math.min(vw,...geo.map(g=>g.W));colX=(vw-colW)/2;
+  if(ribbon&&arts[2]){const ar=arts[2].getBoundingClientRect(),rr=ribbon.getBoundingClientRect();if(ar.height>0)ribFrac=((rr.top+rr.height/2)-ar.top)/ar.height}}
+ /* flight path: [scroll position, x%, y%, scale, flap speed (0 slow .. 1 fast)] ; y 'R' = the ribbon */
+ const BK=[[0,78,16,.62,.8],[.45,82,19,.62,.8],[.95,86,28,.64,.9],[1.2,93,46,.64,1],[1.45,90,70,.64,1],[1.7,62,88,.62,1],[1.9,14,74,.62,1],[2.1,9,46,.64,1],[2.3,30,24,.66,1],[2.52,50,14,.74,.15],[3,50,14,.74,.12],[3.1,50,26,.72,.9],[3.28,47,42,.72,1],[3.42,50,'R',.72,1],[3.55,50,'R',.72,1],[3.72,58,40,.7,1],[3.98,88,13,.56,1],[4.5,84,17,.52,.6],[5.5,82,20,.52,.5]];
+ function ptAt(p,ry){const k=BK.map(r=>[r[0],r[1],r[2]==='R'?ry:r[2],r[3],r[4]]);let j=0;while(j<k.length-2&&p>=k[j+1][0])j++;const a=k[j],b=k[j+1],u=clamp((p-a[0])/(b[0]-a[0]),0,1),e=ease(u);
+  const P0=k[Math.max(0,j-1)],P3=k[Math.min(k.length-1,j+2)];const cr=(i)=>{const p0=P0[i],p1=a[i],p2=b[i],p3=P3[i];return .5*((2*p1)+(-p0+p2)*u+(2*p0-5*p1+4*p2-p3)*u*u+(-p0+3*p1-3*p2+p3)*u*u*u)};
+  return{x:cr(1),y:cr(2),s:lerp(a[3],b[3],e),f:lerp(a[4],b[4],e)}}
+ function place(p,t){
+  const r=arts[2].getBoundingClientRect(),ry=((r.top+ribFrac*r.height)/vh)*100;
+  const c=ptAt(p,ry),c2=ptAt(p+.012,ry),X=colX+c.x/100*colW,Y=c.y/100*vh;
+  let vx=(c2.x-c.x)/100*colW,vy=(c2.y-c.y)/100*vh;const m=Math.hypot(vx,vy)||1;vx/=m;vy/=m;const w=clamp((c.f-.25)/.4,0,1);
+  const dx=w*vx,dy=w*vy+(1-w)*-1,rot=Math.atan2(dx,-dy)*180/Math.PI;
+  drawFly(X,Y,rot,c.s,c.f,p>=3.05&&p<=3.78)
+ }
+ let lastFd='';
+ function drawFly(X,Y,rot,s,f,hold){fly.style.transform='translate3d('+X.toFixed(1)+'px,'+Y.toFixed(1)+'px,0) translate(-50%,-50%) rotate('+rot.toFixed(1)+'deg) scale('+s.toFixed(3)+')';fly.style.opacity='1';fly.classList.toggle('hold',hold);const fd=(1.7-1.46*clamp(f,0,1)).toFixed(2)+'s';if(fd!==lastFd){spr.style.setProperty('--fd',fd);lastFd=fd}}
+ let ticking=false;
+ function frame(){
+  ticking=false;if(still||!geo.length)return;
+  const r=track.getBoundingClientRect(),total=Math.max(1,track.offsetHeight-vh),y=clamp(-r.top,0,total),p=y/(vh*1.4);
+  scenes.forEach((sc,i)=>{
+   const c=SC[i],g=geo[i],u=p-c.s,d=c.e-c.s,last=i===N-1;
+   const op=clamp((u+.4)/.4,0,1)*(last?1:1-clamp((u-(d-.28))/.28,0,1));
+   let s;if(u<0)s=.78+.22*ease(clamp(u+1,0,1));else{const k=ease(clamp(u/.4,0,1));s=1+(g.Z-1)*k+(c.zoom?0:.03*clamp(u/.6,0,1))+(!last&&u>d-.3?(u-(d-.3))*.5:0)}
+   const kk=u<0?0:ease(clamp(u/.4,0,1));
+   sc.style.opacity=op.toFixed(3);sc.style.visibility=op<.01?'hidden':'visible';sc.style.pointerEvents=op>.55?'auto':'none';
+   sc.style.setProperty('--k',clamp((u-(i===2?.1:.04))/(i===2?.4:.34),0,1).toFixed(3));
+   let tx=-s*g.dx*kk,ty=-s*g.dy*kk;const mx=Math.max(0,(s*g.W-vw)/2),my=Math.max(0,(s*g.H-vh)/2);tx=clamp(tx,-mx,mx);ty=clamp(ty,-my,my);
+   arts[i].style.transform='translate3d('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px,0) scale('+s.toFixed(4)+')';
+  });
+  if(!intro)place(p);
+  if(sealed){const cut=forced||p>=3.5;sealed.classList.toggle('cut',cut||still)}
+ }
+ function req(){if(!ticking){ticking=true;requestAnimationFrame(frame)}}
+ /* butterfly leaves the envelope: time-driven, then the scroll path takes over */
+ function startIntro(){
+  if(still)return;const a=arts[0].getBoundingClientRect();const mx=a.left+.52*a.width,my=a.top+.27*a.height;
+  const c0=ptAt(0,50),hx=colX+c0.x/100*colW,hy=c0.y/100*vh,t0=performance.now(),D=2600;intro=true;
+  (function step(now){const tt=clamp((now-t0)/D,0,1),e=ease(tt);
+   const x=lerp(mx,hx,e)+Math.sin(tt*10)*colW*.05*(1-tt),y=lerp(my,hy,e)-Math.sin(tt*Math.PI)*vh*.12;
+   const vxx=hx-mx,rot=clamp(vxx/vw*40,-25,25)+Math.sin(tt*10)*12*(1-tt);
+   drawFly(x,y,rot*(1-tt),lerp(.18,c0.s,e),1,false);
+   if(tt<1)requestAnimationFrame(step);else{intro=null;frame()}})(t0);
+ }
+ const doCut=()=>{forced=true;if(fly){fly.classList.add('hold');setTimeout(()=>fly.classList.remove('hold'),900)}frame()};
+ if(cutBtn)cutBtn.onclick=doCut;if(ribbon){ribbon.onclick=doCut;ribbon.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();doCut()}}}
+ window.addEventListener('scroll',req,{passive:true});window.addEventListener('resize',()=>{measure();req()});window.addEventListener('orientationchange',()=>setTimeout(()=>{measure();req()},250));
+ measure();if(!still){fly.style.opacity='0'}frame();window.__bf={measure,frame,startIntro,stage:document.getElementById('bf-stage')};
+}
+`;
+
 function velvetDocument(data){
  const p=parseDate(data.date);
- const is888=data.template==='888',is999=data.template==='999',theme=THEMES[data.template]||null,is777=!!theme;
- const {pages,card1}=is999?{pages:jPages(data,p),card1:''}:is888?{pages:w8Pages(data,p),card1:''}:is777?{pages:artPages(data,p,theme),card1:''}:pageCards(data,p,false);
+ const is888=data.template==='888',is999=data.template==='999',is555=data.template==='555',theme=THEMES[data.template]||null,is777=!!theme;
+ const {pages,card1}=is555?{pages:bfPages(data,p),card1:''}:is999?{pages:jPages(data,p),card1:''}:is888?{pages:w8Pages(data,p),card1:''}:is777?{pages:artPages(data,p,theme),card1:''}:pageCards(data,p,false);
  const n1=data.name1||'Name one',n2=data.name2||'Name two';
  const mono=((typeof data.monogram==='string'&&data.monogram.trim())||((n1[0]||'')+(n2[0]||''))).slice(0,3);
  const music=typeof data.music==='string'&&/^data:audio\/[\w.+-]+;base64,|^\/media\//.test(data.music)?data.music:null;
@@ -648,6 +839,17 @@ function velvetDocument(data){
   setTimeout(()=>{cover.classList.add('reveal');letter.classList.add('top');const c=card1.getBoundingClientRect(),dx=c.left+c.width/2-cx0,dy=c.top+c.height/2-cy0,s=c.width/wb;letter.style.transition='transform 1.3s cubic-bezier(.5,0,.15,1)';letter.style.transform='translate('+dx+'px,'+dy+'px) scale('+s+')'},2100);
   setTimeout(finish,3600)};
 }else watch();`;
+ const OPEN555=`if(cover){
+ html.classList.add('vn-lock');const mainEl=document.querySelector('main');mainEl.inert=true;
+ const btn=document.getElementById('vn-open');
+ const finish=()=>{const sh=document.getElementById('vn-shower');if(sh&&!reduce){sh.classList.add('go');setTimeout(()=>sh.remove(),9000)}cover.classList.add('gone');html.classList.remove('vn-lock');mainEl.inert=false;if(window.__bf)window.__bf.frame();window.scrollTo(0,0)};
+ btn.onclick=()=>{if(cover.classList.contains('opening'))return;${autoplay?'startMusic();':''}cover.classList.add('opening');
+  if(reduce){finish();return}
+  setTimeout(()=>cover.classList.add('rise'),550);
+  setTimeout(()=>cover.classList.add('flash'),2350);
+  setTimeout(()=>{cover.classList.add('fade');if(window.__bf)window.__bf.startIntro()},2800);
+  setTimeout(finish,3700)};
+}else if(window.__bf){setTimeout(()=>window.__bf.frame(),0)}`;
  const OPEN999=`if(cover){
  html.classList.add('vn-lock');const mainEl=document.querySelector('main');mainEl.inert=true;
  const btn=document.getElementById('vn-open'),stg=document.getElementById('j-stage');
@@ -677,7 +879,7 @@ function velvetDocument(data){
   if(reduce){finish();return}
   setTimeout(()=>cover.classList.add('emerge'),1300);setTimeout(finish,5000)};
 }else watch();`;
- const coverHTML=cover?(is999?jCover(data):is888?w8Cover(data,mono):is777?artCover(data,mono,theme):`<div class="vn-cover" id="vn-cover" role="dialog" aria-modal="true" aria-label="Open the invitation">${roses}<div class="vn-castle-bg" aria-hidden="true"></div><div class="vn-bow-big" aria-hidden="true"></div><div class="vn-pearls" aria-hidden="true"></div><div class="vn-env" id="vn-env"><div class="vn-aura"></div><div class="vn-env-back"></div><div class="vn-card vn-letter" id="vn-letter" style="transform:translate(0,0) scale(.6)"></div><div class="vn-env-front"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 50L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 44L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel" style="top:calc(50% - 3%)"></div></div><div class="vn-flap"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 100L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 92L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel"></div></div><button type="button" class="vn-seal" id="vn-open" aria-label="Open the invitation">${e(mono)}</button></div><p class="vn-tap">Tap the seal to open</p>${sparkMarkup}${dustMarkup(16)}</div>`):'';
+ const coverHTML=cover?(is555?bfCover(data):is999?jCover(data):is888?w8Cover(data,mono):is777?artCover(data,mono,theme):`<div class="vn-cover" id="vn-cover" role="dialog" aria-modal="true" aria-label="Open the invitation">${roses}<div class="vn-castle-bg" aria-hidden="true"></div><div class="vn-bow-big" aria-hidden="true"></div><div class="vn-pearls" aria-hidden="true"></div><div class="vn-env" id="vn-env"><div class="vn-aura"></div><div class="vn-env-back"></div><div class="vn-card vn-letter" id="vn-letter" style="transform:translate(0,0) scale(.6)"></div><div class="vn-env-front"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 50L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 44L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel" style="top:calc(50% - 3%)"></div></div><div class="vn-flap"><svg class="vn-lace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L50 100L100 0" fill="none" stroke="#f3e6cf" stroke-width="3.2" stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M4 0L50 92L96 0" fill="none" stroke="#f3e6cf88" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="vn-jewel"></div></div><button type="button" class="vn-seal" id="vn-open" aria-label="Open the invitation">${e(mono)}</button></div><p class="vn-tap">Tap the seal to open</p>${sparkMarkup}${dustMarkup(16)}</div>`):'';
  const script=`<script>(()=>{
 const html=document.documentElement,pagesEls=[...document.querySelectorAll('.vn-page')];
 const audio=document.getElementById('music'),mb=document.getElementById('music-button');
@@ -687,8 +889,8 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cover=document.getElementById('vn-cover');
 function watch(){const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.3}):null;pagesEls.forEach(pg=>io?io.observe(pg):pg.classList.add('in'))}
 const page1=document.getElementById('vn-p1');
-${is999?OPEN999:is888?OPEN888:is777?OPEN777:OPENENV}
-${is888?W8JS:''}${is999?JJS:''}
+${is555?OPEN555:is999?OPEN999:is888?OPEN888:is777?OPEN777:OPENENV}
+${is888?W8JS:''}${is999?JJS:''}${is555?BFJS:''}
 /* scroll progress + gentle parallax */
 const bar=document.getElementById('vn-progress');let ticking=false;
 function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(()=>{ticking=false;const y=window.scrollY,h=document.documentElement.scrollHeight-innerHeight;if(bar)bar.style.transform='scaleX('+(h>0?Math.min(1,y/h):0)+')';if(!reduce)html.style.setProperty('--sy',y)})}
@@ -715,8 +917,8 @@ if(cv&&cv.getContext&&box){const ctx=cv.getContext('2d',{willReadFrequently:true
 document.querySelectorAll('.vn-gallery img').forEach(img=>{img.tabIndex=0;img.setAttribute('role','button');const open=()=>{const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:90;background:#000e;display:grid;place-items:center;cursor:zoom-out';const i=new Image();i.src=img.src;i.alt=img.alt;i.style.cssText='max-width:96vw;max-height:94vh;object-fit:contain';o.append(i);o.onclick=()=>o.remove();document.body.append(o)};img.onclick=open;img.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}}});
 ${data._editorPreview?`const known={name1:1,name2:1,heading:1,venue:1,address:1,message:1,schedule:1};document.querySelectorAll('[data-edit]').forEach(n=>{const f=n.getAttribute('data-edit');n.style.cursor='pointer';n.addEventListener('click',ev=>{if(f==='photos')return;ev.stopPropagation();parent.postMessage({type:known[f]?'mubiey-direct-text':'mubiey-edit',field:f},'*')})});`:''}
 })();<\/script>`;
- return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${e(n1)} &amp; ${e(n2)} — Wedding invitation</title><style>${fontCSS()}${is777||is888||is999?arCSS(data.arabicFont):''}${is777?themeVars(theme):''}${CSS}${is777?A7CSS:''}${is888?W8CSS:''}${is999?JCSS:''}</style><noscript><style>.j-track{height:auto}.j-stage{position:static;height:auto}.j-scene{position:relative;opacity:1;visibility:visible;height:100svh}.j-text{--to:1;--k:1}.w8-track{height:auto}.w8-stage{position:static;height:auto}.w8-scene{position:relative;opacity:1;visibility:visible;min-height:100svh}.w8-text{--k:1}.vn-cover{display:none}</style></noscript><noscript><style>.vn-cover{display:none}.vn-card{opacity:1;transform:none}html.vn-lock,html.vn-lock body{overflow:auto}</style></noscript></head><body><div class="vn-bg"></div><div class="vn-progress" id="vn-progress"></div>${dustMarkup(20)}${defs}${coverHTML}${cover?showerMarkup:''}<main>${pages}${is999?`<section class="vn-extra"><p class="vn-end">Made with Mubiey Studio</p></section>`:`<section class="vn-extra"><div class="vn-count" id="vn-count"><div><b id="vn-d">—</b><small>DAYS</small></div><div><b id="vn-h">—</b><small>HOURS</small></div><div><b id="vn-m">—</b><small>MINUTES</small></div><div><b id="vn-s">—</b><small>SECONDS</small></div></div><p class="vn-end">Made with Mubiey Studio</p></section>`}</main>${music?`<audio id="music" loop preload="none" src="${e(music)}"></audio><button class="vn-music" id="music-button" type="button">♫ Play music</button>`:''}${script}</body></html>`;
+ return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${e(n1)} &amp; ${e(n2)} — Wedding invitation</title><style>${fontCSS()}${is777||is888||is999||is555?arCSS(data.arabicFont):''}${is777?themeVars(theme):''}${CSS}${is777?A7CSS:''}${is888?W8CSS:''}${is999?JCSS:''}${is555?BFCSS:''}</style><noscript><style>.bf-track{height:auto}.bf-stage{position:static;height:auto}.bf-scene{position:relative;opacity:1;visibility:visible;min-height:100svh}.bf-text{--k:1}.bf-fly{display:none}.j-track{height:auto}.j-stage{position:static;height:auto}.j-scene{position:relative;opacity:1;visibility:visible;height:100svh}.j-text{--to:1;--k:1}.w8-track{height:auto}.w8-stage{position:static;height:auto}.w8-scene{position:relative;opacity:1;visibility:visible;min-height:100svh}.w8-text{--k:1}.vn-cover{display:none}</style></noscript><noscript><style>.vn-cover{display:none}.vn-card{opacity:1;transform:none}html.vn-lock,html.vn-lock body{overflow:auto}</style></noscript></head><body><div class="vn-bg"></div><div class="vn-progress" id="vn-progress"></div>${dustMarkup(20)}${defs}${coverHTML}${cover?showerMarkup:''}<main>${pages}${is999?`<section class="vn-extra"><p class="vn-end">Made with Mubiey Studio</p></section>`:`<section class="vn-extra"><div class="vn-count" id="vn-count"><div><b id="vn-d">—</b><small>DAYS</small></div><div><b id="vn-h">—</b><small>HOURS</small></div><div><b id="vn-m">—</b><small>MINUTES</small></div><div><b id="vn-s">—</b><small>SECONDS</small></div></div><p class="vn-end">Made with Mubiey Studio</p></section>`}</main>${music?`<audio id="music" loop preload="none" src="${e(music)}"></audio><button class="vn-music" id="music-button" type="button">♫ Play music</button>`:''}${script}</body></html>`;
 }
 
-invitationDocument=function(data){return data&&(THEMES[data.template]||data.template==='888'||data.template==='999'||data.template===VELVET||data.template===LEGACY)?velvetDocument(data):baseDocument(data)};
+invitationDocument=function(data){return data&&(THEMES[data.template]||data.template==='888'||data.template==='999'||data.template==='555'||data.template===VELVET||data.template===LEGACY)?velvetDocument(data):baseDocument(data)};
 })();

@@ -125,6 +125,20 @@ test('999 photo journey: own photos in scenes, calendar + live clock, scratch da
  for(const s of [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]))new vm.Script(s);
  for(const k of ['scene1','scene2','scene3','scene4','bgPhoto'])assert.equal(validate({[k]:'7'})[k],7);assert.equal(validate({focus2:'center'}).focus2,'center');assert.equal(validate({focus2:'x'}).focus2,'upper');
 });
+test('555 butterfly letter: wax-seal cover, four scenes, butterfly sprite, ribbon + scratch date, fields on the letter',()=>{
+ const c=renderer();
+ const html=render(c,{...base,template:'555',parents1:'S/O Mr. Kazi',parents2:'D/O Mr. Khan',timeText:'7 p.m. to 10 p.m.',blessing:'Custom blessing',blessingArabic:'دعاء',address:'Salmiya'});
+ for(const f of ['cover.jpg','lift.jpg','open.jpg','card.jpg','page.jpg','wing-l.webp','wing-r.webp','body.webp'])assert.ok(html.includes('https://studio.example/assets/555/'+f),f);
+ for(const k of ['id="vn-cover"','bf-seal','id="bf-track"','id="bf-stage"','id="bf-fly"','id="bf-sealed"','id="bf-ribbon"','id="bf-cutbtn"','id="vn-scratch"','id="vn-reveal"','id="vn-final"','GET DIRECTIONS','S/O Mr. Kazi','D/O Mr. Khan','Custom blessing','دعاء','7 p.m. to 10 p.m.','You are cordially invited','prefers-reduced-motion','@keyframes bf-flap'])assert.ok(html.includes(k),k);
+ assert.equal((html.match(/<section class="bf-scene"/g)||[]).length,4);
+ const sc=html.indexOf('id="vn-scratch"'),f=html.indexOf('id="vn-final"');assert.ok(sc>f);
+ assert.equal((html.match(/id="vn-count"/g)||[]).length,1,'single countdown in the footer');
+ assert.ok(!render(c,{...base,template:'555',_editorPreview:true}).includes('id="vn-cover"'));assert.ok(render(c,{...base,template:'555',_editorPreview:true}).includes('mubiey-direct-text'));
+ assert.ok(!render(c,{...base,template:'555',musicAutoplay:false}).includes('startMusic();cover.classList.add'));
+ const x=render(c,{...base,template:'555',name1:'<script>alert(1)</script>',venue:'<img src=x onerror=1>'});assert.ok(!x.includes('<script>alert')&&!x.includes('<img src=x'));
+ for(const s of [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]))new vm.Script(s);
+ assert.ok(render(c,{...base,template:'999'}).includes('id="j-track"'));
+});
 test('other templates are untouched',()=>{
  const c=renderer();const html=render(c,{name1:'A',name2:'B',template:'premium-0-0'});
  assert.ok(!html.includes('vn-cover'));assert.ok(html.includes('id="countdown"'));
