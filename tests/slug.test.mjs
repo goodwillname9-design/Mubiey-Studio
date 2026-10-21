@@ -104,5 +104,7 @@ test('page title and social-sharing tags use the couple names and are escaped',(
 test('the shared validator keeps and checks the slug',()=>{
   assert.equal(validate({name1:'A',slug:' Ameen-Fathima '}).slug,'ameen-fathima');assert.equal(validate({name1:'A'}).slug,'');
   for(const bad of ['api','a','12345','invitations'])assert.throws(()=>validate({slug:bad}),{code:'INVALID_INVITATION'},bad);
+  assert.throws(()=>validate({slug:'custom-page'},new Set(['custom-page'])),{code:'INVALID_INVITATION'});
+  assert.throws(()=>validate({slug:42}),{code:'INVALID_INVITATION'});
   assert.ok(UUID_RE.test(UUID));
 });

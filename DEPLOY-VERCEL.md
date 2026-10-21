@@ -12,6 +12,8 @@ uploading this ZIP. This package has not been deployed into your Vercel account 
    this application's tables use a dedicated `mubiey` schema and `mubiey-private` bucket.
 2. Open **SQL Editor**, make a new query, paste all of `supabase/setup.sql`, and Run.
    It creates the app tables and a private file bucket; it does not delete other apps' tables.
+   If this project was set up earlier, run it again to add the invitation slug column and
+   its case-insensitive unique index; the setup is safe to rerun.
 3. From **Connect**, copy the **Transaction pooler** PostgreSQL URI. Replace its database
    password placeholder with the real database password. URL-encode special characters
    in that password. Keep the host/port exactly as Supabase shows. Use `sslmode=verify-full`
