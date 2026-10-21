@@ -1,5 +1,11 @@
 Mubiey Studio — Premium Atelier update
 
+CURRENT CATALOG NOTE
+The active Live Invitation picker now contains only the 11 approved templates.
+This file is a historical update log; the older Atelier editions documented below
+are no longer offered in the live template listing. Their renderers and artwork
+remain in place so previously saved invitations continue to open correctly.
+
 This is an update package, not a separate application. It targets the public Mubiey-Studio repository at base commit 71031e7be2c6cb371555a8135f41ab360f2ca257.
 
 INSTALL

@@ -5,14 +5,14 @@
 (()=>{
 const $=s=>document.querySelector(s);
 const VELVET='heavy-luxury';
-const TEMPLATES=[['111','111 · Emerald envelope story'],['222','222 · Midnight blue envelope story'],['333','333 · Royal purple envelope story'],['444','444 · Noir & gold envelope story'],['777','777 · Burgundy envelope story'],['888','888 · Real boards walkthrough (wax seal)'],['999','999 · Photo journey (fly through your photos)'],['555','555 · Butterfly letter (wax seal, ribbon, butterfly)'],[VELVET,'Heavy Luxury · envelope story + save-the-date page']];
+const TEMPLATES=INVITATION_TEMPLATES.filter(template=>template.group==='story').map(template=>[template.id,template.name]);
 const STORY=TEMPLATES.map(t=>t[0]);
 const preset=$('#live-preset');
 if(!preset||typeof fields==='undefined'||typeof markDirty!=='function')return;
 const grid=preset.closest('.field-grid');
 if(!grid)return;
 
-const ensureTemplate=()=>{for(const [v,label] of TEMPLATES)if(![...preset.options].some(o=>o.value===v)){const o=new Option(label,v);o.dataset.layout='0';preset.add(o)}};
+const ensureTemplate=()=>{for(const template of INVITATION_TEMPLATES)if(![...preset.options].some(o=>o.value===template.id)){const o=new Option(template.name,template.id);o.dataset.layout=String(template.layout);preset.add(o)}};
 ensureTemplate();
 new MutationObserver(ensureTemplate).observe(preset,{childList:true});
 
@@ -81,7 +81,7 @@ if(!$('#arabicFont')){
 const holder=document.createElement('div');holder.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-top:10px';
 TEMPLATES.forEach(([v,label],i)=>{
  const b=document.createElement('button');b.type='button';b.textContent='Try '+(v===VELVET?'Heavy Luxury':v);if(v==='777')b.className='primary';
- b.onclick=()=>{ensureTemplate();preset.value=v;if($('#animation'))$('#animation').checked=true;if($('#music-autoplay'))$('#music-autoplay').checked=true;markDirty()};
+ b.onclick=()=>{ensureTemplate();preset.value=v;if($('#opening-style'))$('#opening-style').value='seal';if($('#animation'))$('#animation').checked=true;if($('#music-autoplay'))$('#music-autoplay').checked=true;markDirty()};
  holder.append(b);
 });
 const previewBtn=document.createElement('button');previewBtn.type='button';previewBtn.textContent='Preview envelope opening';

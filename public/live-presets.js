@@ -1,8 +1,18 @@
 'use strict';
-const LIVE_LAYOUTS=['Lavender wreath','Ivory editorial','Royal palace arch','Dark botanical','Porcelain garden','Watercolor meadow','European baroque','Indian marigold','Glasshouse garden','Lotus romance','Boho dried flowers','Muslim geometric','Hindu mandap','Christian chapel','Neutral letterpress','Gold medallion','Floral doorway','Garden journal','Moonlit ceremony','Fine-art stems','Silk ribbon','Ornate courtyard','Minimal monogram','Heritage columns','Celestial vows','Saffron canopy','Arabesque night'];
-const LIVE_PALETTES=[['emerald','Emerald'],['ivory','Ivory'],['rose','Rose'],['midnight','Midnight'],['saffron','Saffron'],['sage','Sage']];
-const LIVE_VARIANTS=[['wreath','Wreath'],['editorial','Editorial'],['arch','Arch'],['garden','Garden']];
-const LIVE_PRESETS=LIVE_LAYOUTS.flatMap((name,layout)=>LIVE_VARIANTS.map(([variant,label],index)=>({id:`premium-${layout}-${index}`,theme:LIVE_PALETTES[layout%LIVE_PALETTES.length][0],layout,variant,name:`${name} · ${label}`,premium:true})));
+const INVITATION_TEMPLATES=[
+ {id:'premium-26-3',name:'Arabesque night · Garden',theme:'rose',layout:26,variant:3,premium:true,group:'preset'},
+ {id:'royal-red-gold',name:'Royal Red & Gold · Velvet curtains',layout:0,group:'royal'},
+ {id:'111',name:'111 · Emerald envelope story',layout:0,group:'story'},
+ {id:'222',name:'222 · Midnight blue envelope story',layout:0,group:'story'},
+ {id:'333',name:'333 · Royal purple envelope story',layout:0,group:'story'},
+ {id:'444',name:'444 · Noir & gold envelope story',layout:0,group:'story'},
+ {id:'777',name:'777 · Burgundy envelope story',layout:0,group:'story'},
+ {id:'888',name:'888 · Real boards walkthrough (wax seal)',layout:0,group:'story'},
+ {id:'999',name:'999 · Photo journey (fly through your photos)',layout:0,group:'story'},
+ {id:'555',name:'555 · Butterfly letter (wax seal, ribbon, butterfly)',layout:0,group:'story'},
+ {id:'heavy-luxury',name:'Heavy Luxury · envelope story + save-the-date page',layout:0,group:'story'}
+];
+const LIVE_PRESETS=INVITATION_TEMPLATES;
 function livePresetCSS(layout=0){const css=[
  '.hero{min-height:95vh}.hero h1{font-size:clamp(48px,9vw,100px)}',
  '.hero{align-items:flex-start;text-align:left;padding:100px 10%}.hero h1{font-style:italic}.amp{margin-left:20px}.frame{border-width:0 0 1px}.section h2{font-style:italic}',

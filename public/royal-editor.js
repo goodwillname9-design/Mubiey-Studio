@@ -6,13 +6,14 @@
 (()=>{
 const $=s=>document.querySelector(s);
 const ROYAL='royal-red-gold';
+const royalTemplate=INVITATION_TEMPLATES.find(template=>template.id===ROYAL);
 const preset=$('#live-preset');
 if(!preset||typeof fields==='undefined'||typeof markDirty!=='function')return;
 const grid=preset.closest('.field-grid');
 if(!grid)return;
 
 // 1. Template option (appended, so the existing default selection is unchanged)
-const ensureTemplate=()=>{if(![...preset.options].some(o=>o.value===ROYAL)){const o=new Option('Royal Red & Gold · Velvet curtains',ROYAL);o.dataset.layout='0';preset.add(o)}};
+const ensureTemplate=()=>{if(![...preset.options].some(o=>o.value===ROYAL)){const o=new Option(royalTemplate.name,ROYAL);o.dataset.layout=String(royalTemplate.layout);preset.add(o)}};
 ensureTemplate();
 new MutationObserver(ensureTemplate).observe(preset,{childList:true});
 

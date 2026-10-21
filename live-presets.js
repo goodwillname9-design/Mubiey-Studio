@@ -1,45 +1,20 @@
 'use strict';
 
-/* ============================================================
-   LIVE INVITATION PRESETS
-   Updated with 4 new Royal Frame templates + animation support
-   ============================================================ */
-
-const LIVE_LAYOUTS = [
-  'Lavender wreath',
-  'Ivory editorial',
-  'Royal palace arch',
-  'Dark botanical',
-  'Porcelain garden',
-  'Watercolor meadow',
-  'European baroque',
-  'Indian marigold',
-  'Glasshouse garden',
-  'Lotus romance',
-  'Boho dried flowers',
-  'Muslim geometric',
-  'Hindu mandap',
-  'Christian chapel',
-  'Neutral letterpress',
-  'Gold medallion',
-  'Floral doorway',
-  'Garden journal',
-  'Moonlit ceremony',
-  'Fine-art stems',
-  'Silk ribbon',
-  'Ornate courtyard',
-  'Minimal monogram',
-  'Heritage columns',
-  'Celestial vows',
-  'Saffron canopy',
-  'Arabesque night',
-
-  // ===== NEW ROYAL FRAMES (added) =====
-  'Velvet Rose',
-  'Golden Arch',
-  'Column Palace',
-  'Pedestal Frame'
+/* Curated live invitation catalog. Keep IDs aligned with public/live-presets.js. */
+const INVITATION_TEMPLATES = [
+  { id: 'premium-26-3', name: 'Arabesque night · Garden', theme: 'rose', layout: 26, variant: 3, premium: true, group: 'preset' },
+  { id: 'royal-red-gold', name: 'Royal Red & Gold · Velvet curtains', layout: 0, group: 'royal' },
+  { id: '111', name: '111 · Emerald envelope story', layout: 0, group: 'story' },
+  { id: '222', name: '222 · Midnight blue envelope story', layout: 0, group: 'story' },
+  { id: '333', name: '333 · Royal purple envelope story', layout: 0, group: 'story' },
+  { id: '444', name: '444 · Noir & gold envelope story', layout: 0, group: 'story' },
+  { id: '777', name: '777 · Burgundy envelope story', layout: 0, group: 'story' },
+  { id: '888', name: '888 · Real boards walkthrough (wax seal)', layout: 0, group: 'story' },
+  { id: '999', name: '999 · Photo journey (fly through your photos)', layout: 0, group: 'story' },
+  { id: '555', name: '555 · Butterfly letter (wax seal, ribbon, butterfly)', layout: 0, group: 'story' },
+  { id: 'heavy-luxury', name: 'Heavy Luxury · envelope story + save-the-date page', layout: 0, group: 'story' }
 ];
+const LIVE_LAYOUTS = ['Arabesque night'];
 
 const LIVE_PALETTES = [
   ['emerald', 'Emerald'],
@@ -51,33 +26,9 @@ const LIVE_PALETTES = [
 ];
 
 const LIVE_VARIANTS = [
-  ['wreath', 'Wreath'],
-  ['editorial', 'Editorial'],
-  ['arch', 'Arch'],
   ['garden', 'Garden']
 ];
-
-const LIVE_PRESETS = LIVE_LAYOUTS.flatMap((name, layout) =>
-  LIVE_VARIANTS.map(([variant, label], index) => ({
-    id: `premium-${layout}-${index}`,
-    theme: LIVE_PALETTES[layout % LIVE_PALETTES.length][0],
-    layout,
-    variant,
-    name: `${name} · ${label}`,
-    premium: true,
-    // New frames get a special flag so renderer can apply background + animation
-    royalFrame: layout >= 27
-  }))
-);
-
-/* Background images for the 4 new royal frames
-   Place these PNG files in /public/frames/ folder */
-const ROYAL_FRAMES = {
-  27: { file: 'frames/frame-velvet-rose.png',  animation: 'curtain' },
-  28: { file: 'frames/frame-golden-arch.png',  animation: 'light' },
-  29: { file: 'frames/frame-column-palace.png', animation: 'mist' },
-  30: { file: 'frames/frame-pedestal.png',      animation: 'scale' }
-};
+const LIVE_PRESETS = INVITATION_TEMPLATES;
 
 function livePresetCSS(layout = 0) {
   const css = [
@@ -100,27 +51,10 @@ function livePresetCSS(layout = 0) {
     '.hero{min-height:700px}.hero .overline{font-size:12px}.hero h1{text-transform:uppercase;font-size:clamp(34px,6vw,60px);letter-spacing:6px}.frame{border-width:12px 1px;inset:20px}.section h2{font-family:Arial,sans-serif;font-size:27px}.gallery img{height:240px}',
     '.hero{min-height:720px}.hero h1{font-size:clamp(40px,7vw,72px)}.frame{inset:55px;border-width:1px 0}.overline{font-size:9px;letter-spacing:4px}.section{padding:85px 30px}.couple img{border-radius:0}.countdown b{font-size:30px}',
 
-    /* ===== NEW ROYAL FRAME CSS (indexes 27-30) ===== */
-    /* 27 - Velvet Rose (curtain open) */
-    '.hero{min-height:100vh;background-size:cover;background-position:center;position:relative}.hero h1{font-family:Georgia,serif;font-style:italic;font-size:clamp(42px,8vw,88px);color:#f8e8d0;text-shadow:0 2px 18px rgba(0,0,0,.6)}.amp{color:#e8c9a0}.frame{border:0;inset:0}.hero .shade{background:radial-gradient(ellipse at center,transparent 30%,rgba(20,8,12,.55) 100%)}',
-
-    /* 28 - Golden Arch (light reveal) */
-    '.hero{min-height:100vh;background-size:cover;background-position:center}.hero h1{font-family:Georgia,serif;font-style:italic;font-size:clamp(40px,7.5vw,82px);color:#5c4030;text-shadow:0 1px 8px rgba(255,255,255,.4)}.amp{color:#a67c52}.frame{border:0;inset:0}.hero .shade{background:radial-gradient(ellipse at 50% 35%,rgba(255,240,200,.25) 0%,transparent 60%)}',
-
-    /* 29 - Column Palace (mist) */
-    '.hero{min-height:100vh;background-size:cover;background-position:center}.hero h1{font-family:Georgia,serif;font-style:italic;font-size:clamp(42px,8vw,90px);color:#f5e6d3;text-shadow:0 3px 20px rgba(0,0,0,.7)}.amp{color:#d4b896}.frame{border:0;inset:0}.hero .shade{background:linear-gradient(transparent 40%,rgba(40,20,30,.6) 100%)}',
-
-    /* 30 - Pedestal Frame (scale) */
-    '.hero{min-height:100vh;background-size:cover;background-position:center}.hero h1{font-family:Georgia,serif;font-style:italic;font-size:clamp(38px,7vw,78px);color:#f0e0d0;text-shadow:0 2px 14px rgba(0,0,0,.5)}.amp{color:#c9a06a}.frame{border:0;inset:0}.hero .shade{background:radial-gradient(ellipse at center,transparent 40%,rgba(30,15,25,.5) 100%)}'
   ];
   return css[Number(layout)] || css[0];
 }
 
-/* Helper – used by renderer to apply royal frame background + animation class */
-function getRoyalFrame(layout) {
-  return ROYAL_FRAMES[Number(layout)] || null;
-}
-
 if (typeof module !== 'undefined') {
-  module.exports = { LIVE_LAYOUTS, LIVE_PALETTES, LIVE_VARIANTS, LIVE_PRESETS, livePresetCSS, ROYAL_FRAMES, getRoyalFrame };
+  module.exports = { INVITATION_TEMPLATES, LIVE_LAYOUTS, LIVE_PALETTES, LIVE_VARIANTS, LIVE_PRESETS, livePresetCSS };
 }
