@@ -1,0 +1,11 @@
+warning: in the working copy of 'api/handler.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/validate.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/worker.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/guest.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/guest.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/invitations.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'supabase/setup.sql', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/backend.test.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/server.test.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'vercel.json', LF will be replaced by CRLF the next time Git touches it

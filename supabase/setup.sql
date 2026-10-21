@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS mubiey.users (
 CREATE TABLE IF NOT EXISTS mubiey.sessions(token text PRIMARY KEY,user_id text NOT NULL,expires bigint NOT NULL);
 CREATE INDEX IF NOT EXISTS mubiey_session_expiry ON mubiey.sessions(expires);
 CREATE TABLE IF NOT EXISTS mubiey.invitations(id text PRIMARY KEY,owner text NOT NULL,doc text NOT NULL,version integer NOT NULL DEFAULT 0,updated text NOT NULL);
+ALTER TABLE mubiey.invitations ADD COLUMN IF NOT EXISTS slug text;
+CREATE UNIQUE INDEX IF NOT EXISTS invitations_slug_uidx ON mubiey.invitations (lower(slug)) WHERE slug IS NOT NULL;
 CREATE INDEX IF NOT EXISTS mubiey_inv_owner ON mubiey.invitations(owner);
 CREATE TABLE IF NOT EXISTS mubiey.files(id text PRIMARY KEY,owner text NOT NULL,invite text,name text NOT NULL,type text NOT NULL,size bigint NOT NULL,created text NOT NULL,status text NOT NULL DEFAULT 'pending',expected bigint NOT NULL DEFAULT 0,expires bigint NOT NULL DEFAULT 0);
 CREATE INDEX IF NOT EXISTS mubiey_files_owner ON mubiey.files(owner);
