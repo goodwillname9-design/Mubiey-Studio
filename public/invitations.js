@@ -58,3 +58,25 @@ $('#theme').addEventListener('change',()=>{const layout=Number($('#live-preset')
 $('#native-share').onclick=async()=>{const url=$('#guest-link').value;try{if(navigator.share)await navigator.share({title:$('#name1').value+' & '+$('#name2').value+' — Wedding invitation',text:'Join us for our wedding celebration',url});else $('#copy-link').click()}catch(e){if(e.name!=='AbortError')toast('Could not open sharing. Use Copy link instead.')}};
 try{const t=new URLSearchParams(location.search).get('template'),sel=$('#live-preset');if(t&&[...sel.options].some(o=>o.value===t)){sel.value=t;sel.onchange&&sel.onchange()}}catch{}
 preview();
+
+
+/* HTML panel custom font input (id=customFontFile) */
+(function(){
+  const el=document.getElementById('customFontFile');
+  if(!el)return;
+  el.addEventListener('change',async()=>{
+    const f=el.files?.[0];if(!f)return;
+    if(f.size>8*1048576){toast('Font file must be under 8 MB');return;}
+    const ext=(f.name.split('.').pop()||'').toLowerCase();
+    if(!['ttf','otf','woff','woff2'].includes(ext)){toast('Use .ttf, .otf, .woff or .woff2');return;}
+    const buf=await f.arrayBuffer();
+    const bytes=new Uint8Array(buf);let bin='';const chunk=0x8000;
+    for(let i=0;i<bytes.length;i+=chunk)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk));
+    const b64=btoa(bin);
+    const mime={ttf:'font/ttf',otf:'font/otf',woff:'font/woff',woff2:'font/woff2'}[ext];
+    window.__customFont={name:f.name,data:`data:${mime};base64,${b64}`,format:ext};
+    const fontSel=document.getElementById('font');if(fontSel)fontSel.value='custom';
+    const st=document.getElementById('custom-font-status');if(st)st.textContent='Custom font ready: '+f.name;
+    markDirty();
+  });
+})();
