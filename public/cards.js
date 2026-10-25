@@ -1,8 +1,42 @@
+
+/* 10 premium featured invitation cards shown first in the catalogue */
+const PREMIUM_FEATURED=[
+ {id:'premium-royal-1',name:'Royal Velvet Seal',tradition:'Muslim',style:'Traditional',premium:true,tag:'Premium'},
+ {id:'premium-royal-2',name:'Golden Arch Ceremony',tradition:'Muslim',style:'Editorial',premium:true,tag:'Premium'},
+ {id:'premium-royal-3',name:'Ivory Palace Column',tradition:'General',style:'Traditional',premium:true,tag:'Premium'},
+ {id:'premium-royal-4',name:'Pedestal Rose Frame',tradition:'Christian',style:'Botanical',premium:true,tag:'Premium'},
+ {id:'premium-royal-5',name:'Midnight Sapphire',tradition:'Muslim',style:'Modern',premium:true,tag:'Premium'},
+ {id:'premium-royal-6',name:'Emerald Garden Gate',tradition:'Hindu',style:'Botanical',premium:true,tag:'Premium'},
+ {id:'premium-royal-7',name:'Champagne Medallion',tradition:'Interfaith',style:'Editorial',premium:true,tag:'Premium'},
+ {id:'premium-royal-8',name:'Blush Peony Letter',tradition:'Christian',style:'Botanical',premium:true,tag:'Premium'},
+ {id:'premium-royal-9',name:'Saffron Mandap Glow',tradition:'Hindu',style:'Traditional',premium:true,tag:'Premium'},
+ {id:'premium-royal-10',name:'Celestial Vows Night',tradition:'General',style:'Modern',premium:true,tag:'Premium'}
+];
 'use strict';
 document.head.insertAdjacentHTML('beforeend','<style>.template-card{display:flex;flex-direction:column;gap:8px;padding:10px;text-align:left}.template-card img{width:100%;aspect-ratio:5/7;object-fit:cover;border-radius:5px}.template-actions{display:flex;gap:6px}.template-actions button{flex:1;padding:7px 5px;font-size:12px}</style>');
 const $=s=>document.querySelector(s);let selected=null,photo='',timer;const keys=['name1','name2','heading','dateText','venue','note','font','nameSize','background','ink','accent'];
 function toast(s){$('#toast').textContent=s;$('#toast').classList.add('show');clearTimeout(timer);timer=setTimeout(()=>$('#toast').classList.remove('show'),3500)}
-function renderList(){const collection=$('#collection');collection.querySelector('.eyebrow').textContent='INVITATION CARD DESIGNS';collection.querySelector('.page-title').textContent='Invitation cards';collection.querySelector('.subtle').textContent='The approved designs are interactive live invitations and are not available as static cards.';$('#count').textContent='0 approved card templates';$('#religion').closest('.toolbar').hidden=true;$('#catalogue').hidden=true;document.querySelector('.pagination').hidden=true;collection.querySelector('.help').hidden=true;let empty=$('#card-catalog-empty');if(!empty){empty=document.createElement('div');empty.id='card-catalog-empty';empty.className='panel';empty.innerHTML='<h2>No approved static card templates</h2><p class="subtle">The 11 approved designs use full-page invitation artwork and animations that this printable SVG card editor cannot preserve. Open Live Invitations to preview, save, publish, or export those designs.</p><div class="actions"><a class="button primary" href="invitations.html">Open Live Invitations</a><button type="button" id="open-existing-design">Open an existing card design</button></div>';$('#catalogue').after(empty);$('#open-existing-design').onclick=()=>$('#design-file').click()}}
+function renderList(){const collection=$('#collection');
+collection.querySelector('.eyebrow').textContent='PREMIUM INVITATION CARDS';
+collection.querySelector('.page-title').textContent='Premium card collection';
+collection.querySelector('.subtle').textContent='10 premium designs. Open in live invitations to personalise names, photos and share a guest link.';
+$('#count').textContent=PREMIUM_FEATURED.length+' premium cards';
+const toolbar=$('#religion')?.closest('.toolbar');if(toolbar)toolbar.hidden=false;
+$('#catalogue').hidden=false;
+const pag=document.querySelector('.pagination');if(pag)pag.hidden=true;
+const help=collection.querySelector('.help');if(help)help.textContent='These premium cards open in the live invitation editor. Your text and photos stay with you.';
+const cat=$('#catalogue');cat.replaceChildren();
+for(const card of PREMIUM_FEATURED){
+  const el=document.createElement('article');el.className='template-card';el.style.cssText='border:1px solid #80623b;border-radius:8px;padding:14px;background:#171d26;display:grid;gap:8px';
+  el.innerHTML=`<div style="aspect-ratio:5/7;border-radius:6px;background:linear-gradient(160deg,#2a1f18,#1a1218 40%,#3d2a22);display:flex;align-items:center;justify-content:center;color:#e8c9a0;font:italic 18px Georgia,serif;text-align:center;padding:12px">${card.name}</div>
+  <strong style="color:#f5e6d3;font-size:14px">${card.name}</strong>
+  <small style="color:#a3adbb">${card.tradition} · ${card.style} · ${card.tag||'Premium'}</small>
+  <div class="template-actions"><button type="button" data-id="${card.id}">Use in live invitation</button></div>`;
+  el.querySelector('button').onclick=()=>{location.href='invitations.html?premium='+encodeURIComponent(card.id)};
+  cat.append(el);
+}
+return;
+let empty=$('#card-catalog-empty');if(!empty){empty=document.createElement('div');empty.id='card-catalog-empty';empty.className='panel';empty.innerHTML='<h2>No approved static card templates</h2><p class="subtle">The 11 approved designs use full-page invitation artwork and animations that this printable SVG card editor cannot preserve. Open Live Invitations to preview, save, publish, or export those designs.</p><div class="actions"><a class="button primary" href="invitations.html">Open Live Invitations</a><button type="button" id="open-existing-design">Open an existing card design</button></div>';$('#catalogue').after(empty);$('#open-existing-design').onclick=()=>$('#design-file').click()}}
 function collect(){return {...Object.fromEntries(keys.map(k=>[k,$('#c-'+k).value])),template:selected.id,photo}}
 function preview(){if(selected)$('#card-preview').innerHTML=atelierSpec(selected.id)?atelierCard(collect(),selected):cardSVG(collect(),selected)}
 function openTemplate(t){selected=t;const af=atelierSpec(t.id);const a=af?ATELIER_FAMILIES[af.art]:null;const palette=a?[a.name,a.bg,a.ink,a.gold]:(t.floral?FLORAL_PALETTES:CARD_PALETTES)[t.palette];$('#c-background').value=palette[1];$('#c-ink').value=palette[2];$('#c-accent').value=palette[3];$('#design-title').textContent=t.name;$('#collection').hidden=true;$('#editor').hidden=false;preview();scrollTo({top:0,behavior:'smooth'})}
