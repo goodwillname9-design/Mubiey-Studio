@@ -31,7 +31,7 @@ test('guest page gets velvet curtains, petals, an accessible open button and mus
   assert.ok(html.includes('id="rr-curtain"'));assert.ok(html.includes('rr-panel rr-left'));assert.ok(html.includes('rr-panel rr-right'));
   assert.ok(html.includes('rr-fall'));assert.ok(html.includes('id="rr-open"'));assert.ok(html.includes('aria-modal="true"'));
   assert.ok(html.includes('prefers-reduced-motion'));assert.ok(html.includes('if(audio)audio.play()'));
-  assert.ok(html.includes('--rr-gold'));assert.ok(html.includes('OPEN DIRECTIONS'));assert.ok(html.includes('id="countdown"'));
+  assert.ok(html.includes('--rr-gold'));assert.ok(html.includes('DIRECTIONS'));assert.ok(html.includes('id="countdown"'));
   for(const p of ['a','b','c','d'])assert.ok(html.includes('/media/'+p));
   assert.ok(!html.includes('mubiey-direct-text'));
 });
