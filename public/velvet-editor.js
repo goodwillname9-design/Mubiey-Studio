@@ -27,6 +27,8 @@ add('monogram','Monogram on the envelope seal (up to 3 letters)','input','e.g. A
 add('parents1','Name 1 · parents line (e.g. S/O Mr. & Mrs. …)','input','S/O Mr. … & Mrs. …');
 add('parents2','Name 2 · parents line (e.g. D/O Mr. & Mrs. …)','input','D/O Mr. … & Mrs. …');
 add('timeText','Time shown (e.g. 7 p.m. to 10 p.m.)','input','Leave empty to show the start time');
+add('receptionDate','Reception page · date (e.g. Sunday, 15 March 2026)','input','Shown under "Reception" — leave empty for "Date to be announced"');
+add('receptionTime','Reception page · time (e.g. 7 p.m. onwards)','input','Optional');
 add('compliments','Bottom line (with best compliments from…)','input','With best compliments from our family');
 add('verseArabic','Page 1 · Arabic line','input','Leave empty for the default',true);
 add('verse','Page 1 · English line','input','And we created you in pairs');
