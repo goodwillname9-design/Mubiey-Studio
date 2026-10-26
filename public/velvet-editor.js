@@ -27,8 +27,14 @@ add('monogram','Monogram on the envelope seal (up to 3 letters)','input','e.g. A
 add('parents1','Name 1 · parents line (e.g. S/O Mr. & Mrs. …)','input','S/O Mr. … & Mrs. …');
 add('parents2','Name 2 · parents line (e.g. D/O Mr. & Mrs. …)','input','D/O Mr. … & Mrs. …');
 add('timeText','Time shown (e.g. 7 p.m. to 10 p.m.)','input','Leave empty to show the start time');
-add('receptionDate','Reception page · date (e.g. Sunday, 15 March 2026)','input','Shown under "Reception" — leave empty for "Date to be announced"');
-add('receptionTime','Reception page · time (e.g. 7 p.m. onwards)','input','Optional');
+/* reception fields sit right under the venue / address / directions-link fields (Direction 1) */
+(()=>{const anchor=$('#mapUrl')&&$('#mapUrl').closest('label');let last=anchor;
+ const put=(id,label,hint)=>{add(id,label,'input',hint);const el=$('#'+id),l=el&&el.closest('label');if(l&&last){l.classList.add('wide');last.after(l);last=l}};
+ put('receptionTitle','Reception page · heading (default: Reception)','Reception');
+ put('receptionNames','Reception page · names (e.g. Muhammad & Aisha)','Optional — shown under the Reception heading');
+ put('receptionDate','Reception page · date (e.g. Sunday, 15 March 2026)','Leave empty for "Date to be announced"');
+ put('receptionTime','Reception page · time (e.g. 7 p.m. onwards)','Optional');
+})();
 add('compliments','Bottom line (with best compliments from…)','input','With best compliments from our family');
 add('verseArabic','Page 1 · Arabic line','input','Leave empty for the default',true);
 add('verse','Page 1 · English line','input','And we created you in pairs');
