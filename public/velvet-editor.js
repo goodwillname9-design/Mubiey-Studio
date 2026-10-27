@@ -36,6 +36,7 @@ add('timeText','Time shown (e.g. 7 p.m. to 10 p.m.)','input','Leave empty to sho
  put('receptionTime','Reception page · time (e.g. 7 p.m. onwards)','Optional');
 })();
 add('compliments','Bottom line (with best compliments from…)','input','With best compliments from our family');
+add('wishesFrom','Best wishes from (name) — shown under "With best wishes from"','input','Leave empty to use the line above');
 add('verseArabic','Page 1 · Arabic line','input','Leave empty for the default',true);
 add('verse','Page 1 · English line','input','And we created you in pairs');
 add('blessingArabic','Last page · Arabic blessing (type or paste any dua)','area','Leave empty for the default dua',true);
