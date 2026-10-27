@@ -12,7 +12,8 @@ const INVITATION_TEMPLATES = [
   { id: '888', name: '888 · Real boards walkthrough (wax seal)', layout: 0, group: 'story' },
   { id: '999', name: '999 · Photo journey (fly through your photos)', layout: 0, group: 'story' },
   { id: '555', name: '555 · Butterfly letter (wax seal, ribbon, butterfly)', layout: 0, group: 'story' },
-  { id: 'heavy-luxury', name: 'Heavy Luxury · envelope story + save-the-date page', layout: 0, group: 'story' }
+  { id: 'heavy-luxury', name: 'Heavy Luxury · envelope story + save-the-date page', layout: 0, group: 'story' },
+  { id: 'stepup', name: 'Step Up · Luxury marble stairs & invitation box', layout: 0, group: 'story' }
 ];
 const LIVE_LAYOUTS = ['Arabesque night'];
 
