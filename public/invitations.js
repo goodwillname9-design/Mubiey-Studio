@@ -1,7 +1,7 @@
 'use strict';
 let slugHelpers,slugLoadError;const slugHelpersReady=import('/api/slug.js').then(module=>{slugHelpers=module},error=>{slugLoadError=error});
 document.head.insertAdjacentHTML('beforeend','<style>.premium-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-height:460px;overflow:auto}.premium-tile{display:grid;gap:5px;padding:10px;border:1px solid #80623b;background:#171d26;border-radius:6px}.premium-tile small{color:#a3adbb;font-size:11px}.premium-tile button{padding:6px;font-size:11px}@media(max-width:700px){.premium-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:380px}}</style>');
-const $=s=>document.querySelector(s),fields=['name1','name2','heading','message','venue','address','mapUrl','venueGroom','addressGroom','mapUrlGroom','theme','tradition','timezone','galleryMode','galleryTitle','parents1','parents2','family'];let currentId=null,published=false,savedSlug='',photos=[],music=null,logged=false,dirty=false,busy=false,previewTimer,slugEdited=false,slugCheckTimer,slugCheckVersion=0;let toastTimer;
+const $=s=>document.querySelector(s),fields=['name1','name2','heading','message','venue','address','mapUrl','venueLabel','venueGroomLabel','venueGroom','addressGroom','mapUrlGroom','theme','tradition','timezone','galleryMode','galleryTitle','parents1','parents2','family'];let currentId=null,published=false,savedSlug='',photos=[],music=null,logged=false,dirty=false,busy=false,previewTimer,slugEdited=false,slugCheckTimer,slugCheckVersion=0;let toastTimer;
 function toast(msg){$('#toast').textContent=msg;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),4500)}
 function collect(){const d=Object.fromEntries(fields.map(k=>[k,$('#'+k).value]));d.slug=$('#slug')?.value||'';d.musicAutoplay=$('#music-autoplay')?.checked!==false;d.openingStyle=$('#opening-style')?.value||'seal';d.font=$('#font')?.value||'serif';d.customFont=(window.__customFont&&window.__customFont.data)?{name:window.__customFont.name,data:window.__customFont.data,format:window.__customFont.format}:null;if(d.customFont)d.font='custom';d.animation=$('#animation')?.checked!==false;d.date=$('#event-date').value?$('#event-date').value+d.timezone:'';d.layout=Number($('#live-preset').selectedOptions[0]?.dataset.layout)||0;d.template=$('#live-preset').value;d.photos=photos.map(p=>p.value);d.music=music?.value||null;d.schedule=$('#schedule').value.split('\n').filter(Boolean).slice(0,8).map(line=>{const [title='',time='',detail='']=line.split('|');return{title:title.trim(),time:time.trim(),detail:detail.trim()}});return d}
 function preview(){clearTimeout(previewTimer);previewTimer=setTimeout(()=>{const d=collect();d.photos=photos.map(p=>p.preview||p.value);d.music=music?.preview||music?.value||null;d._editorPreview=true;$('#preview').srcdoc=invitationDocument(d)},250)}
@@ -56,4 +56,27 @@ for(const preset of INVITATION_TEMPLATES){const o=document.createElement('option
 $('#live-preset').onchange=()=>{const p=INVITATION_TEMPLATES.find(p=>p.id===$('#live-preset').value);if(p?.theme)$('#theme').value=p.theme;if(p?.group==='royal')$('#opening-style').value='curtain';else if(p?.group==='story')$('#opening-style').value='seal';markDirty()};
 $('#theme').addEventListener('change',()=>{const layout=Number($('#live-preset').selectedOptions[0]?.dataset.layout)||0;markDirty()});
 $('#native-share').onclick=async()=>{const url=$('#guest-link').value;try{if(navigator.share)await navigator.share({title:$('#name1').value+' & '+$('#name2').value+' — Wedding invitation',text:'Join us for our wedding celebration',url});else $('#copy-link').click()}catch(e){if(e.name!=='AbortError')toast('Could not open sharing. Use Copy link instead.')}};
+try{const t=new URLSearchParams(location.search).get('template'),sel=$('#live-preset');if(t&&[...sel.options].some(o=>o.value===t)){sel.value=t;sel.onchange&&sel.onchange()}}catch{}
 preview();
+
+
+/* HTML panel custom font input (id=customFontFile) */
+(function(){
+  const el=document.getElementById('customFontFile');
+  if(!el)return;
+  el.addEventListener('change',async()=>{
+    const f=el.files?.[0];if(!f)return;
+    if(f.size>8*1048576){toast('Font file must be under 8 MB');return;}
+    const ext=(f.name.split('.').pop()||'').toLowerCase();
+    if(!['ttf','otf','woff','woff2'].includes(ext)){toast('Use .ttf, .otf, .woff or .woff2');return;}
+    const buf=await f.arrayBuffer();
+    const bytes=new Uint8Array(buf);let bin='';const chunk=0x8000;
+    for(let i=0;i<bytes.length;i+=chunk)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk));
+    const b64=btoa(bin);
+    const mime={ttf:'font/ttf',otf:'font/otf',woff:'font/woff',woff2:'font/woff2'}[ext];
+    window.__customFont={name:f.name,data:`data:${mime};base64,${b64}`,format:ext};
+    const fontSel=document.getElementById('font');if(fontSel)fontSel.value='custom';
+    const st=document.getElementById('custom-font-status');if(st)st.textContent='Custom font ready: '+f.name;
+    markDirty();
+  });
+})();

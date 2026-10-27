@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Studio Wall — Mubiey Studio</title>
+<link rel="stylesheet" href="studio.css">
+<style>
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;padding:10px 0 40px}
+.wall-card{background:#171d26;border:1px solid #80623b;border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.wall-card .thumb{aspect-ratio:4/5;background:linear-gradient(160deg,#2a1f18,#1a1218);display:flex;align-items:center;justify-content:center;color:#e8c9a0;font:italic 20px Georgia,serif;text-align:center;padding:16px}
+.wall-card .meta{padding:12px 14px}
+.wall-card .meta strong{display:block;color:#f5e6d3;margin-bottom:4px}
+.wall-card .meta small{color:#a3adbb}
+.wall-card a{margin:0 14px 14px;text-align:center}
+</style>
+</head>
+<body>
+<a href="account.html" style="display:block;text-align:right;padding:10px 20px;background:#101827;color:#e7c88b">My Projects · Account</a>
+<header class="site-header">
+<a class="brand" href="/"><b>M</b><span>MUBIEY STUDIO<small>WEDDING CREATIVE SUITE</small></span></a>
+<nav class="site-nav">
+<a href="/">Workspace</a>
+<a href="photo.html">Photo editor</a>
+<a href="cards.html">Invitation cards</a>
+<a href="invitations.html">Live invitations</a>
+<a class="active" href="studio-wall.html">Studio wall</a>
+</nav>
+</header>
+<main class="container">
+<span class="eyebrow">INSPIRED BY THE COMMUNITY</span>
+<h1 class="page-title">Studio wall.</h1>
+<p class="subtle">Featured premium designs — open any card and make it yours. Like an Instagram feed of invitation looks.</p>
+<div class="wall" id="wall"></div>
+<p class="help">Published guest invitations stay private. This wall shows studio premium templates only, not other couples’ personal pages.</p>
+</main>
+<script>
+const FEATURED=[
+ {name:'Royal Velvet Seal',tag:'Muslim · Traditional'},
+ {name:'Golden Arch Ceremony',tag:'Muslim · Editorial'},
+ {name:'Ivory Palace Column',tag:'General · Traditional'},
+ {name:'Pedestal Rose Frame',tag:'Christian · Botanical'},
+ {name:'Midnight Sapphire',tag:'Muslim · Modern'},
+ {name:'Emerald Garden Gate',tag:'Hindu · Botanical'},
+ {name:'Champagne Medallion',tag:'Interfaith · Editorial'},
+ {name:'Blush Peony Letter',tag:'Christian · Botanical'},
+ {name:'Saffron Mandap Glow',tag:'Hindu · Traditional'},
+ {name:'Celestial Vows Night',tag:'General · Modern'}
+];
+const wall=document.getElementById('wall');
+FEATURED.forEach(c=>{
+  const el=document.createElement('article');
+  el.className='wall-card';
+  el.innerHTML=`<div class="thumb">${c.name}</div><div class="meta"><strong>${c.name}</strong><small>${c.tag}</small></div><a class="button" href="invitations.html">Create with this look</a>`;
+  wall.append(el);
+});
+</script>
+</body>
+</html>

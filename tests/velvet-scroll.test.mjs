@@ -14,7 +14,7 @@ test('validator keeps the new Velvet fields and limits their length',()=>{
 });
 test('guest document has envelope, all pages, scratch date, countdown and music',()=>{
  const html=render(renderer(),base);
- for(const k of ['id="vn-cover"','id="vn-open"','id="vn-letter"','id="vn-p1"','id="vn-datepage"','id="vn-final"','id="vn-last"','id="vn-scratch"','id="vn-reveal"','id="vn-count"','id="music"','vn-gallery','Moments of the day','GET DIRECTIONS','RSVP ↗','prefers-reduced-motion'])assert.ok(html.includes(k),k);
+ for(const k of ['id="vn-cover"','id="vn-open"','id="vn-letter"','id="vn-p1"','id="vn-datepage"','id="vn-final"','id="vn-last"','id="vn-scratch"','id="vn-reveal"','id="vn-count"','id="music"','vn-gallery','Moments of the day','DIRECTIONS ↗','RSVP ↗','prefers-reduced-motion'])assert.ok(html.includes(k),k);
  assert.ok(html.includes('Dawat-e-Nikah'));assert.ok(html.includes('And we created you in pairs'));
  assert.ok(!html.includes('mubiey-direct'));
 });
@@ -42,7 +42,7 @@ test('envelope is skipped for editor preview, animation off and direct opening; 
 test('Heavy Luxury details page: parents, time range, compliments, directions; page order',()=>{
  const c=renderer();
  const html=render(c,{...base,parents1:'S/O Mr. & Mrs. Khan',parents2:'D/O Mr. & Mrs. Usman',timeText:'7 p.m. to 10 p.m.',compliments:'With best compliments from the Khan family'});
- for(const k of ['S/O Mr. &amp; Mrs. Khan','D/O Mr. &amp; Mrs. Usman','7 p.m. to 10 p.m.','With best compliments from the Khan family','GET DIRECTIONS'])assert.ok(html.includes(k),k);
+ for(const k of ['S/O Mr. &amp; Mrs. Khan','D/O Mr. &amp; Mrs. Usman','7 p.m. to 10 p.m.','With best compliments from the Khan family','DIRECTIONS ↗'])assert.ok(html.includes(k),k);
  const order=['id="vn-p1"','id="vn-datepage"','id="vn-gallery-page"','id="vn-final"','id="vn-last"'].map(k=>html.indexOf(k));
  assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])),'page order '+order);
  assert.ok(render(c,base).includes('With best compliments from our family'));
@@ -64,7 +64,7 @@ test('777: uses the four artwork images, scratch on the details page date, last-
  const f=html.indexOf('id="vn-final"'),l=html.indexOf('id="vn-last"'),sc=html.indexOf('id="vn-scratch"');
  assert.ok(sc>f&&sc<l,'scratch inside details page');
  const lastPage=html.slice(l);assert.ok(lastPage.includes('دعاء مخصص')&&lastPage.includes('Custom English blessing'),'blessing on the last page');
- assert.ok(html.includes('7p.m to 10p.m.'));assert.ok(html.includes('GET DIRECTIONS'));
+ assert.ok(html.includes('7p.m to 10p.m.'));assert.ok(html.includes('DIRECTIONS ↗'));
  const order=['id="vn-p1"','id="vn-final"','id="vn-last"'].map(k=>html.indexOf(k));assert.ok(order[0]<order[1]&&order[1]<order[2]);
  assert.ok(html.includes('a7wb'));assert.ok(html.includes("cover.classList.add('emerge')"));
  assert.ok(render(c,{...base,template:'heavy-luxury'}).includes('id="vn-datepage"'));
@@ -96,7 +96,7 @@ test('888 real boards: wax seal cover, four boards in one scroll scene, scratch 
  const c=renderer();
  const html=render(c,{...base,template:'888',parents1:'S/O Mr. Kazi',parents2:'D/O Mr. Khan',timeText:'7 p.m. to 10 p.m.',blessing:'Custom blessing',blessingArabic:'دعاء'});
  for(const f of ['cover','b1','b2','b3','b4'])assert.ok(html.includes(`https://studio.example/assets/888/${f}.jpg`),f);
- for(const k of ['id="vn-cover"','w8-seal','id="w8-track"','id="w8-stage"','id="vn-final"','id="vn-last"','id="vn-scratch"','id="vn-reveal"','GET DIRECTIONS','S/O Mr. Kazi','D/O Mr. Khan','7 p.m. to 10 p.m.','Custom blessing','دعاء','id="w8-track"'])assert.ok(html.includes(k),k);
+ for(const k of ['id="vn-cover"','w8-seal','id="w8-track"','id="w8-stage"','id="vn-final"','id="vn-last"','id="vn-scratch"','id="vn-reveal"','DIRECTIONS ↗','S/O Mr. Kazi','D/O Mr. Khan','7 p.m. to 10 p.m.','Custom blessing','دعاء','id="w8-track"'])assert.ok(html.includes(k),k);
  assert.equal((html.match(/class="w8-scene"/g)||[]).length,4);
  const f=html.indexOf('id="vn-final"'),l=html.indexOf('id="vn-last"'),sc=html.indexOf('id="vn-scratch"');assert.ok(f<sc&&sc<l);
  for(const k of ['@keyframes w8-intro','clip-path:inset(0 calc(100%','prefers-reduced-motion'])assert.ok(html.includes(k),k);
@@ -111,7 +111,7 @@ test('999 photo journey: own photos in scenes, calendar + live clock, scratch da
  const c=renderer();
  const photos=['/media/a','/media/b','/media/c','/media/d','/media/e','/media/f'];
  const html=render(c,{...base,template:'999',photos,scene1:2,scene2:1,bgPhoto:6,focus3:'center'});
- for(const k of ['id="j-track"','id="j-stage"','id="j-fx"','id="vn-cover"','j-begin','id="vn-scratch"','id="vn-reveal"','id="vn-final"','id="vn-count"','id="r-s"','GET DIRECTIONS','data-mode="full"','data-mode="spark"','LIVE'.toLowerCase()==='x'?'':'Live countdown','December 2026'])assert.ok(html.includes(k),k);
+ for(const k of ['id="j-track"','id="j-stage"','id="j-fx"','id="vn-cover"','j-begin','id="vn-scratch"','id="vn-reveal"','id="vn-final"','id="vn-count"','id="r-s"','DIRECTIONS ↗','data-mode="full"','data-mode="spark"','LIVE'.toLowerCase()==='x'?'':'Live countdown','December 2026'])assert.ok(html.includes(k),k);
  assert.equal((html.match(/id="vn-count"/g)||[]).length,1,'only one countdown');assert.equal((html.match(/id="vn-s"/g)||[]).length,1);
  assert.equal((html.match(/<section class="j-scene"/g)||[]).length,5);
  const order=[...html.matchAll(/class="j-fg" src="([^"]+)"/g)].map(m=>m[1]);assert.deepEqual(order,['/media/b','/media/a','/media/c','/media/d']);
@@ -129,7 +129,7 @@ test('555 butterfly letter: wax-seal cover, four scenes, butterfly sprite, ribbo
  const c=renderer();
  const html=render(c,{...base,template:'555',parents1:'S/O Mr. Kazi',parents2:'D/O Mr. Khan',timeText:'7 p.m. to 10 p.m.',blessing:'Custom blessing',blessingArabic:'دعاء',address:'Salmiya'});
  for(const f of ['cover.jpg','lift.jpg','open.jpg','card.jpg','page.jpg','wing-l.webp','wing-r.webp','body.webp'])assert.ok(html.includes('https://studio.example/assets/555/'+f),f);
- for(const k of ['id="vn-cover"','bf-seal','id="bf-track"','id="bf-stage"','id="bf-fly"','id="bf-sealed"','id="bf-ribbon"','id="bf-cutbtn"','id="vn-scratch"','id="vn-reveal"','id="vn-final"','GET DIRECTIONS','S/O Mr. Kazi','D/O Mr. Khan','Custom blessing','دعاء','7 p.m. to 10 p.m.','You are cordially invited','prefers-reduced-motion','@keyframes bf-flap'])assert.ok(html.includes(k),k);
+ for(const k of ['id="vn-cover"','bf-seal','id="bf-track"','id="bf-stage"','id="bf-fly"','id="bf-sealed"','id="bf-ribbon"','id="bf-cutbtn"','id="vn-scratch"','id="vn-reveal"','id="vn-final"','DIRECTIONS ↗','S/O Mr. Kazi','D/O Mr. Khan','Custom blessing','دعاء','7 p.m. to 10 p.m.','You are cordially invited','prefers-reduced-motion','@keyframes bf-flap'])assert.ok(html.includes(k),k);
  assert.equal((html.match(/<section class="bf-scene"/g)||[]).length,4);
  const sc=html.indexOf('id="vn-scratch"'),f=html.indexOf('id="vn-final"');assert.ok(sc>f);
  assert.equal((html.match(/id="vn-count"/g)||[]).length,1,'single countdown in the footer');

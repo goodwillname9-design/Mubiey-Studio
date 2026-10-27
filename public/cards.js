@@ -10,7 +10,12 @@ const PREMIUM_FEATURED=[
  {id:'premium-royal-7',name:'Champagne Medallion',tradition:'Interfaith',style:'Editorial',premium:true,tag:'Premium'},
  {id:'premium-royal-8',name:'Blush Peony Letter',tradition:'Christian',style:'Botanical',premium:true,tag:'Premium'},
  {id:'premium-royal-9',name:'Saffron Mandap Glow',tradition:'Hindu',style:'Traditional',premium:true,tag:'Premium'},
- {id:'premium-royal-10',name:'Celestial Vows Night',tradition:'General',style:'Modern',premium:true,tag:'Premium'}
+ {id:'premium-royal-10',name:'Celestial Vows Night',tradition:'General',style:'Modern',premium:true,tag:'Premium'},
+ {id:'lace-777',template:'777',img:'assets/777/card.jpg',name:'Burgundy Lace & Bow',tradition:'Muslim',style:'Traditional',premium:true,tag:'Lace'},
+ {id:'lace-111',template:'111',img:'assets/111/card.jpg',name:'Emerald Lace & Bow',tradition:'Muslim',style:'Traditional',premium:true,tag:'Lace'},
+ {id:'lace-222',template:'222',img:'assets/222/card.jpg',name:'Midnight Lace & Bow',tradition:'Muslim',style:'Traditional',premium:true,tag:'Lace'},
+ {id:'lace-333',template:'333',img:'assets/333/card.jpg',name:'Royal Purple Lace & Bow',tradition:'Muslim',style:'Traditional',premium:true,tag:'Lace'},
+ {id:'lace-444',template:'444',img:'assets/444/card.jpg',name:'Noir Lace & Bow',tradition:'Muslim',style:'Traditional',premium:true,tag:'Lace'}
 ];
 'use strict';
 document.head.insertAdjacentHTML('beforeend','<style>.template-card{display:flex;flex-direction:column;gap:8px;padding:10px;text-align:left}.template-card img{width:100%;aspect-ratio:5/7;object-fit:cover;border-radius:5px}.template-actions{display:flex;gap:6px}.template-actions button{flex:1;padding:7px 5px;font-size:12px}</style>');
@@ -19,7 +24,7 @@ function toast(s){$('#toast').textContent=s;$('#toast').classList.add('show');cl
 function renderList(){const collection=$('#collection');
 collection.querySelector('.eyebrow').textContent='PREMIUM INVITATION CARDS';
 collection.querySelector('.page-title').textContent='Premium card collection';
-collection.querySelector('.subtle').textContent='10 premium designs. Open in live invitations to personalise names, photos and share a guest link.';
+collection.querySelector('.subtle').textContent=PREMIUM_FEATURED.length+' premium designs. Open in live invitations to personalise names, photos and share a guest link.';
 $('#count').textContent=PREMIUM_FEATURED.length+' premium cards';
 const toolbar=$('#religion')?.closest('.toolbar');if(toolbar)toolbar.hidden=false;
 $('#catalogue').hidden=false;
@@ -28,11 +33,11 @@ const help=collection.querySelector('.help');if(help)help.textContent='These pre
 const cat=$('#catalogue');cat.replaceChildren();
 for(const card of PREMIUM_FEATURED){
   const el=document.createElement('article');el.className='template-card';el.style.cssText='border:1px solid #80623b;border-radius:8px;padding:14px;background:#171d26;display:grid;gap:8px';
-  el.innerHTML=`<div style="aspect-ratio:5/7;border-radius:6px;background:linear-gradient(160deg,#2a1f18,#1a1218 40%,#3d2a22);display:flex;align-items:center;justify-content:center;color:#e8c9a0;font:italic 18px Georgia,serif;text-align:center;padding:12px">${card.name}</div>
+  el.innerHTML=`${card.img?`<img src="${card.img}" alt="${card.name}" loading="lazy" style="width:100%;aspect-ratio:5/7;object-fit:cover;border-radius:6px">`:`<div style="aspect-ratio:5/7;border-radius:6px;background:linear-gradient(160deg,#2a1f18,#1a1218 40%,#3d2a22);display:flex;align-items:center;justify-content:center;color:#e8c9a0;font:italic 18px Georgia,serif;text-align:center;padding:12px">${card.name}</div>`}
   <strong style="color:#f5e6d3;font-size:14px">${card.name}</strong>
   <small style="color:#a3adbb">${card.tradition} · ${card.style} · ${card.tag||'Premium'}</small>
   <div class="template-actions"><button type="button" data-id="${card.id}">Use in live invitation</button></div>`;
-  el.querySelector('button').onclick=()=>{location.href='invitations.html?premium='+encodeURIComponent(card.id)};
+  el.querySelector('button').onclick=()=>{location.href='invitations.html?premium='+encodeURIComponent(card.id)+(card.template?'&template='+encodeURIComponent(card.template):'')};
   cat.append(el);
 }
 return;
