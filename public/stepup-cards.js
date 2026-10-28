@@ -46,7 +46,9 @@
     { id: 'blush',  name: 'Burgundy Blush' },
     { id: 'navy',   name: 'Royal Navy' },
     { id: 'maroon', name: 'Maroon & Gold' },
-    { id: 'candle', name: 'Candlelit Drapes' }
+    { id: 'candle', name: 'Candlelit Drapes' },
+    { id: 'floraldusk', name: 'Floral Dusk' },
+    { id: 'sapphire', name: 'Sapphire Ribbon' }
   ];
 
   /* ---------- helpers ---------- */
@@ -550,7 +552,115 @@
     return s;
   }
 
-  var RENDER = { pearl: pearl, blush: blush, navy: navy, maroon: maroon, candle: candle };
+
+  /* ================= THEME 6 : FLORAL DUSK (burgundy / magenta floral, original) ================= */
+  function floraldusk(d) {
+    var ini = initials(d), g = nid('gold'), pf = nid('pap');
+    var ink = '#3a1520', accent = '#8b1e3a', gold = '#b8953a';
+    var s = '<div class="sc" style="background:#f7f0f2">';
+    s += '<svg class="bg" viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg"><defs>' + goldGrad(g) + paper(pf, 0.4) +
+      '<linearGradient id="fd' + pf + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#faf5f6"/><stop offset="1" stop-color="#f0e4e8"/></linearGradient>' +
+      '<radialGradient id="blob' + pf + '" cx=".3" cy=".2" r=".7"><stop offset="0" stop-color="#c45a7a" stop-opacity=".18"/><stop offset="1" stop-color="#c45a7a" stop-opacity="0"/></radialGradient></defs>';
+    s += '<rect width="600" height="900" fill="url(#fd' + pf + ')"/><rect width="600" height="900" fill="url(#blob' + pf + ')"/>';
+    // left burgundy panel
+    s += '<path d="M0 0h118c40 180 20 420 0 900H0z" fill="#6b1530"/>';
+    s += '<path d="M0 0h118c40 180 20 420 0 900H0z" fill="url(#' + g + ')" opacity=".12"/>';
+    // floral clusters (original paths, no text)
+    function bloom(x, y, sc, rot, col) {
+      return '<g transform="translate(' + x + ' ' + y + ') rotate(' + rot + ') scale(' + sc + ')">' +
+        '<ellipse cx="0" cy="-18" rx="16" ry="22" fill="' + col + '" opacity=".92"/>' +
+        '<ellipse cx="14" cy="-6" rx="14" ry="18" fill="' + col + '" opacity=".85" transform="rotate(40)"/>' +
+        '<ellipse cx="-14" cy="-6" rx="14" ry="18" fill="' + col + '" opacity=".85" transform="rotate(-40)"/>' +
+        '<circle cx="0" cy="-4" r="7" fill="#f5e6a8"/></g>';
+    }
+    function leafy(x, y, sc, rot) {
+      return '<g transform="translate(' + x + ' ' + y + ') rotate(' + rot + ') scale(' + sc + ')" fill="#5a7a4a" opacity=".75">' +
+        '<ellipse cx="0" cy="0" rx="8" ry="22"/><ellipse cx="12" cy="8" rx="6" ry="16" transform="rotate(35)"/></g>';
+    }
+    var florals = '';
+    florals += bloom(70, 120, 1.1, -20, '#c4244a') + bloom(95, 180, 0.85, 30, '#9b1e48') + bloom(50, 210, 0.7, -10, '#d64a6e');
+    florals += bloom(55, 720, 1.2, 15, '#b01e42') + bloom(100, 780, 0.9, -25, '#c4244a') + bloom(40, 820, 0.75, 40, '#8b1e3a');
+    florals += leafy(80, 150, 1, 20) + leafy(110, 200, 0.8, -30) + leafy(60, 760, 1.1, 10) + leafy(95, 810, 0.9, -15);
+    // soft right-side blooms
+    florals += bloom(520, 80, 0.9, 25, '#d64a6e') + bloom(560, 140, 0.7, -15, '#c4244a') + bloom(540, 820, 1.0, -30, '#9b1e48');
+    s += florals;
+    s += '<rect x="140" y="28" width="432" height="844" fill="none" stroke="url(#' + g + ')" stroke-width="1.1" opacity=".55"/>';
+    s += '</svg>';
+    s += arabicBlock(d, 70, 38, accent, '', 360);
+    s += txt('wrap', 150, 15, esc(d.quote), 'color:' + ink + ';white-space:normal;padding:0 40px 0 160px;line-height:1.35;font-weight:600');
+    s += txt('wrap', 210, 16, esc(d.intro), 'color:' + ink + ';white-space:normal;padding:0 40px 0 160px;line-height:1.3');
+    s += fitTxt('sc-script', 270, 58, d.groom, 'color:' + accent + ';line-height:1.05;padding-left:40px', 28, 380);
+    s += '<div class="t sc-script" style="top:340px;left:160px;width:380px;font-size:36px;color:' + gold + ';line-height:1">&amp;</div>';
+    s += fitTxt('sc-script', 380, 58, d.bride, 'color:' + accent + ';line-height:1.05;padding-left:40px', 28, 380);
+    s += txt('wrap', 470, 15, esc(d.brideParents), 'color:' + ink + ';white-space:normal;padding:0 40px 0 160px;line-height:1.3;opacity:.9');
+    s += txt('wrap', 520, 15, esc(d.groomParents), 'color:' + ink + ';white-space:normal;padding:0 40px 0 160px;line-height:1.3;opacity:.9');
+    // date strip
+    s += '<div class="box" style="left:170px;top:590px;width:360px;height:90px;border-top:1px solid ' + gold + ';border-bottom:1px solid ' + gold + ';color:' + ink + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;height:100%;padding:0 8px;font-size:15px;letter-spacing:.08em">' +
+      '<div style="text-align:center;line-height:1.25"><div class="caps" style="font-size:11px">' + esc(d.day) + '</div><b style="font-size:28px">' + esc(d.date) + '</b><div class="caps" style="font-size:11px">' + esc(d.year) + '</div></div>' +
+      '<div style="width:1px;height:54px;background:' + gold + ';opacity:.7"></div>' +
+      '<div style="text-align:center;line-height:1.25;max-width:140px"><div class="caps" style="font-size:11px">' + esc(String(d.month)) + '</div><div style="font-size:16px;margin-top:4px">' + esc(d.time) + '</div></div></div></div>';
+    s += txt('wrap', 700, 16, esc(d.venue), 'color:' + ink + ';white-space:normal;padding:0 40px 0 160px;font-weight:600');
+    s += txt('wrap', 740, 14, esc(d.address), 'color:' + ink + ';white-space:normal;padding:0 40px 0 160px;opacity:.85');
+    s += txt('wrap', 800, 16, esc(d.closing), 'color:' + accent + ';white-space:normal;padding:0 40px 0 160px;font-style:italic');
+    s += '</div>';
+    return s;
+  }
+
+  /* ================= THEME 7 : SAPPHIRE RIBBON (blue floral + ribbon, original) ================= */
+  function sapphire(d) {
+    var ini = initials(d), g = nid('gold'), pf = nid('pap');
+    var ink = '#1a2a44', blue = '#2a4a7a', soft = '#5a7aaa', gold = '#b8953a';
+    var s = '<div class="sc" style="background:#f5f7fb">';
+    s += '<svg class="bg" viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg"><defs>' + goldGrad(g) + paper(pf, 0.35) +
+      '<linearGradient id="sp' + pf + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset="1" stop-color="#e8eef6"/></linearGradient>' +
+      '<linearGradient id="rib' + pf + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e3a5f"/><stop offset=".5" stop-color="#2a5080"/><stop offset="1" stop-color="#1a3050"/></linearGradient></defs>';
+    s += '<rect width="600" height="900" fill="url(#sp' + pf + ')"/>';
+    // right ribbon strip
+    s += '<rect x="520" y="0" width="80" height="900" fill="url(#rib' + pf + ')"/>';
+    s += '<rect x="520" y="0" width="6" height="900" fill="url(#' + g + ')" opacity=".45"/>';
+    // gold corner frame
+    s += '<rect x="28" y="28" width="464" height="844" fill="none" stroke="url(#' + g + ')" stroke-width="1.4" opacity=".7"/>';
+    s += '<rect x="36" y="36" width="448" height="828" fill="none" stroke="url(#' + g + ')" stroke-width=".6" opacity=".45"/>';
+    // original floral sprays (corners)
+    function spray(x, y, sc, rot) {
+      var body = '<g transform="translate(' + x + ' ' + y + ') rotate(' + rot + ') scale(' + sc + ')">';
+      body += '<ellipse cx="0" cy="0" rx="22" ry="28" fill="#e8f0fa" stroke="#7a9cc0" stroke-width="1.5"/>';
+      body += '<ellipse cx="0" cy="0" rx="12" ry="16" fill="#c5d8ef"/>';
+      body += '<circle cx="0" cy="0" r="5" fill="#f5e6a8"/>';
+      body += '<ellipse cx="28" cy="10" rx="14" ry="18" fill="#d4e4f5" stroke="#7a9cc0" stroke-width="1.2" transform="rotate(35)"/>';
+      body += '<ellipse cx="-24" cy="12" rx="12" ry="16" fill="#d4e4f5" stroke="#7a9cc0" stroke-width="1.2" transform="rotate(-40)"/>';
+      body += '<path d="M8 24c8 18 4 40 -6 52" fill="none" stroke="#6a8a60" stroke-width="2"/>';
+      body += '<ellipse cx="18" cy="40" rx="5" ry="12" fill="#6a8a60" opacity=".75" transform="rotate(25)"/>';
+      body += '</g>';
+      return body;
+    }
+    s += spray(70, 70, 1.05, -15) + spray(470, 90, 0.9, 25) + spray(80, 820, 1.0, 160) + spray(440, 800, 0.95, -150);
+    // small ribbon bow on right strip
+    s += '<g transform="translate(560 120)"><path d="M-18 0 C-28 -18 -8 -28 0 -10 C8 -28 28 -18 18 0 C28 18 8 28 0 10 C-8 28 -28 18 -18 0z" fill="#f0d080"/><circle cx="0" cy="0" r="5" fill="#c9a45c"/></g>';
+    s += '</svg>';
+    s += txt('', 70, 13, 'TOGETHER WITH THEIR FAMILIES', 'color:' + soft + ';letter-spacing:.22em;font-weight:600');
+    s += arabicBlock(d, 100, 36, blue, '', 400);
+    s += txt('wrap', 170, 15, esc(d.intro), 'color:' + ink + ';white-space:normal;padding:0 90px;line-height:1.35');
+    s += fitTxt('sc-script', 230, 64, d.bride, 'color:' + blue + ';line-height:1.05', 30, 420);
+    s += '<div class="t" style="top:310px;font-size:14px;letter-spacing:.3em;color:' + gold + ';font-weight:600">AND</div>';
+    s += fitTxt('sc-script', 340, 64, d.groom, 'color:' + blue + ';line-height:1.05', 30, 420);
+    s += txt('', 430, 16, esc(d.tagline), 'color:' + soft + ';font-style:italic;letter-spacing:.06em');
+    // three info columns
+    s += '<div class="box" style="left:60px;top:500px;width:440px;height:110px;color:' + ink + '">' +
+      '<div style="display:flex;justify-content:space-between;text-align:center;font-size:14px;line-height:1.35">' +
+      '<div style="width:32%"><div style="font-size:22px;margin-bottom:4px">📅</div><div class="caps" style="font-size:11px;letter-spacing:.12em">' + esc(d.day) + '</div><b style="font-size:20px">' + esc(d.date) + '</b><div style="font-size:12px">' + esc(String(d.month).slice(0,3)) + ' ' + esc(d.year) + '</div></div>' +
+      '<div style="width:32%"><div style="font-size:22px;margin-bottom:4px">🕐</div><div class="caps" style="font-size:11px;letter-spacing:.12em">TIME</div><b style="font-size:18px">' + esc(d.time) + '</b></div>' +
+      '<div style="width:32%"><div style="font-size:22px;margin-bottom:4px">📍</div><div class="caps" style="font-size:11px;letter-spacing:.12em">VENUE</div><div style="font-size:13px;font-weight:600;white-space:normal;padding:0 4px">' + esc(d.venue) + '</div></div></div></div>';
+    s += txt('wrap', 640, 14, esc(d.address), 'color:' + soft + ';white-space:normal;padding:0 80px');
+    s += txt('wrap', 700, 18, esc(d.closing), 'color:' + blue + ';white-space:normal;padding:0 70px;font-style:italic');
+    if (d.rsvp) s += txt('', 780, 14, esc(d.rsvp), 'color:' + ink + ';letter-spacing:.04em');
+    s += '</div>';
+    return s;
+  }
+
+
+  var RENDER = { pearl: pearl, blush: blush, navy: navy, maroon: maroon, candle: candle, floraldusk: floraldusk, sapphire: sapphire };
 
   function render(id, data) {
     var fn = RENDER[id] || RENDER.pearl;
