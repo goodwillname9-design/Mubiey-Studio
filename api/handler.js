@@ -6,8 +6,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {classifyPath,reservedFromFiles,shareMeta} from '../lib/slug.js';
+import {invitationNotFoundHtml} from '../lib/invitation.js';
 const PUBLIC_DIR=fileURLToPath(new URL('../public/',import.meta.url));
-const notFoundHtml='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Invitation not found</title><style>body{background:#f7f2e9;color:#3b3125;font:18px Georgia,serif;text-align:center;padding:12vh 24px}a{color:inherit}</style></head><body><h1>Invitation not found</h1><p>This invitation may be unavailable or its link may have changed.</p><a href="/">Return to Mubiey Studio</a></body></html>';
 export default async function handler(req,res){
  res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
  try{
@@ -18,11 +18,11 @@ export default async function handler(req,res){
   if(p.startsWith('/guest/')){
    if(!['GET','HEAD'].includes(req.method))return res.status(405).end('Method not allowed');
    const slugPath='/'+p.slice('/guest/'.length),reserved=reservedFromFiles(await fs.readdir(PUBLIC_DIR)),classified=classifyPath(slugPath,reserved);
-   if(classified.type==='slug'&&!classified.canonical){res.statusCode=301;res.setHeader('Location','/'+classified.slug);return res.end()}
-   if(classified.type!=='uuid'&&classified.type!=='slug'){res.statusCode=404;res.setHeader('Content-Type','text/html; charset=utf-8');return res.end(req.method==='HEAD'?undefined:notFoundHtml)}
+   if(classified.type!=='uuid'&&classified.type!=='slug'){res.statusCode=404;res.setHeader('Content-Type','text/html; charset=utf-8');return res.end(req.method==='HEAD'?undefined:invitationNotFoundHtml)}
    const publicPath=classified.type==='uuid'?'/api/invitations/'+classified.id:'/api/invitations/by-slug/'+classified.slug;
    const invitation=await worker.fetch(new Request(protocol+'://'+host+publicPath),{DB:getDatabase(),BUCKET:bucket(),ADMIN_PASSWORD:process.env.MUBIEY_ADMIN_PASSWORD,RESERVED_SLUGS:reserved});
-   if(!invitation.ok){res.statusCode=404;res.setHeader('Content-Type','text/html; charset=utf-8');return res.end(req.method==='HEAD'?undefined:notFoundHtml)}
+   if(!invitation.ok){res.statusCode=404;res.setHeader('Content-Type','text/html; charset=utf-8');return res.end(req.method==='HEAD'?undefined:invitationNotFoundHtml)}
+   if(classified.type==='slug'&&!classified.canonical){res.statusCode=301;res.setHeader('Location','/'+classified.slug);res.setHeader('Cache-Control','no-store');return res.end()}
    const data=await invitation.json(),template=await fs.readFile(path.join(PUBLIC_DIR,'guest.html'),'utf8'),canonicalPath=classified.type==='uuid'?'/invite/'+classified.id:'/'+classified.slug,html=template.replace('<title>Wedding invitation</title><!-- MUBIEY_SHARE_META -->',shareMeta(data,{origin:protocol+'://'+host,path:canonicalPath}));
    res.statusCode=200;res.setHeader('Content-Type','text/html; charset=utf-8');res.setHeader('Cache-Control','no-store');return res.end(req.method==='HEAD'?undefined:html);
   }
