@@ -26,7 +26,7 @@ test('validator keeps every Royal Stage text and the card wording, within limits
 test('Royal Stage renders the curtain gate, stage, scratch card, slider, timeline and event cards',()=>{
   const c=renderer();
   const html=render(c,{...sample,photos:['data:image/png;base64,AAAA'],font:'allura'});
-  for(const needle of ['id="rs-gate"','Tap to open','class="chand"','id="rs-foil"','id="rs-slider"','class="tl"','View on Google Maps','id="rs-cd"','data-rs="name1"'])assert.ok(html.includes(needle),needle);
+  for(const needle of ['id="rs-gate"','Tap to open','class="cv l"','class="cv r"','l-stage','l-zoom','l-chand','l-oval','class="pops"','/assets/royal-stage/cover.jpg','/assets/royal-stage/oval.jpg','id="rs-foil"','id="rs-slider"','class="tl"','View on Google Maps','id="rs-cd"','data-rs="name1"'])assert.ok(html.includes(needle),needle);
   assert.ok(!html.includes('evil.example'),'only Google/Apple map links become buttons');
   assert.equal((html.match(/class="mapbtn"/g)||[]).length,1);
 });
