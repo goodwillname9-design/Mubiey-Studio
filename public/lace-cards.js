@@ -23,11 +23,23 @@ const ROYAL={
  'royal-blush':   {name:'Blush & Rose Gold',      bg1:'#fbece7',bg2:'#f1d5cd',gold:'#b9835f',ink:'#8a3b4d',body:'#5a3a3f',dark:false},
  'royal-noir':    {name:'Noir & Gold Crest',      bg1:'#1d1d20',bg2:'#0d0d0f',gold:'#cfae62',ink:'#f1dfae',body:'#eee8da',dark:true}
 };
+/* Art cards: the customer's own textless card artwork (assets/cards/*.jpg) with editable text on top.
+   P = text positions in a 600-wide card; h = card height at 600 wide. Optional: qx (QR centre), qk (QR size), panel (soft plate behind wishes + QR). */
+const ART={
+ 'art-rose':{name:'Rose Garden Couple',file:'art-rose.jpg',h:900,ink:'#8a3b4d',body:'#4e3438',accent:'#b9835f',P:{head:196,wi:236,n1:292,amp:334,n2:388,line:416,date:476,venue:540,noteMin:594,wishMin:690,plaque:726,fitW:300,qk:.86,panel:1,ww:150}},
+ 'art-noir':{name:'Noir & Gold Couple',file:'art-noir.jpg',h:900,ink:'#f1dfae',body:'#efe6d2',accent:'#d4b062',dark:true,P:{head:140,wi:178,n1:236,amp:276,n2:332,line:362,date:506,dw:27,dsz:12.5,dlh:19,venue:398,noteMin:612,wishMin:640,plaque:672,fitW:250,qx:228,qk:.8,panel:0,ww:170}},
+ 'art-crimson':{name:'Crimson Rose Couple',file:'art-crimson.jpg',h:904,ink:'#7a1426',body:'#3d1b20',accent:'#9a6a2e',P:{head:206,wi:248,n1:312,amp:354,n2:410,line:440,date:470,venue:512,noteMin:566,wishMin:600,plaque:626,fitW:310,qx:250,qk:.85,panel:0,ww:160}},
+ 'art-velvet':{name:'Velvet Rose & Gold',file:'art-velvet.jpg',h:1077,ink:'#f2dba2',body:'#f3e6cf',accent:'#d9b36a',dark:true,P:{head:290,wi:342,n1:444,amp:498,n2:572,line:618,date:660,venue:720,noteMin:822,wishMin:858,plaque:890,fitW:350,qx:240,qk:.95,panel:0}},
+ 'art-peony':{name:'Burgundy Peony Frame',file:'art-peony.jpg',h:1066,ink:'#f4deaa',body:'#f6e8d0',accent:'#e0bd6c',dark:true,P:{head:236,wi:288,n1:380,amp:430,n2:496,line:540,date:582,venue:640,noteMin:730,wishMin:760,plaque:800,fitW:330,qk:1,panel:0}},
+ 'art-arch':{name:'Gold Arch Lotus',file:'art-arch.jpg',h:850,ink:'#7a1426',body:'#4a2a26',accent:'#a87a35',P:{head:196,wi:236,n1:304,amp:344,n2:398,line:432,date:466,venue:512,noteMin:586,wishMin:630,plaque:668,fitW:330,qk:.84,panel:0}}
+};
+const isArt=id=>!!ART[id];
 const PAPER='#f4ece0';             /* lace artwork is 832 x 1288 px -> 600 x 929 */
 const art={},pending={};
 
 const isLace=id=>!!LACE[id],isRoyal=id=>!!ROYAL[id];
 const tplFor=id=>{
+ if(isArt(id)){const a=ART[id];return {id,art:true,name:a.name,tradition:'Muslim',style:'Traditional',palette:0,floral:false,premium:true,tag:'Art'}}
  if(isLace(id)){const c=(typeof PREMIUM_FEATURED!=='undefined'&&PREMIUM_FEATURED.find(x=>x.id===id))||{};return {id,lace:true,template:id.slice(5),name:c.name||'Lace & Bow',tradition:'Muslim',style:'Traditional',palette:0}}
  const r=ROYAL[id];return {id,royal:true,name:r.name,tradition:'Muslim',style:'Traditional',palette:0,floral:false,premium:true,tag:'Gold'};
 };
@@ -35,6 +47,7 @@ const tplFor=id=>{
 /* ---------- helpers ---------- */
 function readData(url){return fetch(url).then(r=>{if(!r.ok)throw Error('Could not load the card artwork. Please retry.');return r.blob()}).then(b=>new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(f.result);f.onerror=()=>rej(Error('Could not read the card artwork.'));f.readAsDataURL(b)}))}
 function ensure(id){
+ if(isArt(id)){if(art[id])return Promise.resolve();return pending[id]||(pending[id]=Promise.all([readData('/assets/cards/'+ART[id].file).then(v=>{art[id]=v}),atelierFontsReady()]).catch(e=>{pending[id]=null;throw e}))}
  if(!isLace(id))return atelierFontsReady();
  if(art[id])return Promise.resolve();
  const n=id.slice(5);
@@ -60,7 +73,7 @@ function drawCard(data,c,P){
  o+=T('&',P.amp,28,c.accent,c.bodyFont,'font-style="italic"');
  o+=T(n2,P.n2,fit(n2),c.ink,c.nameFont);
  o+=`<path d="M255 ${P.line}H345" stroke="${c.accent}" stroke-width="1" fill="none"/>`;
- wrap(data.dateText||'Date & time to be confirmed',38).slice(0,2).forEach((s,i)=>o+=T(s,P.date+i*22,15,c.body,c.bodyFont,'font-weight="600"'));
+ wrap(data.dateText||'Date & time to be confirmed',P.dw||38).slice(0,2).forEach((s,i)=>o+=T(s,P.date+i*(P.dlh||22),P.dsz||15,c.body,c.bodyFont,'font-weight="600"'));
  const vl=wrap(data.venue||'Venue to be announced',44).slice(0,3);
  vl.forEach((s,i)=>o+=T(s,P.venue+i*19,12.5,c.body,c.bodyFont));
  const ny=Math.max(P.noteMin,P.venue+(vl.length-1)*19+34),nl=wrap(data.note||'Your presence will make our day complete.',48).slice(0,2);
@@ -68,17 +81,24 @@ function drawCard(data,c,P){
  const end=ny+(nl.length-1)*17;
 
  /* best wishes + location QR */
- const wishes=String(data.wishes||'').trim().slice(0,60),url=qrUrl(data.mapUrl);
+ const wishes=String(data.wishes||'').trim().slice(0,60),url=qrUrl(data.mapUrl),qk=P.qk||1,qx=P.qx||300,wx=P.wx||qx;
+ let wy=0,panel='';
+ if(wishes){wy=Math.max(end+30,P.wishMin);if(url)wy=Math.min(wy,P.plaque-46*qk)}
+ if(P.panel&&(wishes||url)){
+  const top=(wishes?wy-18:P.plaque-8),bot=(url?P.plaque+124*qk+8:wy+38),pw=Math.max(150*qk,url?126*qk:0,wishes?(P.ww||200)+24:0);
+  panel=`<rect x="${(qx-pw/2).toFixed(1)}" y="${top.toFixed(1)}" width="${pw.toFixed(1)}" height="${(bot-top).toFixed(1)}" rx="14" fill="${c.panel||'#fffaf2'}" fill-opacity=".9" stroke="${c.accent}" stroke-width=".8"/>`;
+ }
+ o+=panel;
  if(wishes){
-  let wy=Math.max(end+30,P.wishMin);if(url)wy=Math.min(wy,P.plaque-46);
-  o+=T('WITH BEST WISHES FROM',wy,9.5,c.accent,c.bodyFont,'letter-spacing="3"');
-  const len=Math.max(1,[...wishes].length);o+=T(wishes,wy+29,Math.max(15,Math.min(28,270/(len*(c.script?.40:.56)))),c.ink,c.nameFont);
+  const t=(s,x,y,size,fill,font,extra='')=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="${font}" font-size="${size}" fill="${fill}" ${extra}>${esc(s)}</text>`;
+  o+=t('WITH BEST WISHES FROM',wx,wy,9.5,c.accent,c.bodyFont,'letter-spacing="3"');
+  const len=Math.max(1,[...wishes].length);o+=t(wishes,wx,wy+29,Math.max(15,Math.min(28,(P.ww||(P.panel?200:270))/(len*(c.script?.40:.56)))),c.ink,c.nameFont);
  }
  if(url&&window.MubieyQR){
   try{
-   const x=300-58,y=P.plaque,q=window.MubieyQR.path(url,{x:x+16,y:y+10,size:84,level:'M'});
-   o+=`<rect x="${x}" y="${y}" width="116" height="124" rx="10" fill="#fffaf2" stroke="${c.accent}" stroke-width="1.2"/><path d="${q.d}" fill="#1b1115"/>`;
-   o+=T('SCAN FOR LOCATION',y+113,7,'#4a3a33','Arial,sans-serif','letter-spacing="1" font-weight="700"');
+   const x=qx-58*qk,y=P.plaque,q=window.MubieyQR.path(url,{x:x+16*qk,y:y+10*qk,size:84*qk,level:'M'});
+   o+=`<rect x="${x.toFixed(1)}" y="${y}" width="${(116*qk).toFixed(1)}" height="${(124*qk).toFixed(1)}" rx="10" fill="#fffaf2" stroke="${c.accent}" stroke-width="1.2"/><path d="${q.d}" fill="#1b1115"/>`;
+   o+=`<text x="${qx}" y="${(y+113*qk).toFixed(1)}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${(7*qk).toFixed(1)}" fill="#4a3a33" letter-spacing="1" font-weight="700">SCAN FOR LOCATION</text>`;
   }catch(e){}
  }
  return o;
@@ -99,6 +119,16 @@ function laceSVG(data,tpl){
  const P={head:232,wi:292,n1:372,amp:418,n2:486,line:524,date:556,venue:608,noteMin:664,wishMin:706,plaque:754,fitW:296};
  const o=drawCard(data,c,P);
  return `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="929" viewBox="0 0 600 929"><defs><style>${atelierFontCSS(true)}</style></defs><rect width="600" height="929" fill="${PAPER}"/>${art[tpl.id]?`<image href="${art[tpl.id]}" x="0" y="0" width="600" height="929" preserveAspectRatio="none"/>`:''}${o}</svg>`;
+}
+
+/* ---------- Art cards (customer artwork) ---------- */
+function artSVG(data,tpl){
+ const A=ART[tpl.id]||ART['art-rose'],hex=v=>/^#[a-f0-9]{6}$/i.test(v||'');
+ if(!art[tpl.id])ensure(tpl.id).then(()=>{if(typeof selected!=='undefined'&&selected&&selected.id===tpl.id&&typeof preview==='function')preview()}).catch(()=>{});
+ const ink=hex(data.ink)?data.ink:A.ink,body=ink.toLowerCase()===A.ink.toLowerCase()?A.body:ink,accent=hex(data.accent)?data.accent:A.accent;
+ const f=fontsFor(data),c={ink,body,accent,panel:A.dark?'#1c0d10':'#fffaf2',...f};
+ const o=drawCard(data,c,A.P),H=A.h;
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="${H}" viewBox="0 0 600 ${H}"><defs><style>${atelierFontCSS(true)}</style></defs><rect width="600" height="${H}" fill="${A.dark?'#2a0a10':PAPER}"/>${art[tpl.id]?`<image href="${art[tpl.id]}" x="0" y="0" width="600" height="${H}" preserveAspectRatio="none"/>`:''}${o}</svg>`;
 }
 
 /* ---------- Royal gold (vector) ---------- */
@@ -145,11 +175,11 @@ if(typeof exportKeepsake==='function'&&typeof collect==='function'&&typeof setBu
 
 /* ---------- Cards section ---------- */
 if(onCards){
- const make=(data,tpl)=>tpl.lace?laceSVG(data||{},tpl):royalSVG(data||{},tpl,false);
+ const make=(data,tpl)=>tpl.art?artSVG(data||{},tpl):tpl.lace?laceSVG(data||{},tpl):royalSVG(data||{},tpl,false);
  const baseCard=cardSVG;
- cardSVG=function(data,template){template=template||getTemplate(data&&data.template);return template&&(template.lace||template.royal)?make(data,template):baseCard.apply(this,arguments)};
+ cardSVG=function(data,template){template=template||getTemplate(data&&data.template);return template&&(template.lace||template.royal||template.art)?make(data,template):baseCard.apply(this,arguments)};
  const baseGet=getTemplate;
- getTemplate=function(id){id=String(id||'');return isLace(id)||isRoyal(id)?tplFor(id):baseGet.apply(this,arguments)};
+ getTemplate=function(id){id=String(id||'');return isLace(id)||isRoyal(id)||isArt(id)?tplFor(id):baseGet.apply(this,arguments)};
 
  /* extra fields: best wishes from + location link */
  const note=document.querySelector('#c-note'),noteLabel=note&&note.closest('label');
@@ -170,28 +200,31 @@ if(onCards){
   baseOpen.apply(this,arguments);
   const w=document.querySelector('#width-mm'),h=document.querySelector('#height-mm'),set=(id,v)=>{const el=document.querySelector(id);if(el)el.value=v};
   if(t&&t.lace){const L=LACE[t.id];set('#c-background',PAPER);set('#c-ink',L.ink);set('#c-accent',L.ink);set('#c-font','cursive');if(w&&h){w.value=127;h.value=196.6}preview()}
+  else if(t&&t.art){const A=ART[t.id];set('#c-background',A.dark?'#2a0a10':PAPER);set('#c-ink',A.ink);set('#c-accent',A.accent);set('#c-font','cursive');if(w&&h){w.value=127;h.value=(127*A.h/600).toFixed(1)}preview()}
   else if(t&&t.royal){const R=ROYAL[t.id];set('#c-background',R.bg1);set('#c-ink',R.ink);set('#c-accent',R.gold);set('#c-font','cursive');if(w&&h){w.value=127;h.value=177.8}preview()}
-  else if(h&&Number(h.value)===196.6)h.value=177.8;
+  else if(h&&(Number(h.value)===196.6||ART&&[...Object.values(ART)].some(a=>Math.abs(Number(h.value)-127*a.h/600)<.2)))h.value=177.8;
  };
  async function openMaker(id){
   try{toast('Loading card…');await ensure(id);openTemplate(tplFor(id));toast('Edit the names, date and venue, then download.')}
   catch(e){toast(e.message||'Could not open the card.')}
  }
 
+ /* the customer's art cards use their own artwork as the thumbnail */
+ for(const id of Object.keys(ART))if(!PREMIUM_FEATURED.some(x=>x.id===id))PREMIUM_FEATURED.push({id,img:'assets/cards/'+ART[id].file,name:ART[id].name,tradition:'Muslim',style:'Traditional',premium:true,tag:'Art'});
  /* add the six Royal gold cards to the collection (thumbnails are drawn from the design itself) */
  for(const id of Object.keys(ROYAL))if(!PREMIUM_FEATURED.some(x=>x.id===id))PREMIUM_FEATURED.push({id,img:thumbURI(id),name:ROYAL[id].name,tradition:'Muslim',style:'Traditional',premium:true,tag:'Gold'});
- {const rank=x=>isLace(x.id)?0:isRoyal(x.id)?1:2,sorted=[...PREMIUM_FEATURED].sort((a,b)=>rank(a)-rank(b));PREMIUM_FEATURED.splice(0,PREMIUM_FEATURED.length,...sorted)}
+ {const rank=x=>isArt(x.id)?0:isLace(x.id)?1:isRoyal(x.id)?2:3,sorted=[...PREMIUM_FEATURED].sort((a,b)=>rank(a)-rank(b));PREMIUM_FEATURED.splice(0,PREMIUM_FEATURED.length,...sorted)}
  const decorate=()=>{
   const cat=document.querySelector('#catalogue');if(!cat)return;
   cat.querySelectorAll('.template-card button[data-id]').forEach(b=>{
    const id=b.dataset.id,actions=b.parentElement;
-   if(!isLace(id)&&!isRoyal(id)||actions.querySelector('.make-card'))return;
+   if(!isLace(id)&&!isRoyal(id)&&!isArt(id)||actions.querySelector('.make-card'))return;
    const m=document.createElement('button');m.type='button';m.className='make-card primary';m.textContent='Make card · PDF / JPEG';m.onclick=()=>openMaker(id);
    actions.style.flexDirection='column';actions.prepend(m);
-   if(isRoyal(id))b.remove();
+   if(isRoyal(id)||isArt(id))b.remove();
   });
   const help=document.querySelector('#collection .help');
-  if(help&&!help.dataset.lace){help.dataset.lace='1';help.textContent='Tap “Make card” on a Lace & Bow or Gold card to edit it and download as PDF, JPEG, PNG or SVG (names, date, venue, best wishes from, and a location QR code). Other premium designs open in the live invitation editor.'}
+  if(help&&!help.dataset.lace){help.dataset.lace='1';help.textContent='Tap “Make card” on an Art, Lace & Bow or Gold card to edit it and download as PDF, JPEG, PNG or SVG (names, date, venue, best wishes from, and a location QR code). Other premium designs open in the live invitation editor.'}
   const sub=document.querySelector('#collection .subtle');
   if(sub&&!sub.dataset.lace){sub.dataset.lace='1';sub.textContent=PREMIUM_FEATURED.length+' premium designs — edit and download cards here, or open a design in live invitations to share a guest link.'}
  };
