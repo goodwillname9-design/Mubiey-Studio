@@ -369,8 +369,8 @@ if(gate){
   if(gate.classList.contains('open'))return;
   if(R.autoplay)play();
   gate.classList.add('open');
-  t1=setTimeout(()=>document.body.classList.remove('rs-wait'),reduce?50:(R.t1||5700));
-  t2=setTimeout(finish,reduce?250:(R.t2||7900));
+  t1=setTimeout(()=>document.body.classList.remove('rs-wait'),reduce?50:5700);
+  t2=setTimeout(finish,reduce?250:7900);
  };
  $('#rs-open').onclick=go;
  $('#rs-skip').onclick=()=>{gate.classList.add('skip');document.body.classList.remove('rs-wait');setTimeout(finish,400)};
@@ -429,7 +429,5 @@ function render(d){
  const rt={prev:m.prev,autoplay:m.autoplay,dateIso:m.dateIso,imgs:m.gate?[IMG.stage,IMG.zoom,IMG.chand,IMG.oval,IMG.scratch]:[]};
  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${esc(m.n1)} &amp; ${esc(m.n2)} — Wedding invitation</title><script>document.documentElement.classList.add('rs-js')<\/script><style>${fonts}${CSS(m)}</style><noscript><style>.gate{display:none}body.rs-locked{overflow:auto}.rv{opacity:1!important;transform:none!important}</style></noscript></head><body class="${m.gate?'rs-locked rs-wait':''}${m.prev?' rs-prev':''}">${body(m)}<script>window.RS=${json(rt)};<\/script><script>${SCRIPT.replace(/<\/script/gi,'<\\/script')}<\/script></body></html>`;
 }
-/* shared pieces for the other art-based live templates (art-live.js) */
-window.MubieyRS={model,esc,ed,rnd,parseEvents,SCRIPT,json,fontCSS,DEFS,when};
 invitationDocument=function(data){return data&&data.template===TEMPLATE?render(data):baseDocument.apply(this,arguments)};
 })();

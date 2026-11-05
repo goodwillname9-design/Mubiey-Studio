@@ -5,8 +5,8 @@ import fs from 'node:fs';
 import {validate} from '../lib/validate.js';
 
 function renderer(){
-  const c=vm.createContext({location:{origin:'https://studio.example'},Studio:{escape:s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))},URL,console,Date,Math,JSON,window:{},document:{querySelector:()=>null}});
-  for(const f of ['live-presets','invitation-renderer','atelier','atelier-experience','royal-curtain','velvet-scroll','stepup-invitation','royal-stage','art-live','invite-card','invite-video']){
+  const c=vm.createContext({location:{origin:'https://studio.example'},Studio:{escape:s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))},URL,console,Date,Math,JSON,window:{}});
+  for(const f of ['live-presets','invitation-renderer','atelier','atelier-experience','royal-curtain','velvet-scroll','stepup-invitation','royal-stage','invite-card']){
     const path='public/'+f+'.js';
     if(fs.existsSync(path))vm.runInContext(fs.readFileSync(path,'utf8'),c);
   }
@@ -53,28 +53,4 @@ test('invitation card section appears on every template, only for safe card refe
   for(const t of ['royal-red-gold','111','777','stepup','heavy-luxury','999','555'])assert.ok(render(c,{...sample,template:t,card}).includes('id="mbc-view"'),t+' shows the card');
   for(const bad of ['javascript:alert(1)','https://evil.example/card.pdf','/media/../../x','data:text/html;base64,AAAA'])assert.ok(!render(c,{...sample,card:{ref:bad,name:'x',type:'application/pdf'}}).includes('mbc-view'),bad);
   assert.ok(!render(c,sample).includes('mbc-view'),'no card, no section');
-});
-
-test('video recorder player is added only for recordings, for every template, and never for guests',()=>{
-  const c=renderer();
-  for(const t of ['royal-stage','premium-26-3','royal-red-gold','111','777','stepup','heavy-luxury','999','555']){
-    const rec=render(c,{...sample,template:t,_mbRecord:true});
-    assert.ok(rec.includes("type:'mbv-play'")||rec.includes('mbv-play'),t+' gets the player');
-    assert.ok(!render(c,{...sample,template:t}).includes('mbv-play'),t+' guests never get it');
-  }
-});
-
-test('art live templates 2000-2004 render with their artwork, editable text, gate styles and the card section',()=>{
-  const c=renderer();
-  const open={'2000':'g-arch','2001':'g-petal','2002':'g-bell','2003':'g-diya','2004':'g-bloom'};
-  const ref='/media/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222';
-  for(const [t,cls] of Object.entries(open)){
-    const html=render(c,{...sample,template:t,rsIntro:'My <b>own</b> intro',card:{ref,name:'C.pdf',type:'application/pdf'},photos:['data:image/png;base64,AAAA']});
-    for(const needle of ['id="rs-gate"',cls,'/assets/live/','class="art"','data-rs="name1"','id="rs-foil"','id="rs-slider"','class="tl"','View on Google Maps','id="mbc-view"','My &lt;b&gt;own&lt;/b&gt; intro'])assert.ok(html.includes(needle),t+' '+needle);
-    assert.ok(!html.includes('<b>own</b>'),t+' escapes text');
-    assert.ok(!render(c,{...sample,template:t,_editorPreview:true}).includes('id="rs-gate"'),t+' no gate in editor preview');
-  }
-  assert.ok(render(c,{...sample,template:'2000'}).includes('2000-chand.png'));
-  assert.ok(render(c,{...sample,template:'2003'}).includes('2003-bl1.png'));
-  assert.ok(!render(c,{...sample,template:'2002',tradition:'Hindu'}).includes('class="bism'),'no Bismillah on Hindu art templates');
 });
