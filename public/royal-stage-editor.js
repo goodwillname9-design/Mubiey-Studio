@@ -5,10 +5,10 @@
 'use strict';
 (()=>{
 const $=s=>document.querySelector(s);
-const ID='royal-stage';
+const ID='royal-stage',IDS=[ID,'2000','2001','2002','2003','2004'];
 const preset=$('#live-preset');
 if(!preset||typeof fields==='undefined'||typeof markDirty!=='function')return;
-const ensure=()=>{const t=INVITATION_TEMPLATES.find(x=>x.id===ID);if(t&&![...preset.options].some(o=>o.value===ID)){const o=new Option(t.name,ID);o.dataset.layout='0';preset.add(o)}};
+const ensure=()=>{for(const id of IDS){const t=INVITATION_TEMPLATES.find(x=>x.id===id);if(t&&![...preset.options].some(o=>o.value===id)){const o=new Option(t.name,id);o.dataset.layout='0';preset.add(o)}}};
 ensure();new MutationObserver(ensure).observe(preset,{childList:true});
 
 const host=$('#save')?.closest('.panel');
@@ -54,9 +54,9 @@ add('rsClosing','Closing message','Your presence and duas will make our day comp
 
 // visibility: only show while this template is selected
 let last='';
-setInterval(()=>{if(preset.value!==last){last=preset.value;panel.hidden=last!==ID}},500);
+setInterval(()=>{if(preset.value!==last){last=preset.value;panel.hidden=!IDS.includes(last)}},500);
 preset.addEventListener('change',()=>{
- if(preset.value===ID){const f=$('#font');if(f&&f.value==='serif')f.value='allura';const a=$('#animation');if(a)a.checked=true}
+ if(IDS.includes(preset.value)){const f=$('#font');if(f&&f.value==='serif')f.value='allura';const a=$('#animation');if(a)a.checked=true}
 });
 
 // one-tap button (next to the template picker)

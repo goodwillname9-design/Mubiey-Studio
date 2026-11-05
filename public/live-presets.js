@@ -12,7 +12,12 @@ const INVITATION_TEMPLATES=[
  {id:'555',name:'555 · Butterfly letter (wax seal, ribbon, butterfly)',layout:0,group:'story'},
  {id:'heavy-luxury',name:'Heavy Luxury · envelope story + save-the-date page',layout:0,group:'story'},
  {id:'stepup',name:'Step Up · Luxury marble stairs & invitation box',layout:0,group:'story'},
- {id:'royal-stage',name:'Royal Stage · Curtains open to a chandelier stage',layout:0,group:'stage'}
+ {id:'royal-stage',name:'Royal Stage · Curtains open to a chandelier stage',layout:0,group:'stage'},
+ {id:'2000',name:'2000 \u00b7 Garnet Glitter Arch (chandelier lowers)',layout:0,group:'stage'},
+ {id:'2001',name:'2001 \u00b7 Blush Wisteria (petal shower)',layout:0,group:'stage'},
+ {id:'2002',name:'2002 \u00b7 Temple Marigold (bell rings)',layout:0,group:'stage'},
+ {id:'2003',name:'2003 \u00b7 Mandap Muhurat (light the lamp)',layout:0,group:'stage'},
+ {id:'2004',name:'2004 \u00b7 Temple Lotus (blooms from golden mist)',layout:0,group:'stage'}
 ];
 const LIVE_PRESETS=INVITATION_TEMPLATES;
 function livePresetCSS(layout=0){const css=[
