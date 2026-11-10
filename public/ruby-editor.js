@@ -10,7 +10,7 @@ if(!preset||typeof fields==='undefined'||typeof markDirty!=='function'||typeof p
 const ensure=()=>{const t=INVITATION_TEMPLATES.find(x=>x.id===ID);if(t&&![...preset.options].some(o=>o.value===ID)){const o=new Option(t.name,ID);o.dataset.layout='0';preset.add(o)}};
 ensure();new MutationObserver(ensure).observe(preset,{childList:true});
 const host=$('#save')?.closest('.panel');if(!host)return;
-const GROUPS=[['names','Names (couple, “Tap to open”, signature)'],['heads','Headings (titles, date number, event names)'],['lines','Lines (parents, message, family, closing)'],['small','Small capital labels & buttons']];
+const GROUPS=[['names','Names (couple, “Tap to open”, signature)'],['heads','Headings (titles, date number, event names)'],['lines','Lines (parents, message, family, closing)'],['small','Small capital labels & buttons'],['arabic','Arabic text (Bismillah line)']];
 const FONTS=[['','Default for this template'],['allura','Allura (script)'],['parisienne','Parisienne (script)'],['script','Great Vibes (script)'],['cinzel','Cinzel (roman capitals)'],['playfair','Playfair Display'],['serif','Cormorant Garamond'],['italic','Cormorant italic'],['montserrat','Montserrat'],['sans','Clean sans (Arial)'],['malayalam','Malayalam friendly'],['amiri','Amiri (Arabic)'],['custom','My custom font (upload in Font section)']];
 const cfgInput=document.createElement('input');cfgInput.type='hidden';cfgInput.id='rubyCfg';
 const panel=document.createElement('section');panel.className='panel';panel.id='rl-panel';panel.hidden=true;

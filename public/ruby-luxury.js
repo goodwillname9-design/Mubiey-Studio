@@ -56,13 +56,13 @@ function parseEvents(text){
 }
 
 /* ------------------------------------------------------------------ owner settings (fonts, sizes, logo) */
-const GROUPS=['names','heads','lines','small'];
+const GROUPS=['names','heads','lines','small','arabic'];
 const FONT_KEYS=['allura','parisienne','script','cinzel','playfair','serif','italic','montserrat','sans','amiri','malayalam','custom'];
 const FAM={allura:'AtelierAllura',parisienne:'AtelierParisienne',script:'AtelierScript',cinzel:'AtelierCinzel',playfair:'AtelierPlayfair',serif:'AtelierSerif',italic:'AtelierSerif',montserrat:'AtelierMontserrat',amiri:'AtelierAmiri',malayalam:'AtelierMalayalam'};
 const stack=(key,custom)=>{
- if(key==='custom'&&custom)return "'MubieyCustom',AtelierMalayalam,Georgia,serif";
- if(key==='sans')return "Arial,AtelierMalayalam,sans-serif";
- return `${FAM[key]||'AtelierSerif'},AtelierMalayalam,'Cormorant Garamond',Georgia,serif`;
+ if(key==='custom'&&custom)return "'MubieyCustom',AtelierAmiri,AtelierMalayalam,Georgia,serif";
+ if(key==='sans')return "Arial,AtelierAmiri,AtelierMalayalam,sans-serif";
+ return `${FAM[key]||'AtelierSerif'},AtelierAmiri,AtelierMalayalam,'Cormorant Garamond',Georgia,serif`;
 };
 function readCfg(d){
  let c={};
@@ -77,7 +77,7 @@ function readCfg(d){
  const ls=Number(c.logoSize);
  return {f,s,logo:c.logo===true,logoSize:Number.isFinite(ls)?Math.min(220,Math.max(40,ls)):100};
 }
-const DEFAULT_FONT={names:'allura',heads:'cinzel',lines:'serif',small:'montserrat'};
+const DEFAULT_FONT={names:'allura',heads:'cinzel',lines:'serif',small:'montserrat',arabic:'amiri'};
 function invitationFontKey(d,hasCustom){
  if(hasCustom)return 'custom';
  const k=d.font,map={greatvibes:'script',cormorant:'serif',josefin:'sans'};
@@ -160,8 +160,8 @@ function bgLayers(){
 
 /* ------------------------------------------------------------------ styles */
 const CSS=m=>{const f=m.fonts,s=m.cfg.s;return `
-:root{--fn:${f.names.fam};--fh:${f.heads.fam};--fl:${f.lines.fam};--fs:${f.small.fam};--stl:${f.lines.italic?'italic':'normal'};--stn:${f.names.italic?'italic':'normal'};--sth:${f.heads.italic?'italic':'normal'};--sts:${f.small.italic?'italic':'normal'};
---sn:${(s.names/100).toFixed(2)};--sh:${(s.heads/100).toFixed(2)};--sl:${(s.lines/100).toFixed(2)};--ss:${(s.small/100).toFixed(2)};--sg:${(m.cfg.logoSize/100).toFixed(2)};--W:100vw;
+:root{--fn:${f.names.fam};--fh:${f.heads.fam};--fl:${f.lines.fam};--fs:${f.small.fam};--fa:${f.arabic.fam};--stl:${f.lines.italic?'italic':'normal'};--stn:${f.names.italic?'italic':'normal'};--sth:${f.heads.italic?'italic':'normal'};--sts:${f.small.italic?'italic':'normal'};
+--sn:${(s.names/100).toFixed(2)};--sh:${(s.heads/100).toFixed(2)};--sl:${(s.lines/100).toFixed(2)};--ss:${(s.small/100).toFixed(2)};--sa:${(s.arabic/100).toFixed(2)};--sg:${(m.cfg.logoSize/100).toFixed(2)};--W:100vw;
 --ruby:#a3102c;--ruby2:#5d0716;--deep:#1d0309;--gold:#e6c982;--gold2:#fbeab8;--gold3:#b78a3b;--cream:#fbefe3;color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:#12030a}
@@ -232,7 +232,7 @@ main{position:relative;z-index:3}
 .hero .inner{max-width:560px}
 body.rl-wait .hv{opacity:0}
 body:not(.rl-wait) .hv{animation:rl-up 1.5s cubic-bezier(.2,.7,.2,1) var(--d,0s) both}
-.bism{font:400 calc(clamp(25px,7vw,34px)*var(--sl))/1.6 AtelierAmiri,Amiri,'Noto Naskh Arabic',serif;color:var(--gold2);margin:0 0 10px;direction:rtl;text-shadow:0 2px 14px #000a}
+.bism{font:400 calc(clamp(25px,7vw,34px)*var(--sa))/1.6 var(--fa);color:var(--gold2);margin:0 0 10px;direction:rtl;text-shadow:0 2px 14px #000a}
 .intro{font:600 calc(clamp(10.5px,2.9vw,12.5px)*var(--ss))/2 var(--fs);font-style:var(--sts);letter-spacing:.24em;text-transform:uppercase;color:#f6dcc8;margin:0 auto 16px;max-width:30em;text-shadow:0 1px 10px #000b}
 .lbl{font:600 calc(10px*var(--ss))/1.5 var(--fs);font-style:var(--sts);letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin:8px 0 2px}
 .nm{margin:0;font:400 calc(clamp(46px,14.5vw,78px)*var(--sn))/1.08 var(--fn);font-style:var(--stn);overflow-wrap:anywhere;color:var(--gold2);background:linear-gradient(105deg,#b98a35 0%,#fdf0c2 24%,#d6aa55 46%,#fff6d5 60%,#c39340 80%,#f2d68e 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 3px 12px rgba(0,0,0,.55));animation:rl-foil 7s ease-in-out infinite alternate;padding:.04em .06em}
