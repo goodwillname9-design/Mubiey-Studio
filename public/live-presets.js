@@ -17,7 +17,8 @@ const INVITATION_TEMPLATES=[
  {id:'2001',name:'2001 \u00b7 Blush Wisteria (petal shower)',layout:0,group:'stage'},
  {id:'2002',name:'2002 \u00b7 Temple Marigold (bell rings)',layout:0,group:'stage'},
  {id:'2003',name:'2003 \u00b7 Mandap Muhurat (light the lamp)',layout:0,group:'stage'},
- {id:'2004',name:'2004 \u00b7 Temple Lotus (blooms from golden mist)',layout:0,group:'stage'}
+ {id:'2004',name:'2004 \u00b7 Temple Lotus (blooms from golden mist)',layout:0,group:'stage'},
+ {id:'ruby-luxury',name:'Ruby Luxury \u00b7 Glitter, velvet curtains & smoke',layout:0,group:'stage'}
 ];
 const LIVE_PRESETS=INVITATION_TEMPLATES;
 function livePresetCSS(layout=0){const css=[
