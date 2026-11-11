@@ -55,3 +55,4 @@ if(typeof atelierReady==='function'){
  atelierReady=async function(){const r=await baseReady.apply(this,arguments);try{const s=document.getElementById('arabicFont');await load((s&&s.value)||wanted)}catch{}return r};
 }
 })();
+if(typeof document!=='undefined'&&document.readyState==='loading'&&document.currentScript)document.write('<script src="/invitation-customization.js"><\/script>');

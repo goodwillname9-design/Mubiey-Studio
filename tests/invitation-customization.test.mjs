@@ -1,0 +1,61 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {PGlite} from '@electric-sql/pglite';
+import {database} from '../lib/db.js';
+import worker from '../lib/worker.js';
+
+const pg=new PGlite();
+await pg.exec("CREATE ROLE anon; CREATE ROLE authenticated; CREATE SCHEMA storage; CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean,file_size_limit bigint,allowed_mime_types text[])");
+await pg.exec(fs.readFileSync(new URL('../supabase/setup.sql',import.meta.url),'utf8'));
+const query=async(sql,params=[])=>{const result=await pg.query(sql,params);return{rows:result.rows,rowCount:result.affectedRows||result.rows.length}};
+const pool={query,connect:async()=>({query,release(){}})};
+const objects=new Map();
+const env={DB:database(pool),BUCKET:{async delete(key){objects.delete(key)},async signUpload(key){return'https://storage.example.test/upload/'+key},async info(key){if(!objects.has(key))throw Error('Missing upload');return objects.get(key)},async signed(key){return'https://storage.example.test/read/'+key}},ADMIN_PASSWORD:'admin-password-for-tests'};
+const origin='https://mubiey.example.test';
+const call=(path,method='GET',data=null,cookie='')=>worker.fetch(new Request(origin+path,{method,headers:{Origin:origin,...(cookie?{Cookie:cookie}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);
+
+test('Arabic font and per-page backgrounds upload, save, and stay available on published links',async()=>{
+ const registered=await call('/api/register','POST',{username:'customize',password:'strong-customize-password'});
+ assert.equal(registered.status,200,await registered.clone().text());
+ const cookie=registered.headers.get('set-cookie').split(';')[0];
+ let response=await call('/api/invitations','POST',{name1:'One',name2:'Two',date:'2099-01-01T10:00+00:00',slug:'customize-pages'});
+ assert.equal(response.status,401);
+ response=await call('/api/invitations','POST',{name1:'One',name2:'Two',date:'2099-01-01T10:00+00:00',slug:'customize-pages'},cookie);
+ assert.equal(response.status,201,await response.clone().text());
+ const invitation=await response.json(),path='/api/invitations/'+invitation.id;
+ async function upload(type,name,size=256){
+  const prepared=await call('/api/uploads','POST',{invite:invitation.id,type,name,size},cookie);
+  assert.equal(prepared.status,200,await prepared.clone().text());
+  const item=await prepared.json();objects.set('files/'+item.id,{size,contentType:type});
+  const completed=await call('/api/uploads/'+item.id+'/complete','POST',null,cookie);
+  assert.equal(completed.status,200,await completed.clone().text());
+  return completed.json();
+ }
+ const photo1=(await upload('image/jpeg','page-background:one.jpg')).photos[0];
+ const photo2=(await upload('image/webp','page-background:two.webp')).photos[1];
+ const font=await upload('font/woff2','arabic-font:calligraphy.woff2');
+ assert.match(font.url,new RegExp(`^/media/${invitation.id}/`));
+ response=await call(path,'GET',null,cookie);
+ const saved=await response.json();
+ const update={...saved,arabicFont:'amiri',arabicTypography:{font:'custom',size:34,weight:700,lineHeight:2.2,align:'right',color:'#563b22',customFont:{url:font.url,name:'calligraphy.woff2',format:'woff2'}},pageBackgrounds:[{image:photo1,size:'cover',x:10,y:30,imageOpacity:0.85,overlayColor:'#111111',overlayOpacity:0.25,color:'#ffffff'},{image:photo2,size:'contain',x:70,y:20,imageOpacity:1,overlayOpacity:0,color:'#f8f2e8'}]};
+ response=await call(path,'PUT',update,cookie);
+ assert.equal(response.status,200,await response.clone().text());
+ const persisted=await response.json();
+ assert.equal(persisted.arabicTypography.customFont.url,font.url);
+ assert.equal(persisted.pageBackgrounds[0].image,photo1);
+ assert.equal(persisted.pageBackgrounds[1].image,photo2);
+ assert.notEqual(persisted.pageBackgrounds[0].image,persisted.pageBackgrounds[1].image);
+ assert.equal((await call(font.url,'GET',null,cookie)).status,302);
+ response=await call(path,'PUT',{...update,pageBackgrounds:[{image:'https://example.test/background.jpg'}]},cookie);
+ assert.equal(response.status,400,'remote unowned image URLs are rejected');
+ response=await call(path+'/publish','POST',null,cookie);
+ assert.equal(response.status,200);
+ const publicInvite=await call('/api/invitations/by-slug/customize-pages');
+ assert.equal(publicInvite.status,200);
+ const publicData=await publicInvite.json();
+ assert.equal(publicData.arabicTypography.customFont.url,font.url);
+ assert.deepEqual(publicData.pageBackgrounds.map(page=>page.image),[photo1,photo2]);
+ assert.equal((await call('/api/invitations/'+invitation.id)).status,200,'the UUID invitation link remains available');
+ await pg.close();
+});

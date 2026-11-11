@@ -25,6 +25,6 @@ REVOKE ALL ON SCHEMA mubiey FROM anon,authenticated;
 REVOKE ALL ON ALL TABLES IN SCHEMA mubiey FROM anon,authenticated;
 INSERT INTO storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
 VALUES('mubiey-private','mubiey-private',false,26214400,
-ARRAY['image/png','image/jpeg','image/webp','application/pdf','application/json','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/x-wav'])
+ARRAY['image/png','image/jpeg','image/webp','application/pdf','application/json','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/x-wav','font/woff2','font/woff','font/ttf','font/otf'])
 ON CONFLICT(id) DO UPDATE SET public=false,file_size_limit=26214400,allowed_mime_types=excluded.allowed_mime_types;
 -- No public upload/read policies: the backend issues short-lived signed URLs.

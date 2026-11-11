@@ -22,7 +22,7 @@ anchor.after(box);
 fields.push('logo','logoSize');
 
 const row=$('#logoRow'),thumb=$('#logoThumb');
-function sync(){const v=hidden.value,ok=/^data:image\//.test(v);thumb.src=ok?v:'';row.hidden=!ok;row.style.display=ok?'flex':'none'}
+function sync(){const v=hidden.value,ok=/^data:image\//.test(v)||/^\/media\/[a-f0-9-]{36}\/[a-f0-9-]{36}$/i.test(v);thumb.src=ok?v:'';row.hidden=!ok;row.style.display=ok?'flex':'none'}
 
 async function prepare(file){
  if(!/^image\/(png|jpeg|webp)$/.test(file.type))throw Error('Choose a PNG, JPG or WebP logo.');

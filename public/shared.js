@@ -12,7 +12,8 @@ window.Studio={
 const studioRequest=window.Studio.api.bind(window.Studio);
 window.Studio.api=async function(path,options={}){
  const media=path.match(/^\/api\/invitations\/([a-f0-9-]{36})\/media$/);
- if(options.method==='POST'&&options.body instanceof Blob&&(media||path==='/api/projects')){
+ const localServer=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(new URL(location.origin).hostname);
+ if(!localServer&&options.method==='POST'&&options.body instanceof Blob&&(media||path==='/api/projects')){
   const headers=new Headers(options.headers),type=headers.get('Content-Type')||options.body.type;
   const name=decodeURIComponent(headers.get('X-File-Name')||'Wedding media');
   const upload=await studioRequest('/api/uploads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({invite:media?.[1]||null,type,name,size:options.body.size})});

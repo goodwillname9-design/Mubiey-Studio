@@ -6,6 +6,7 @@ Start with **START-HERE.txt** and **DEPLOY-VERCEL.md**.
 - Tone curves, HSL, histogram, auto tone, white balance picker, local exposure brush.
 - Crop, rotate/flip, photo filmstrip, ratings, album ZIP exports.
 - 108 live invitation variations with photos, music, countdown and guest links.
+- Per-invitation Arabic typography and independent backgrounds for each invitation page.
 - 1,120 Muslim card variations (including 120 new floral line-art designs) plus other tradition collections; PDF/PNG/JPEG/SVG exports.
 - Separate accounts, private files and invitation drafts, admin usage controls.
 
@@ -26,7 +27,9 @@ npm test
 ```
 
 Copy `.env.example` to `.env` for local account/storage testing. Never commit real keys.
-Supabase setup requires running `supabase/setup.sql` once. The ZIP contains no credentials.
+Supabase setup requires running `supabase/setup.sql` once. Existing projects must rerun the
+idempotent script to allow Arabic font MIME types in the private storage bucket; it does not
+alter invitation records. The ZIP contains no credentials.
 
 ## Floral & cinema update
 - 120 floral vector variations per tradition: 12 original botanical compositions × 10 palettes.

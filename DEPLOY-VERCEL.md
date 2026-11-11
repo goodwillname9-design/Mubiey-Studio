@@ -125,10 +125,16 @@ Without cloud settings, the editors work locally but account/save functions show
   object-specific links. The service-role key remains in the server function.
 - Uploads go directly from the browser to Supabase, avoiding the Vercel function body limit.
   The server checks ownership and validates uploaded size/type before attaching them.
+- Invitation photos, original-resolution page backgrounds, and custom English/Arabic font files
+  are stored separately; invitation records keep only authorized media references. Arabic
+  typography and page backgrounds are optional, so older invitations retain their appearance.
+- Custom Arabic fonts are limited to 8 MB; invitation photos and backgrounds are limited to
+  15 MB each. Existing Supabase projects should rerun `supabase/setup.sql` to add the font MIME
+  allowlist; this only updates the private bucket configuration and does not migrate invitation data.
 - Downloads use authorized storage URLs valid for 60 seconds. Unpublishing blocks new
   guest access; an already issued file URL may remain usable for up to a minute.
 - Per account: 250 MB, 200 invitations. File upload limits: 20 MB saved files, 15 MB invitation
-  photos, 25 MB music. Each pending upload reserves 25 MB until finalized. Failed uploads
+  photos/backgrounds, 8 MB custom fonts, 25 MB music. Each pending upload reserves 25 MB until finalized. Failed uploads
   are cleared after 3 hours when that account starts its next upload.
 - These are app limits, not unlimited free storage/traffic. Supabase and Vercel plan limits,
   availability and charges apply. Monitor each dashboard before a public launch.

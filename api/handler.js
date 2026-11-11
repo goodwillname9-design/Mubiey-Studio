@@ -35,7 +35,7 @@ export default async function handler(req,res){
      const ok=Object.values(checks).every(value=>value==='pass');return res.status(ok?200:503).json({ok,checks});
     }
   const headers=new Headers();for(const [k,v]of Object.entries(req.headers))if(v!==undefined)headers.set(k,Array.isArray(v)?v.join(','):v);
-  let body;if(!['GET','HEAD'].includes(req.method)){if(req.body!==undefined){body=typeof req.body==='string'||Buffer.isBuffer(req.body)?req.body:JSON.stringify(req.body)}else{const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>20000)return res.status(413).json({error:'Use direct file uploads'});chunks.push(chunk)}body=Buffer.concat(chunks)}if(Buffer.byteLength(body)>20000)return res.status(413).json({error:'Request too large'})}
+  let body;if(!['GET','HEAD'].includes(req.method)){if(req.body!==undefined){body=typeof req.body==='string'||Buffer.isBuffer(req.body)?req.body:JSON.stringify(req.body)}else{const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>400000)return res.status(413).json({error:'Request too large. Upload media separately.'});chunks.push(chunk)}body=Buffer.concat(chunks)}if(Buffer.byteLength(body)>400000)return res.status(413).json({error:'Request too large. Upload media separately.'})}
   const reserved=reservedFromFiles(await fs.readdir(PUBLIC_DIR));
   const query=new URLSearchParams(url.searchParams);query.delete('route');const targetUrl=protocol+'://'+host+p+(query.size?'?'+query.toString():'');
   const response=await worker.fetch(new Request(targetUrl,{method:req.method,headers,body}),{DB:getDatabase(),BUCKET:bucket(),ADMIN_PASSWORD:process.env.MUBIEY_ADMIN_PASSWORD,RESERVED_SLUGS:reserved});

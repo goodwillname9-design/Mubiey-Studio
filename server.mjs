@@ -19,9 +19,52 @@ const users=await accounts(DATA,password);
 const owns=(u,d)=>!!u&&(d.ownerId||'admin')===u.id;
 const idOK=id=>/^[a-f0-9-]{36}$/.test(id);
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data))};
-async function body(req,max=16000){let size=0;const chunks=[];for await(const chunk of req){size+=chunk.length;if(size>max){const e=Error('File or request is too large');e.status=413;throw e}chunks.push(chunk)}return Buffer.concat(chunks)}
+async function body(req,max=400000){let size=0;const chunks=[];for await(const chunk of req){size+=chunk.length;if(size>max){const e=Error('Request or file is too large. Upload media separately.');e.status=413;throw e}chunks.push(chunk)}return Buffer.concat(chunks)}
 const text=(v,max)=>typeof v==='string'?v.trim().slice(0,max):'';
+const mediaRef=/^\/media\/[a-f0-9-]{36}\/[a-f0-9-]{36}$/i;
+const arabicFonts=['amiri','ruqaa','kufi','nastaliq','lateef','scheherazade','katibeh','mirza','rakkas','lalezar','custom'];
+const gradients=['','linear-gradient(135deg,#fff8ec,#f3e6c8)','linear-gradient(135deg,#102b27,#31594b)','linear-gradient(135deg,#f8e9e9,#e9c7c9)','linear-gradient(135deg,#101c31,#293c5b)','linear-gradient(135deg,#fff1d5,#e8c486)'];
+const bounded=(value,min,max)=>{if(value===null||value===undefined||value==='')return null;const number=Number(value);if(!Number.isFinite(number)||number<min||number>max)throw Error('Customization values are outside the allowed range.');return number};
+function localArabicTypography(value){
+ if(value===undefined)return undefined;
+ if(value===null)return null;
+ if(typeof value!=='object'||Array.isArray(value))throw Error('Invalid Arabic typography settings.');
+ let customFont=null;
+ if(value.customFont!==undefined&&value.customFont!==null){
+  if(typeof value.customFont!=='object'||!mediaRef.test(value.customFont.url||'')||!['woff2','woff','ttf','otf'].includes(String(value.customFont.format||'').toLowerCase()))throw Error('Invalid uploaded Arabic font reference.');
+  customFont={url:value.customFont.url,name:text(value.customFont.name,120),format:String(value.customFont.format).toLowerCase()};
+ }
+ return{font:arabicFonts.includes(value.font)?value.font:'amiri',size:bounded(value.size,10,72),weight:bounded(value.weight,300,900),lineHeight:bounded(value.lineHeight,1,3),align:['left','center','right','justify'].includes(value.align)?value.align:null,color:/^#[0-9a-f]{6}$/i.test(value.color||'')?value.color:null,customFont};
+}
+function localCustomFont(value){
+ if(value===undefined)return undefined;
+ if(value===null)return null;
+ if(typeof value!=='object'||Array.isArray(value))throw Error('Invalid custom font.');
+ const format=String(value.format||'').toLowerCase();
+ if(!['woff2','woff','ttf','otf'].includes(format))throw Error('Invalid custom font format.');
+ if(value.url!==undefined){if(!mediaRef.test(value.url||''))throw Error('Invalid custom font reference.');return{url:value.url,name:text(value.name,120),format}}
+ if(typeof value.data!=='string'||value.data.length>200000||!new RegExp(`^data:font/${format};base64,[A-Za-z0-9+/]+={0,2}$`).test(value.data))throw Error('Invalid custom font data.');
+ return{name:text(value.name,120),data:value.data,format};
+}
+function localPageBackgrounds(value,photos){
+ if(value===undefined)return undefined;
+ if(!Array.isArray(value)||value.length>60)throw Error('Invalid page background settings.');
+ return value.map(page=>{
+  if(!page||typeof page!=='object'||Array.isArray(page))throw Error('Invalid page background settings.');
+  if(!Object.keys(page).length)return{};
+  const image=typeof page.image==='string'?page.image:'';
+  if(image&&(!mediaRef.test(image)||!photos.includes(image)))throw Error('Page backgrounds must use a saved invitation photo.');
+  const number=(field,min,max,fallback)=>bounded(page[field],min,max)??fallback;
+  return{image,size:['cover','contain','custom'].includes(page.size)?page.size:'cover',x:number('x',0,100,50),y:number('y',0,100,50),customSize:number('customSize',25,300,100),imageOpacity:number('imageOpacity',0,1,1),overlayColor:/^#[0-9a-f]{6}$/i.test(page.overlayColor||'')?page.overlayColor:'#000000',overlayOpacity:number('overlayOpacity',0,1,0),color:/^#[0-9a-f]{6}$/i.test(page.color||'')?page.color:'#ffffff',gradient:gradients.includes(page.gradient)?page.gradient:''};
+ });
+}
 export function validate(d){if(!d||typeof d!=='object')throw Error('Invalid invitation');const clean={name1:text(d.name1,90),name2:text(d.name2,90),heading:text(d.heading,140),message:text(d.message,3000),venue:text(d.venue,180),address:text(d.address,500),date:text(d.date,40),timezone:text(d.timezone,6),theme:['ivory','emerald','rose','midnight','saffron','sage'].includes(d.theme)?d.theme:'ivory',tradition:['General','Muslim','Hindu','Christian','Interfaith','Other'].includes(d.tradition)?d.tradition:'General',mapUrl:text(d.mapUrl,1800),layout:Number.isInteger(d.layout)&&d.layout>=0&&d.layout<18?d.layout:0,schedule:[],photos:[],music:null};
+clean.arabicFont=['amiri','ruqaa','kufi','nastaliq','lateef','scheherazade','katibeh','mirza','rakkas','lalezar'].includes(d.arabicFont)?d.arabicFont:'amiri';
+if(Object.hasOwn(d,'arabicTypography'))clean.arabicTypography=localArabicTypography(d.arabicTypography);
+if(Object.hasOwn(d,'pageBackgrounds'))clean.pageBackgrounds=localPageBackgrounds(d.pageBackgrounds,Array.isArray(d.photos)?d.photos:[]);
+if(Object.hasOwn(d,'customFont'))clean.customFont=localCustomFont(d.customFont);
+for(const key of ['logo','openLogo'])if(Object.hasOwn(d,key)){const value=d[key];if(typeof value!=='string'||value.length>200000||!( /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value)||mediaRef.test(value)))throw Error('Invalid invitation logo.');clean[key]=value}
+clean.logoSize=['sm','md','lg'].includes(d.logoSize)?d.logoSize:'md';
 if(clean.date&&(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?[+-]\d{2}:\d{2}$/.test(clean.date)||!Number.isFinite(Date.parse(clean.date))))throw Error('Choose a valid event date and time zone');
 if(clean.mapUrl){let u;try{u=new URL(clean.mapUrl)}catch{throw Error('Enter a valid map link')}if(u.protocol!=='https:'||!['google.com','www.google.com','maps.google.com','maps.app.goo.gl','goo.gl','maps.apple.com'].includes(u.hostname))throw Error('Use an HTTPS Google Maps or Apple Maps link')}
 clean.slug=validateWithSlug({slug:d.slug},publicReserved).slug;
@@ -34,11 +77,66 @@ const attempts=new Map();const queues=new Map();
 async function exclusive(id,fn){const prev=queues.get(id)||Promise.resolve();let release;const gate=new Promise(r=>release=r);queues.set(id,gate);await prev;try{return await fn()}finally{release();if(queues.get(id)===gate)queues.delete(id)}}
 const QUOTA=(Number(process.env.USER_STORAGE_MB)||250)*1024*1024;
 async function usage(owner){let total=0;const docs=await Promise.all((await fs.readdir(path.join(DATA,'invitations'))).filter(f=>f.endsWith('.json')).map(f=>readDoc(f.slice(0,-5))));const ids=new Set(docs.filter(d=>d&&(d.ownerId||'admin')===owner).map(d=>d.id));for(const f of await fs.readdir(path.join(DATA,'media')))if(ids.has(f.slice(0,36)))total+=(await fs.stat(path.join(DATA,'media',f))).size;try{for(const f of await fs.readdir(path.join(DATA,'projects',owner)))total+=(await fs.stat(path.join(DATA,'projects',owner,f))).size}catch{}return total}
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json','.png':'image/png','.jpg':'image/jpeg'};
+async function uploadInvitationMedia(req,res,id,signed){
+ if(!signed)return json(res,401,{error:'Sign in to upload invitation media.'});
+ return exclusive('user:'+signed.id,async()=>{
+  const d=await readDoc(id);if(!d||d.deleted||!owns(signed,d))return json(res,404,{error:'Invitation not found.'});
+  const type=req.headers['content-type']?.split(';')[0]||'',name=decodeURIComponent(req.headers['x-file-name']||'Wedding media');
+  const isCard=name.startsWith('card:'),isFont=/^(arabic|english)-font:/.test(name)&&['font/woff2','font/woff','font/ttf','font/otf'].includes(type);
+  const isLogo=/^(logo|open-logo):/.test(name)&&['image/png','image/jpeg','image/webp'].includes(type);
+  const photo=!isCard&&!isFont&&!isLogo&&['image/jpeg','image/png','image/webp'].includes(type),music=['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/x-wav'].includes(type);
+  if(!isFont&&!isLogo&&(!photo&&!music&&!(isCard&&['application/pdf','image/png','image/jpeg','image/webp'].includes(type))))return json(res,400,{error:'Unsupported invitation media type.'});
+  if(photo&&d.photos.length>=20)return json(res,400,{error:'Up to twenty invitation photos and backgrounds.'});
+  const max=isFont?8:(photo||isCard||isLogo)?15:25,bytes=await body(req,max*1024*1024);
+  if(!bytes.length)return json(res,400,{error:'The uploaded file is empty.'});
+  if(await usage(signed.id)+bytes.length>QUOTA)return json(res,413,{error:'Your storage is full. Delete projects to free space.'});
+  const mediaId=crypto.randomUUID(),key=id+'-'+mediaId,ref='/media/'+id+'/'+mediaId;
+  await fs.writeFile(path.join(DATA,'media',key),bytes);
+  await fs.writeFile(path.join(DATA,'media',key+'.json'),JSON.stringify({type}));
+  if(isCard){d.card={ref,name:name.slice(5,125)||'Invitation card',type};d.updated=new Date().toISOString();await writeDoc(d);return json(res,200,d)}
+  d.updated=new Date().toISOString();
+  if(isFont||isLogo)return json(res,200,{id:mediaId,url:ref,name:name.slice(name.indexOf(':')+1).slice(0,120),type,size:bytes.length});
+  if(isCard){d.card={ref,name:name.slice(5,125)||'Invitation card',type};await writeDoc(d);return json(res,200,d)}
+  if(photo)d.photos.push(ref);else d.music=ref;
+  await writeDoc(d);return json(res,200,d);
+ });
+}
+async function updateLocalInvitation(req,res,id,signed){
+ if(!signed)return json(res,401,{error:'Sign in to edit this invitation.'});
+ return exclusive('user:'+signed.id,async()=>{
+  const d=await readDoc(id);if(!d||d.deleted||!owns(signed,d))return json(res,404,{error:'Invitation not found.'});
+  const raw=JSON.parse((await body(req)).toString()),v=validate(raw);
+  if(!Object.hasOwn(raw,'slug'))v.slug=d.slug||'';
+  v.photos=Array.isArray(raw.photos)?raw.photos.filter(photo=>d.photos.includes(photo)).slice(0,20):d.photos;
+  v.music=raw.music===null?null:d.music;
+  const doc={...d,...v,updated:new Date().toISOString()};
+  return exclusive('slugs',async()=>{
+   if(doc.slug&&await slugTaken(doc.slug,id))return json(res,409,{error:'This invitation link is already taken.'});
+   await writeDoc(doc);return json(res,200,doc);
+  });
+ });
+}
+async function serveInvitationMedia(req,res,pathname,signed){
+ const match=pathname.match(/^\/media\/([a-f0-9-]{36})\/([a-f0-9-]{36})$/);
+ if(!match){res.writeHead(404);return res.end('Not found')}
+ const [,id,mediaId]=match,d=await readDoc(id),font=d?.arabicTypography?.customFont?.url===pathname||d?.customFont?.url===pathname,pageBackground=d?.pageBackgrounds?.some(page=>page.image===pathname),logo=d?.logo===pathname||d?.openLogo===pathname;
+ if(!d||d.deleted||(!owns(signed,d)&&!d.published)||(!d.photos.includes(pathname)&&d.music!==pathname&&d.card?.ref!==pathname&&!font&&!pageBackground&&!logo)){res.writeHead(404);return res.end('Not found')}
+ const key=id+'-'+mediaId,meta=JSON.parse(await fs.readFile(path.join(DATA,'media',key+'.json'),'utf8')),file=await fs.readFile(path.join(DATA,'media',key));
+ res.setHeader('Content-Type',meta.type);res.setHeader('Cache-Control','private, no-store');res.setHeader('Accept-Ranges','bytes');
+ const range=req.headers.range?.match(/^bytes=(\d+)-(\d*)$/);
+ if(range){const start=Number(range[1]),end=Math.min(file.length-1,range[2]?Number(range[2]):file.length-1);if(start>=file.length||start>end){res.writeHead(416,{'Content-Range':`bytes */${file.length}`});return res.end()}res.writeHead(206,{'Content-Range':`bytes ${start}-${end}/${file.length}`,'Content-Length':end-start+1});return res.end(file.subarray(start,end+1))}
+ res.setHeader('Content-Length',file.length);return res.end(file);
+}
+const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.woff2':'font/woff2','.woff':'font/woff','.ttf':'font/ttf','.otf':'font/otf'};
 async function sendGuest(res,d,requestOrigin,pathname,method){const html=await fs.readFile(path.join(ROOT,'public','guest.html'),'utf8'),meta=shareMeta(d,{origin:requestOrigin,path:pathname}),page=html.replace('<title>Wedding invitation</title><!-- MUBIEY_SHARE_META -->',meta);res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(method==='HEAD'?undefined:page)}
 function sendNotFound(res,method){res.writeHead(404,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(method==='HEAD'?undefined:invitationNotFoundHtml)}
 const server=http.createServer(async(req,res)=>{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Robots-Tag','noindex, nofollow');let origin,requestOrigin;try{const host=req.headers.host||'localhost';if(!/^[a-z0-9.-]+(?::\d{1,5})?$/i.test(host))throw Error('Invalid host');const proto=req.socket.encrypted||String(req.headers['x-forwarded-proto']||'').split(',')[0].trim()==='https'?'https':'http';requestOrigin=`${proto}://${host}`;origin=PUBLIC||requestOrigin;const url=new URL(req.url,requestOrigin),p=decodeURIComponent(url.pathname),signed=users.session(req);
+if(p.startsWith('/media/'))return await serveInvitationMedia(req,res,p,signed);
 if(p.startsWith('/api/')){if(!['GET','HEAD'].includes(req.method)){if(req.headers.origin!==requestOrigin)return json(res,403,{error:'Invalid request origin.'})}
+const invitationUpload=p.match(/^\/api\/invitations\/([a-f0-9-]{36})\/media$/);
+if(invitationUpload&&req.method==='POST')return await uploadInvitationMedia(req,res,invitationUpload[1],signed);
+const invitationUpdate=p.match(/^\/api\/invitations\/([a-f0-9-]{36})$/);
+if(invitationUpdate&&req.method==='PUT')return await updateLocalInvitation(req,res,invitationUpdate[1],signed);
 if(p==='/api/slug.js'&&['GET','HEAD'].includes(req.method)){const source=await fs.readFile(path.join(ROOT,'lib','slug.js'));res.writeHead(200,{'Content-Type':'text/javascript; charset=utf-8','Cache-Control':'no-cache'});return res.end(req.method==='HEAD'?undefined:source)}
 if(p==='/api/session'&&req.method==='GET')return json(res,200,{authenticated:!!signed,user:users.publicUser(signed),publicOrigin:PUBLIC});
 if(p==='/api/slugs/check'&&req.method==='GET'){if(!signed)return json(res,401,{error:'Sign in to check invitation links.'});const input=url.searchParams.get('slug')||'',id=url.searchParams.get('id')||'',checked=checkSlug(input,publicReserved),proposed=suggestSlug(url.searchParams.get('name1'),url.searchParams.get('name2'));let suggestion='';if(proposed)suggestion=await makeUnique(proposed,value=>slugTaken(value),publicReserved);if(!input.trim())return json(res,200,{valid:true,available:true,slug:'',suggestion});if(!checked.ok)return json(res,200,{valid:false,available:false,slug:checked.slug,error:checked.error,suggestion});if(id){const owned=await readDoc(id);if(!owned||owned.deleted||!owns(signed,owned))return json(res,404,{error:'Invitation not found.'})}const available=!(await slugTaken(checked.slug,id));return json(res,200,{valid:true,available,slug:checked.slug,error:available?'':'This link is already taken.',suggestion})}

@@ -16,6 +16,7 @@ function context(){
  const scripts=[...html.matchAll(/<script src="\/?([^"]+\.js)"/g)].map(m=>m[1]).filter(f=>f!=='guest.js');
  assert.ok(scripts.includes('arabic-font.js'),'guest.html loads arabic-font.js');
  for(const f of scripts)vm.runInContext(fs.readFileSync('public/'+f,'utf8'),c);
+ vm.runInContext(fs.readFileSync('public/invitation-customization.js','utf8'),c);
  return c;
 }
 const render=(c,d)=>{c.data=d;return vm.runInContext('invitationDocument(data)',c)};
@@ -43,6 +44,21 @@ test('default Amiri and unknown values leave the design untouched',()=>{
   const html=render(c,{template:'royal-stage',name1:'A',name2:'B',arabicFont:a});
   assert.ok(!html.includes('mubiey-arabic-font'),String(a));
  }
+});
+test('saved Arabic typography and independent page backgrounds are emitted into guest HTML',()=>{
+ const c=context(),font='/media/11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222';
+ const image1='/media/11111111-1111-4111-8111-111111111111/33333333-3333-4333-8333-333333333333';
+ const image2='/media/11111111-1111-4111-8111-111111111111/44444444-4444-4444-8444-444444444444';
+ const html=render(c,{template:'premium-0-0',name1:'A',name2:'B',arabicFont:'amiri',arabicTypography:{font:'custom',size:32,weight:700,lineHeight:2.1,align:'right',color:'#123456',customFont:{url:font,name:'custom.woff2',format:'woff2'}},pageBackgrounds:[{image:image1,size:'cover',imageOpacity:0.8,overlayColor:'#000000',overlayOpacity:0.2,color:'#ffffff'}, {image:image2,size:'contain',x:20,y:80,imageOpacity:1,overlayOpacity:0,color:'#fefefe'}]});
+ assert.match(html,/direction:rtl!important/);
+ assert.match(html,/font-size:32px!important/);
+ assert.match(html,/font-weight:700!important/);
+ assert.match(html,/src:url\("\/media\/11111111/);
+ assert.match(html,/data-mubiey-page="1"/);
+ assert.match(html,/data-mubiey-page="2"/);
+ assert.ok(html.includes(`url("${image1}")`));
+ assert.ok(html.includes(`url("${image2}")`));
+ assert.ok(html.includes('background-size:contain'));
 });
 test('after the font is loaded it is embedded as a data URL (works in sandboxed guest iframe and exported files)',async()=>{
  const c=context();

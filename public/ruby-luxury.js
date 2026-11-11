@@ -111,7 +111,7 @@ function model(d){
   n1:str(d.name1,90)||'Bride Name',n2:str(d.name2,90)||'Groom Name',
   p1:str(d.parents1,200),p2:str(d.parents2,200),
   open:t('rsOpen','Tap to open',40),
-  openLogo:typeof d.openLogo==='string'&&/^data:image\/(png|jpeg|webp);base64,/.test(d.openLogo)&&d.openLogo.length<200000?d.openLogo:'',
+  openLogo:typeof d.openLogo==='string'&&(/^(?:data:image\/(png|jpeg|webp);base64,|\/media\/[a-f0-9-]{36}\/[a-f0-9-]{36})/i).test(d.openLogo)&&d.openLogo.length<200000?d.openLogo:'',
   bism:muslim?t('rsBismillah','\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0651\u064E\u0647\u0650 \u0627\u0644\u0631\u0651\u064E\u062D\u0652\u0645\u064E\u0670\u0646\u0650 \u0627\u0644\u0631\u0651\u064E\u062D\u0650\u064A\u0645\u0650',200):str(d.rsBismillah,200),
   intro:t('rsIntro',muslim?'With the blessings of Allah and our families, you are warmly invited to the Nikah of':'Together with our families, we joyfully invite you to celebrate the wedding of',160),
   l1:t('rsLabel1','Daughter of',40),l2:t('rsLabel2','Son of',40),
