@@ -89,8 +89,7 @@ function invitationFontKey(d,hasCustom){
 function model(d){
  const cfg=readCfg(d),w=when(d.date),prev=!!d._editorPreview,animate=d.animation!==false;
  let photos=(d.photos||[]).filter(s=>typeof s==='string'&&/^data:image\/(jpeg|png|webp);base64,|^\/media\//.test(s));
- let logo='';
- if(cfg.logo&&photos.length){logo=photos[photos.length-1];photos=photos.slice(0,-1)}
+ let logo='';              /* the owner's logo is drawn for every design by logo-overlay.js */
  const music=typeof d.music==='string'&&/^data:audio\/[\w.+-]+;base64,|^\/media\//.test(d.music)?d.music:'';
  let events=parseEvents(d.eventsText);
  if(!events.length){
@@ -326,7 +325,7 @@ ${m.customCSS}`};
 /* ------------------------------------------------------------------ markup */
 function body(m){
  const w=m.w;
- const logo=m.logo?`<div class="logo"><img src="${esc(m.logo)}" alt="Logo"></div>`:(m.prev?`<div class="logo ph" data-logo-slot>Your logo<small>tap to add</small></div>`:'');
+ const logo='';
  const l1=m.p1&&/^\s*d\s*\/\s*o\b/i.test(m.p1)?'':`<p class="lbl hv" data-rs="rsLabel1" style="--d:.7s">${esc(m.l1)}</p>`;
  const l2=m.p2&&/^\s*s\s*\/\s*o\b/i.test(m.p2)?'':`<p class="lbl hv" data-rs="rsLabel2" style="--d:1.35s">${esc(m.l2)}</p>`;
  const hero=`<section class="sec hero" id="top" data-bg="hero"><div class="inner">
@@ -499,6 +498,6 @@ function render(d){
  const cls=[m.gate?'rl-locked rl-wait':'',m.prev?'rl-prev':'',m.gate?'':'rl-flat rl-stage'].filter(Boolean).join(' ');
  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${esc(m.n1)} &amp; ${esc(m.n2)} \u2014 Wedding invitation</title><script>document.documentElement.classList.add('rl-js')<\/script><style>${fontCSS()}${CSS(m)}</style><noscript><style>.gate{display:none}body.rl-locked{overflow:auto}.rv,.hv{opacity:1!important;transform:none!important;filter:none!important}</style></noscript></head><body class="${cls}">${body(m)}<script>window.RL=${json(rt)};<\/script><script>(${runtime.toString().replace(/<\/script/gi,'<\\/script')})();<\/script></body></html>`;
 }
-window.MubieyRuby={id:TEMPLATE,readCfg,GROUPS,FONT_KEYS,model};
+window.MubieyRuby={id:TEMPLATE,readCfg,GROUPS,FONT_KEYS,model,h:{esc,str,when,safeMap,safeHttps,fontCSS,customFontCSS,stack,rnd,json,ed,parseEvents,DEFAULT_FONT,ASSET_ROOT:ASSET.replace(/assets\/ruby\/$/,'')}};
 invitationDocument=function(data){return data&&data.template===TEMPLATE?render(data):baseDocument.apply(this,arguments)};
 })();

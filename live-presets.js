@@ -20,7 +20,12 @@ const INVITATION_TEMPLATES = [
   { id: '2002', name: '2002 · Temple Marigold (bell rings)', layout: 0, group: 'stage' },
   { id: '2003', name: '2003 · Mandap Muhurat (light the lamp)', layout: 0, group: 'stage' },
   { id: '2004', name: '2004 · Temple Lotus (blooms from golden mist)', layout: 0, group: 'stage' },
-  { id: 'ruby-luxury', name: 'Ruby Luxury \u00b7 Glitter, velvet curtains & smoke', layout: 0, group: 'stage' }
+  { id: 'ruby-luxury', name: 'Ruby Luxury \u00b7 Glitter, velvet curtains & smoke', layout: 0, group: 'stage' },
+  { id: '2005', name: '2005 \u00b7 Ivory Gold Envelope (seal, arch & calendar)', layout: 0, group: 'stage' },
+  { id: '2006', name: '2006 \u00b7 Sage Garden Envelope (seal, arch & calendar)', layout: 0, group: 'stage' },
+  { id: '2007', name: '2007 \u00b7 Blush Rose Envelope (seal, arch & calendar)', layout: 0, group: 'stage' },
+  { id: '2008', name: '2008 \u00b7 Powder Blue Envelope (seal, arch & calendar)', layout: 0, group: 'stage' },
+  { id: '2009', name: '2009 \u00b7 Champagne Noir Envelope (seal, arch & calendar)', layout: 0, group: 'stage' }
 ];
 const LIVE_LAYOUTS = ['Arabesque night'];
 
