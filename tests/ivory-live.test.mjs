@@ -71,3 +71,15 @@ test('validator keeps the ivory settings (calendar marks) inside rubyCfg',()=>{
 test('artwork files exist',()=>{
  for(const f of ['arch.jpg','envelope.jpg','sage.jpg','bismillah.png','peony.png','swans.png'])assert.ok(fs.existsSync('public/assets/ivory/'+f),f);
 });
+
+test('opening logo replaces the golden seal at the same size; without it the seal stays',()=>{
+ const c=context();
+ const PNG2='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jhFoAAAAASUVORK5CYII=';
+ const withLogo=render(c,{...base,template:'2005',openLogo:PNG2});
+ assert.match(withLogo,/class="omw"/,'medallion present');
+ assert.match(withLogo,/class="om"/);
+ const plain=render(c,{...base,template:'2005'});
+ assert.doesNotMatch(plain,/class="omw"/,'no logo: no medallion');
+ assert.match(plain,/seal-ring/,'no logo: golden seal stays');
+ assert.doesNotMatch(render(c,{...base,template:'2005',openLogo:'javascript:alert(1)'}),/class="omw"/,'unsafe value ignored');
+});

@@ -105,6 +105,12 @@ body.iv-ready .bism{opacity:1}
 .gate.open .seal-flash{animation:iv-flash 1.3s ease-out forwards}
 .g-ui{position:absolute;left:50%;top:0;height:100%;width:var(--SW);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:calc(var(--H)*.2);z-index:3;transition:opacity .5s ease}
 .gate.open .g-ui{opacity:0}
+.omw{position:absolute;left:50%;top:0;height:100%;width:var(--SW);transform:translateX(-50%);pointer-events:none;z-index:5}
+.om{position:absolute;left:50.5%;top:49.8%;width:33%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fffaf0,#efe2c4 80%);box-shadow:0 6px 18px rgba(60,40,10,.35),inset 0 0 0 3px #d9b46a,inset 0 0 0 6px #fff4d6,inset 0 0 0 7px #b88c3e;padding:12%;animation:iv-om 2.4s ease-in-out infinite alternate}
+.om img{width:100%;height:100%;object-fit:contain;border-radius:50%;display:block}
+.gate.open .om{animation:iv-omout 1.1s cubic-bezier(.3,.6,.2,1) forwards}
+@keyframes iv-om{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.03)}}
+@keyframes iv-omout{to{transform:translate(-50%,-190%) scale(1.2);opacity:0}}
 .g-hit{all:unset;position:absolute;left:50.5%;top:49.8%;width:calc(var(--SW)*.38);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;cursor:pointer;z-index:4}
 .g-hit:focus-visible{outline:2px solid var(--acc);outline-offset:6px}
 .g-tap{font:400 calc(clamp(32px,9.4vw,46px)*var(--sn))/1.1 var(--fn);font-style:var(--stn);color:var(--ink);text-shadow:0 1px 10px rgba(255,255,255,.65);text-align:center;max-width:88%;overflow-wrap:anywhere;animation:iv-bob 2.8s ease-in-out infinite}
@@ -272,7 +278,8 @@ function body(m,t,cal){
  <p class="sign rv fit" data-rs="name1">${esc(m.n1)} &amp; ${esc(m.n2)}</p>
  ${m.from?ed('wishesFrom','p','small rv',esc(m.from)):''}
  </div></section>`;
- const gate=m.gate?`<div id="iv-gate" class="gate" role="dialog" aria-modal="true" aria-label="Open the invitation"><div class="envbox"><i class="flap b"></i><i class="flap l"></i><i class="flap r"></i><i class="flap t"></i><i class="seal-ring"></i><i class="seal-flash"></i></div><div class="g-ui"><span class="g-kick">You are invited</span><span class="g-tap" data-rs="rsOpen">${esc(m.open)}</span></div><button type="button" class="g-hit" id="iv-open" aria-label="Open the invitation"></button><button type="button" class="g-skip" id="iv-skip">Skip</button></div>`:'';
+ const omw=m.openLogo?`<div class="omw" aria-hidden="true"><i class="om"><img src="${esc(m.openLogo)}" alt=""></i></div>`:'';
+ const gate=m.gate?`<div id="iv-gate" class="gate" role="dialog" aria-modal="true" aria-label="Open the invitation"><div class="envbox"><i class="flap b"></i><i class="flap l"></i><i class="flap r"></i><i class="flap t"></i><i class="seal-ring"></i><i class="seal-flash"></i></div>${omw}<div class="g-ui"><span class="g-kick">You are invited</span><span class="g-tap" data-rs="rsOpen">${esc(m.open)}</span></div><button type="button" class="g-hit" id="iv-open" aria-label="Open the invitation"></button><button type="button" class="g-skip" id="iv-skip">Skip</button></div>`:'';
  const audio=m.music?`<audio id="iv-music" loop preload="none" src="${esc(m.music)}"></audio><button type="button" class="mbtn on" id="iv-mbtn" aria-label="Play or pause music">\u266A</button>`:'';
  const layers=`<div class="bgs" aria-hidden="true">${sceneLayer('hero',t.hero,t,m,true)}${sceneLayer('date',t.date,t,m)}${sceneLayer('story',t.story,t,m)}${sceneLayer('day',t.day,t,m)}${sceneLayer('events',t.events,t,m)}${sceneLayer('end',t.end,t,m)}${petals(t)}</div>`;
  return `${layers}<canvas id="iv-sp" aria-hidden="true"></canvas>${gate}<main>${hero}${dateSec}${story}${tl}${cards}${end}</main><div class="credit">Made with Mubiey Studio</div>${audio}`;

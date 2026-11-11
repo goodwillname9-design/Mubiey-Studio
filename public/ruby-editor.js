@@ -36,7 +36,22 @@ for(const [g,label] of GROUPS){
  r.querySelector('input').oninput=e=>{read();cfg.s[g]=Number(e.target.value);r.querySelector('[data-n]').textContent=cfg.s[g]+'%';write()};
 }
 const resetBtn=document.createElement('button');resetBtn.type='button';resetBtn.textContent='Reset fonts & sizes';resetBtn.style.gridColumn='1/-1';resetBtn.onclick=()=>{read();cfg.f={};cfg.s={};write();paint()};grid.append(resetBtn);
-function paint(){read();for(const [g] of GROUPS){const s=grid.querySelector(`select[data-g="${g}"]`),r=grid.querySelector(`input[data-s="${g}"]`);s.value=cfg.f[g]||'';r.value=cfg.s[g]||100;grid.querySelector(`[data-n="${g}"]`).textContent=(cfg.s[g]||100)+'%'}}
+const ol=document.createElement('div');ol.className='wide';ol.style.gridColumn='1/-1';ol.innerHTML='<strong>Opening logo (replaces the golden seal)</strong><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px"><img id="olThumb" alt="" style="height:52px;width:52px;object-fit:contain;border-radius:50%;background:#fffaf0;display:none"><input id="olFile" type="file" accept="image/png,image/jpeg,image/webp"><button type="button" id="olRemove" class="danger" hidden>Remove</button></div><p class="help">Same size as the seal. No logo = the golden seal stays. PNG with transparent background looks best.</p>';
+grid.append(ol);
+const olHidden=document.createElement('input');olHidden.type='hidden';olHidden.id='openLogo';panel.append(olHidden);fields.push('openLogo');
+const olThumb=ol.querySelector('#olThumb'),olRemove=ol.querySelector('#olRemove');
+function olSync(){const ok=/^data:image\//.test(olHidden.value);olThumb.src=ok?olHidden.value:'';olThumb.style.display=ok?'block':'none';olRemove.hidden=!ok}
+async function olPrepare(file){
+ if(!/^image\/(png|jpeg|webp)$/.test(file.type))throw Error('Choose a PNG, JPG or WebP logo.');
+ const url=URL.createObjectURL(file);
+ try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(Error('Could not read this image.'));i.src=url});
+  const w0=img.naturalWidth,h0=img.naturalHeight;if(!w0||!h0)throw Error('Could not read this image.');
+  for(const max of [360,280,210,150]){const k=Math.min(1,max/Math.max(w0,h0)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(w0*k));c.height=Math.max(1,Math.round(h0*k));c.getContext('2d').drawImage(img,0,0,c.width,c.height);const out=c.toDataURL('image/png');if(out.length<=190000)return out}
+  throw Error('This logo is too detailed. Please use a simpler image.');
+ }finally{URL.revokeObjectURL(url)}}
+ol.querySelector('#olFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{olHidden.value=await olPrepare(f);olSync();markDirty()}catch(err){alert(err.message)}};
+olRemove.onclick=()=>{olHidden.value='';olSync();markDirty()};
+function paint(){read();olSync();for(const [g] of GROUPS){const s=grid.querySelector(`select[data-g="${g}"]`),r=grid.querySelector(`input[data-s="${g}"]`);s.value=cfg.f[g]||'';r.value=cfg.s[g]||100;grid.querySelector(`[data-n="${g}"]`).textContent=(cfg.s[g]||100)+'%'}}
 
 /* ---------- calendar panel ---------- */
 const cal=document.createElement('section');cal.className='panel';cal.id='iv-cal-panel';cal.hidden=true;

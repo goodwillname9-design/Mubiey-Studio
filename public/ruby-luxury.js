@@ -111,6 +111,7 @@ function model(d){
   n1:str(d.name1,90)||'Bride Name',n2:str(d.name2,90)||'Groom Name',
   p1:str(d.parents1,200),p2:str(d.parents2,200),
   open:t('rsOpen','Tap to open',40),
+  openLogo:typeof d.openLogo==='string'&&/^data:image\/(png|jpeg|webp);base64,/.test(d.openLogo)&&d.openLogo.length<200000?d.openLogo:'',
   bism:muslim?t('rsBismillah','\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0651\u064E\u0647\u0650 \u0627\u0644\u0631\u0651\u064E\u062D\u0652\u0645\u064E\u0670\u0646\u0650 \u0627\u0644\u0631\u0651\u064E\u062D\u0650\u064A\u0645\u0650',200):str(d.rsBismillah,200),
   intro:t('rsIntro',muslim?'With the blessings of Allah and our families, you are warmly invited to the Nikah of':'Together with our families, we joyfully invite you to celebrate the wedding of',160),
   l1:t('rsLabel1','Daughter of',40),l2:t('rsLabel2','Son of',40),
@@ -218,6 +219,7 @@ body.rl-past .drape{opacity:0}
 .g-hit:focus-visible .g-tap{text-decoration:underline;text-underline-offset:9px}
 .g-kick{font:600 calc(10.5px*var(--ss))/1.5 var(--fs);font-style:var(--sts);letter-spacing:5px;text-transform:uppercase;color:#fbeab8;text-shadow:0 1px 10px #000c}
 .g-ring{width:70px;height:70px;border-radius:50%;border:1.5px solid #fbeab8cc;position:relative;animation:rl-ring 2.4s ease-out infinite;box-shadow:0 0 18px #0006}
+.g-om{background:#fffaf0;padding:9px;overflow:hidden;animation:rl-ring 2.4s ease-out infinite}.g-om:after{display:none}.g-om img{width:100%;height:100%;object-fit:contain;border-radius:50%;display:block}
 .g-ring:after{content:'';position:absolute;inset:25px;border-radius:50%;background:#fbeab8;box-shadow:0 0 14px #ffe9a8}
 .g-tap{font:400 calc(clamp(34px,10vw,50px)*var(--sn))/1.1 var(--fn);font-style:var(--stn);color:#fff1c8;text-shadow:0 2px 16px #000,0 0 26px #000a;overflow-wrap:anywhere}
 .g-orn{width:min(56vw,230px);height:1px;background:linear-gradient(90deg,transparent,#fbeab8,transparent)}
@@ -359,7 +361,7 @@ function body(m){
  <p class="sign rv" data-rs="name1">${esc(m.n1)} &amp; ${esc(m.n2)}</p>
  ${m.from?ed('wishesFrom','p','small rv',esc(m.from)):''}
  </div></section>`;
- const gate=m.gate?`<div id="rl-gate" class="gate" role="dialog" aria-modal="true" aria-label="Open the invitation"><canvas id="rl-gc"></canvas><div class="g-ui"><button type="button" class="g-hit" id="rl-open"><span class="g-kick">You are invited</span><span class="g-ring"></span><span class="g-tap" data-rs="rsOpen">${esc(m.open)}</span><span class="g-orn"></span></button></div><button type="button" class="g-skip" id="rl-skip">Skip</button></div>`:'';
+ const gate=m.gate?`<div id="rl-gate" class="gate" role="dialog" aria-modal="true" aria-label="Open the invitation"><canvas id="rl-gc"></canvas><div class="g-ui"><button type="button" class="g-hit" id="rl-open"><span class="g-kick">You are invited</span>${m.openLogo?`<span class="g-ring g-om"><img src="${esc(m.openLogo)}" alt=""></span>`:'<span class="g-ring"></span>'}<span class="g-tap" data-rs="rsOpen">${esc(m.open)}</span><span class="g-orn"></span></button></div><button type="button" class="g-skip" id="rl-skip">Skip</button></div>`:'';
  const audio=m.music?`<audio id="rl-music" loop preload="none" src="${esc(m.music)}"></audio><button type="button" class="mbtn on" id="rl-mbtn" aria-label="Play or pause music">\u266A</button>`:'';
  return `${bgLayers()}${drape()}<canvas id="rl-sp" aria-hidden="true"></canvas>${logo}${gate}<main>${hero}${dateSec}${story}${tl}${cards}${end}</main><div class="credit">Made with Mubiey Studio</div>${audio}`;
 }
