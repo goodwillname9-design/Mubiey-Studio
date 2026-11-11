@@ -12,7 +12,7 @@ const clamp=(value,min,max)=>Math.min(max,Math.max(min,Number(value)||0));
 const hex=value=>/^#[0-9a-f]{6}$/i.test(value||'')?value:'#000000';
 const rgba=(color,alpha)=>{const value=hex(color);return `rgba(${parseInt(value.slice(1,3),16)},${parseInt(value.slice(3,5),16)},${parseInt(value.slice(5,7),16)},${clamp(alpha,0,1)})`};
 const safeImage=value=>mediaRef.test(value||'')||/^blob:https?:\/\/[a-z0-9.-]+(?::\d+)?\/[a-z0-9-]+$/i.test(value||'')||/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/]+=*$/i.test(value||'');
-const safeFont=value=>mediaRef.test(value||'')||/^blob:https?:\/\/[a-z0-9.-]+(?::\d+)?\/[a-z0-9-]+$/i.test(value||'');
+const safeFont=value=>mediaRef.test(value||'')||/^blob:https?:\/\/[a-z0-9.-]+(?::\d+)?\/[a-z0-9-]+$/i.test(value||'')||/^data:font\/(?:woff2|woff|ttf|otf);base64,[a-z0-9+/]+=*$/i.test(value||'');
 const previewImage=value=>{
  const local=String(value||'').match(/^local-photo:(\d+)$/);
  if(local){const photo=photos[Number(local[1])];return photo?.preview||photo?.value||''}
@@ -137,6 +137,14 @@ function uploadMime(file,extension){
  const types={woff2:'font/woff2',woff:'font/woff',ttf:'font/ttf',otf:'font/otf'};
  return types[extension]||file.type;
 }
+function fontDataURL(file,extension){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>typeof reader.result==='string'?resolve(reader.result.replace(/^data:[^;,]+;base64,/i,`data:${uploadMime(file,extension)};base64,`)):reject(Error('Could not read the selected Arabic font.'));
+  reader.onerror=()=>reject(reader.error||Error('Could not read the selected Arabic font.'));
+  reader.readAsDataURL(file);
+ });
+}
 function addPanels(){
  if(!el('photos')||!el('save')||!document.querySelector('.work-layout'))return;
  const photosPanel=el('photos').closest('.panel');
@@ -158,16 +166,25 @@ function addPanels(){
  el('arabic-line-height').addEventListener('input',()=>setArabic('lineHeight',clamp(el('arabic-line-height').value,1,3)));
  el('arabic-align').addEventListener('change',()=>setArabic('align',el('arabic-align').value));
  el('arabic-color').addEventListener('input',()=>setArabic('color',hex(el('arabic-color').value)));
- el('arabic-font-file').addEventListener('change',()=>{
+ el('arabic-font-file').addEventListener('change',async()=>{
   const file=el('arabic-font-file').files?.[0];if(!file)return;
   const extension=(file.name.split('.').pop()||'').toLowerCase();
   if(!['woff2','woff','ttf','otf'].includes(extension)){toast('Choose a WOFF2, WOFF, TTF or OTF font file.');return}
   if(file.size===0||file.size>8*1048576){toast('Arabic font files must be smaller than 8 MB.');return}
-  if(state.pendingFont?.url)URL.revokeObjectURL(state.pendingFont.url);
-  state.pendingFont={file,extension,url:URL.createObjectURL(file)};
+  const pending={file,extension};
+  state.pendingFont=pending;
   state.arabic.font='custom';
-  state.arabic.customFont={name:file.name,format:extension,url:state.pendingFont.url,pending:true};
-  renderArabicControls();mark();
+  state.arabic.customFont={name:file.name,format:extension,url:'',pending:true};
+  renderArabicControls();
+  try{
+   const url=await fontDataURL(file,extension);
+   if(state.pendingFont!==pending)return;
+   state.arabic.customFont.url=url;
+   renderArabicControls();mark();
+  }catch(error){
+   if(state.pendingFont===pending){state.pendingFont=null;state.arabic.font='amiri';state.arabic.customFont=null;renderArabicControls()}
+   toast(error.message||'Could not preview the selected Arabic font.');
+  }
  });
  el('page-bg-page').addEventListener('change',()=>{readPageControls();state.selectedPage=Number(el('page-bg-page').value);renderPageControls()});
  el('page-bg-image').addEventListener('change',()=>{state.pendingBackgrounds.delete(state.selectedPage);pageAt(state.selectedPage).image=el('page-bg-image').value;renderPageControls();mark()});
@@ -270,7 +287,7 @@ function installEditor(){
    const name=encodeURIComponent(`arabic-font:${pending.file.name}`);
    const uploadedFont=await Studio.api(`/api/invitations/${currentId}/media`,{method:'POST',headers:{'Content-Type':uploadMime(pending.file,pending.extension),'X-File-Name':name},body:pending.file});
    state.arabic.customFont={name:pending.file.name,format:pending.extension,url:uploadedFont.url};
-   state.arabic.font='custom';state.pendingFont=null;URL.revokeObjectURL(pending.url);uploaded=true;renderArabicControls();
+   state.arabic.font='custom';state.pendingFont=null;uploaded=true;renderArabicControls();
   }
   if(state.pendingEnglishFont){
    const pending=state.pendingEnglishFont;

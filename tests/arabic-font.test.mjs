@@ -60,6 +60,11 @@ test('saved Arabic typography and independent page backgrounds are emitted into 
  assert.ok(html.includes(`url("${image2}")`));
  assert.ok(html.includes('background-size:contain'));
 });
+test('pending custom Arabic fonts are embedded for the sandboxed editor preview',()=>{
+ const c=context(),html=render(c,{template:'royal-stage',name1:'A',name2:'B',arabicTypography:{font:'custom',customFont:{url:FONT_DATA,format:'ttf'}}});
+ assert.ok(html.includes(`src:url("${FONT_DATA}") format("truetype")`));
+ assert.ok(html.includes('font-family:MubArabicCustom,serif!important'));
+});
 test('after the font is loaded it is embedded as a data URL (works in sandboxed guest iframe and exported files)',async()=>{
  const c=context();
  await vm.runInContext("vnLoadArabicFont('ruqaa')",c);
