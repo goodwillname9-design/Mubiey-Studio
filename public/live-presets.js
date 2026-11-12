@@ -23,7 +23,23 @@ const INVITATION_TEMPLATES=[
  {id:'2006',name:'2006 \u00b7 Sage Garden Envelope (seal, arch & calendar)',layout:0,group:'stage'},
  {id:'2007',name:'2007 \u00b7 Blush Rose Envelope (seal, arch & calendar)',layout:0,group:'stage'},
  {id:'2008',name:'2008 \u00b7 Powder Blue Envelope (seal, arch & calendar)',layout:0,group:'stage'},
- {id:'2009',name:'2009 \u00b7 Champagne Noir Envelope (seal, arch & calendar)',layout:0,group:'stage'}
+ {id:'2009',name:'2009 \u00b7 Champagne Noir Envelope (seal, arch & calendar)',layout:0,group:'stage'},
+ {id:'3001',name:'3001 \u00b7 Floral Envelope Blush Pearl (pink seal, pages & butterflies)',layout:0,group:'stage'},
+ {id:'3002',name:'3002 \u00b7 Floral Envelope Ivory Gold (pink seal, pages & butterflies)',layout:0,group:'stage'},
+ {id:'3003',name:'3003 \u00b7 Floral Envelope Mocha Ribbon (pink seal, pages & butterflies)',layout:0,group:'stage'},
+ {id:'3004',name:'3004 \u00b7 Floral Envelope Sage Mist (pink seal, pages & butterflies)',layout:0,group:'stage'},
+ {id:'3005',name:'3005 \u00b7 Floral Envelope Lilac Dusk (pink seal, pages & butterflies)',layout:0,group:'stage'},
+ {id:'4001',name:'4001 \u00b7 Floral Envelope Pearl & Gold (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'},
+ {id:'4002',name:'4002 \u00b7 Floral Envelope Ruby Blossom (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'},
+ {id:'4003',name:'4003 \u00b7 Floral Envelope Sage Garden (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'},
+ {id:'4004',name:'4004 \u00b7 Floral Envelope Blush Rose (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'},
+ {id:'4005',name:'4005 \u00b7 Floral Envelope Midnight Champagne (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'},
+ {id:'4006',name:'4006 \u00b7 Floral Envelope Ivory Champagne (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'}
+];
+const INVITATION_ADDONS=[
+ {id:'gold-seal-envelope',name:'Gold Seal Envelope \u00b7 Custom monogram seal',layout:0,group:'envelope'},
+ {id:'islamic-arch-lanterns',name:'Islamic Arch \u00b7 Floating lanterns',layout:0,group:'background'},
+ {id:'watercolor-lantern-florals',name:'Watercolor Lantern Florals \u00b7 Soft garden',layout:0,group:'background'}
 ];
 const LIVE_PRESETS=INVITATION_TEMPLATES;
 function livePresetCSS(layout=0){const css=[

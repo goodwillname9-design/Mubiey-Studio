@@ -12,8 +12,8 @@ const MAX_CHARS=190000;
 
 const box=document.createElement('div');
 box.id='logo-box';
-box.innerHTML='<h2 style="margin-top:22px">Your logo (top-left corner)</h2>'
- +'<p class="help">Shown at the top-left of your invitation on every design, also on the opening envelope. A PNG with a transparent background looks best. JPG, PNG or WebP.</p>'
+box.innerHTML='<h2 style="margin-top:22px">Invitation logo & gold seal</h2>'
+ +'<p class="help">Your invitation logo appears on supported designs and inside the Gold Seal Envelope wax seal. A transparent PNG works best. JPG, PNG or WebP.</p>'
  +'<input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp">'
  +'<div id="logoRow" hidden style="display:flex;align-items:center;gap:12px;margin:10px 0"><img id="logoThumb" alt="Logo preview" style="max-height:64px;max-width:160px;object-fit:contain;background:#ffffff14;border:1px solid #80623b;border-radius:6px;padding:6px"><button type="button" id="logoRemove" class="danger">Remove logo</button></div>'
  +'<div class="field-grid"><label>Logo size<select id="logoSize"><option value="">Medium (default)</option><option value="sm">Small</option><option value="lg">Large</option></select></label></div>';

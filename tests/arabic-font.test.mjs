@@ -54,11 +54,33 @@ test('saved Arabic typography and independent page backgrounds are emitted into 
  assert.match(html,/font-size:32px!important/);
  assert.match(html,/font-weight:700!important/);
  assert.match(html,/src:url\("\/media\/11111111/);
- assert.match(html,/data-mubiey-page="1"/);
- assert.match(html,/data-mubiey-page="2"/);
+ assert.match(html,/class="[^"]*\binvitation-page page1\b/);
+ assert.match(html,/class="[^"]*\binvitation-page page2\b/);
+ assert.doesNotMatch(html,/data-mubiey-page/);
  assert.ok(html.includes(`url("${image1}")`));
  assert.ok(html.includes(`url("${image2}")`));
+ assert.ok(html.includes('.invitation-page.page2{background-color:#fefefe'));
  assert.ok(html.includes('background-size:contain'));
+});
+test('page markers are section attributes and never leak into invitation text',()=>{
+ const c=context(),html=render(c,{template:'premium-0-0',name1:'A',name2:'B',pageBackgrounds:[{color:'#f0e2d0'}, {color:'#cde9ef'}]});
+ const sections=[...html.matchAll(/<section\b[^>]*>/gi)].map(match=>match[0]);
+ assert.ok(sections.length>=2);
+ assert.match(sections[0],/\bclass="[^"]*\binvitation-page page1\b/);
+ assert.match(sections[1],/\bclass="[^"]*\binvitation-page page2\b/);
+ assert.doesNotMatch(html,/data-mubiey-page/);
+ assert.match(html,/<link rel="stylesheet" href="\/invitation-backgrounds\.css">/);
+ assert.match(html,/<style id="mubiey-invitation-customization">[\s\S]*\.invitation-page\.page1\{background-color:#f0e2d0\}/);
+ assert.match(html,/<style id="mubiey-invitation-customization">[\s\S]*\.invitation-page\.page2\{background-color:#cde9ef\}/);
+});
+test('page background stylesheet provides editable paths and body-class rules without changing built-in backgrounds',()=>{
+ const css=fs.readFileSync('public/invitation-backgrounds.css','utf8');
+ for(const page of [1,2,3,12]){
+  assert.ok(css.includes(`body.page${page}`));
+  assert.ok(css.includes(`.invitation-page.page${page}`));
+ }
+ for(const declaration of ['background-size:cover','background-position:center','background-repeat:no-repeat','background-attachment:fixed'])assert.ok(css.includes(declaration),declaration);
+ assert.ok(css.includes('--mubiey-page-background:none'),'empty default leaves existing invitation art intact');
 });
 test('pending custom Arabic fonts are embedded for the sandboxed editor preview',()=>{
  const c=context(),html=render(c,{template:'royal-stage',name1:'A',name2:'B',arabicTypography:{font:'custom',customFont:{url:FONT_DATA,format:'ttf'}}});

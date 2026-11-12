@@ -38,7 +38,14 @@ function when(value){
 const MAP_HOSTS=['google.com','www.google.com','maps.google.com','maps.app.goo.gl','goo.gl','maps.apple.com'];
 const safeMap=v=>{try{const u=new URL(v);return u.protocol==='https:'&&MAP_HOSTS.includes(u.hostname)?u.href:''}catch{return''}};
 const safeHttps=v=>{try{const u=new URL(v);return u.protocol==='https:'&&u.hostname?u.href:''}catch{return''}};
-const fontCSS=()=>{try{return typeof atelierFontCSS==='function'&&typeof atelierFontData==='object'&&atelierFontData.cormorant?atelierFontCSS(true):''}catch{return ''}};
+/* only the font families this invitation actually uses are embedded (the whole set made every page slow to open) */
+const fontCSS=(need)=>{try{
+ if(!(typeof atelierFontCSS==='function'&&typeof atelierFontData==='object'&&atelierFontData.cormorant))return '';
+ const all=atelierFontCSS(true);const parts=all.split('@font-face').filter(Boolean);
+ const want=String(need||'');
+ return parts.filter(p=>{const m=/font-family:\s*([^;]+);/.exec(p);return m&&want.includes(m[1].trim())}).map(p=>'@font-face'+p).join('');
+}catch{return ''}};
+const needFonts=m=>[...Object.values(m.fonts||{}).map(f=>f.fam),'AtelierAmiri','AtelierMalayalam','AtelierSerif'].join(',');
 const customFontCSS=d=>{
  const f=d.customFont;
  if(!f||typeof f.data!=='string'||!/^data:(font\/(ttf|otf|woff2?)|application\/(font-woff2?|font-sfnt|x-font-[a-z0-9]+|octet-stream));base64,[A-Za-z0-9+/=]+$/.test(f.data))return '';
@@ -75,7 +82,10 @@ function readCfg(d){
   s[g]=Number.isFinite(sv)?Math.min(160,Math.max(60,sv)):100;
  }
  const ls=Number(c.logoSize);
- return {f,s,logo:c.logo===true,logoSize:Number.isFinite(ls)?Math.min(220,Math.max(40,ls)):100};
+ const gold=typeof c.gold==='string'&&/^#[0-9a-fA-F]{6}$/.test(c.gold)?c.gold:'';
+ const os=Number(c.olSize);const olSize=Number.isFinite(os)?Math.min(150,Math.max(50,os)):100;
+ const al=['left','center','right'].includes(c.align)?c.align:'center';
+ return {f,s,gold,olSize,align:al,logo:c.logo===true,logoSize:Number.isFinite(ls)?Math.min(220,Math.max(40,ls)):100};
 }
 const DEFAULT_FONT={names:'allura',heads:'cinzel',lines:'serif',small:'montserrat',arabic:'amiri'};
 function invitationFontKey(d,hasCustom){
@@ -168,6 +178,9 @@ html{background:#12030a}
 body{margin:0;background:#12030a;color:var(--cream);font:400 calc(18px*var(--sl))/1.7 var(--fl);font-style:var(--stl);overflow-x:hidden;-webkit-font-smoothing:antialiased}
 body.rl-locked{overflow:hidden;height:100vh;height:100svh}
 /* ---------- fixed stage: backgrounds, curtain, sparkles ---------- */
+.sbgx{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.sbgx .bgl{opacity:1!important;transform:none!important}
+.sec{isolation:isolate}
 .bgs{position:fixed;inset:0;z-index:0;background:#12030a;overflow:hidden}
 .bgl{position:absolute;inset:0;opacity:0;transform:scale(1.1);background-size:cover;background-position:center;transition:opacity 1.5s ease,transform 6.5s cubic-bezier(.2,.6,.2,1);will-change:opacity,transform}
 .bgl.on{opacity:1;transform:scale(1)}
@@ -219,7 +232,7 @@ body.rl-past .drape{opacity:0}
 .g-hit:focus-visible .g-tap{text-decoration:underline;text-underline-offset:9px}
 .g-kick{font:600 calc(10.5px*var(--ss))/1.5 var(--fs);font-style:var(--sts);letter-spacing:5px;text-transform:uppercase;color:#fbeab8;text-shadow:0 1px 10px #000c}
 .g-ring{width:70px;height:70px;border-radius:50%;border:1.5px solid #fbeab8cc;position:relative;animation:rl-ring 2.4s ease-out infinite;box-shadow:0 0 18px #0006}
-.g-om{background:#fffaf0;padding:9px;overflow:hidden;animation:rl-ring 2.4s ease-out infinite}.g-om:after{display:none}.g-om img{width:100%;height:100%;object-fit:contain;border-radius:50%;display:block}
+.g-om{background:#fffaf0;padding:0;overflow:visible;animation:rl-ring 2.4s ease-out infinite}.g-om:after{display:none}.g-om img{position:absolute;left:50%;top:50%;width:calc(var(--olsz,100)*.7px);height:calc(var(--olsz,100)*.7px);transform:translate(-50%,-50%);object-fit:contain;display:block;border-radius:50%;mix-blend-mode:multiply}
 .g-ring:after{content:'';position:absolute;inset:25px;border-radius:50%;background:#fbeab8;box-shadow:0 0 14px #ffe9a8}
 .g-tap{font:400 calc(clamp(34px,10vw,50px)*var(--sn))/1.1 var(--fn);font-style:var(--stn);color:#fff1c8;text-shadow:0 2px 16px #000,0 0 26px #000a;overflow-wrap:anywhere}
 .g-orn{width:min(56vw,230px);height:1px;background:linear-gradient(90deg,transparent,#fbeab8,transparent)}
@@ -236,15 +249,15 @@ body:not(.rl-wait) .hv{animation:rl-up 1.5s cubic-bezier(.2,.7,.2,1) var(--d,0s)
 .bism{font:400 calc(clamp(25px,7vw,34px)*var(--sa))/1.6 var(--fa);color:var(--gold2);margin:0 0 10px;direction:rtl;text-shadow:0 2px 14px #000a}
 .intro{font:600 calc(clamp(10.5px,2.9vw,12.5px)*var(--ss))/2 var(--fs);font-style:var(--sts);letter-spacing:.24em;text-transform:uppercase;color:#f6dcc8;margin:0 auto 16px;max-width:30em;text-shadow:0 1px 10px #000b}
 .lbl{font:600 calc(10px*var(--ss))/1.5 var(--fs);font-style:var(--sts);letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin:8px 0 2px}
-.nm{margin:0;font:400 calc(clamp(46px,14.5vw,78px)*var(--sn))/1.08 var(--fn);font-style:var(--stn);overflow-wrap:anywhere;color:var(--gold2);background:linear-gradient(105deg,#b98a35 0%,#fdf0c2 24%,#d6aa55 46%,#fff6d5 60%,#c39340 80%,#f2d68e 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 3px 12px rgba(0,0,0,.55));animation:rl-foil 7s ease-in-out infinite alternate;padding:.04em .06em}
+.nm{margin:0;font:400 calc(clamp(46px,14.5vw,78px)*var(--sn))/1.08 var(--fn);font-style:var(--stn);overflow-wrap:normal;word-break:normal;color:var(--gold2);background:linear-gradient(105deg,#b98a35 0%,#fdf0c2 24%,#d6aa55 46%,#fff6d5 60%,#c39340 80%,#f2d68e 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 3px 12px rgba(0,0,0,.55));animation:rl-foil 7s ease-in-out infinite alternate;padding:.04em .06em}
 .par{font:400 calc(clamp(16px,4.4vw,20px)*var(--sl))/1.5 var(--fl);font-style:var(--stl);color:#f3d9cc;margin:4px 0 0;text-shadow:0 1px 10px #000b}
 .amp{font:400 calc(clamp(30px,9vw,44px)*var(--sn))/1 var(--fn);font-style:var(--stn);color:var(--gold);margin:8px 0;text-shadow:0 2px 14px #000a;display:flex;align-items:center;justify-content:center;gap:14px}
 .amp:before,.amp:after{content:'';width:min(18vw,80px);height:1px;background:linear-gradient(90deg,transparent,var(--gold))}.amp:after{transform:scaleX(-1)}
 .msg{font:400 calc(clamp(17px,4.6vw,20px)*var(--sl))/1.8 var(--fl);font-style:var(--stl);color:#f6e3d6;margin:22px auto 0;max-width:30em;white-space:pre-wrap;overflow-wrap:anywhere;text-shadow:0 1px 10px #000b}
 .scr{margin-top:30px;font:600 calc(10px*var(--ss))/1 var(--fs);font-style:var(--sts);letter-spacing:.4em;text-transform:uppercase;color:var(--gold);display:flex;flex-direction:column;align-items:center;gap:10px}
 .scr:after{content:'';width:1px;height:38px;background:linear-gradient(var(--gold),transparent);animation:rl-scroll 2.2s ease-in-out infinite}
-.panel{position:relative;padding:44px 22px 42px;border:1px solid rgba(230,201,130,.5);border-radius:20px;background:linear-gradient(180deg,rgba(46,4,14,.58),rgba(24,2,8,.68));-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);box-shadow:0 24px 60px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,236,180,.06)}
-.panel:before{content:'';position:absolute;inset:7px;border:1px solid rgba(230,201,130,.22);border-radius:14px;pointer-events:none}
+.panel{position:relative;padding:34px 12px 32px;border:0;background:none;box-shadow:none}
+
 .kick{font:700 calc(11px*var(--ss))/1.5 var(--fs);font-style:var(--sts);letter-spacing:.38em;text-transform:uppercase;color:var(--gold);margin:0}
 .ttl{font:400 calc(clamp(27px,7.6vw,38px)*var(--sh))/1.2 var(--fh);font-style:var(--sth);color:var(--gold2);margin:10px 0 4px;overflow-wrap:anywhere;text-shadow:0 2px 14px #000a}
 .divider{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px auto 26px;width:min(60vw,240px)}
@@ -289,7 +302,7 @@ body:not(.rl-wait) .hv{animation:rl-up 1.5s cubic-bezier(.2,.7,.2,1) var(--d,0s)
 .tl-d{font:400 calc(15.5px*var(--sl))/1.5 var(--fl);font-style:var(--stl);color:#f0d8cc;margin:2px 0 0}
 /* events */
 .cards{display:grid;gap:16px;max-width:440px;margin:6px auto 0}
-.ecard{position:relative;padding:28px 18px 26px;border:1px solid rgba(230,201,130,.55);border-radius:8px;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.3))}
+.ecard{position:relative;padding:18px 0 16px;border:0;background:none;border-bottom:1px solid rgba(230,201,130,.3)}
 .ecard:before{content:'';position:absolute;inset:5px;border:1px solid rgba(230,201,130,.22);border-radius:5px;pointer-events:none}
 .ecard h3{font:400 calc(clamp(23px,6.2vw,29px)*var(--sh))/1.25 var(--fh);font-style:var(--sth);color:var(--gold2);margin:0 0 4px;overflow-wrap:anywhere}
 .ecard .ed{font:700 calc(11px*var(--ss))/1.7 var(--fs);letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
@@ -322,11 +335,22 @@ body:not(.rl-wait) .hv{animation:rl-up 1.5s cubic-bezier(.2,.7,.2,1) var(--d,0s)
 @media(max-width:380px){.tl:before{left:96px}.tl-row{grid-template-columns:82px 1fr;gap:30px}.tl-row:before{left:92px}}
 @media(min-width:900px){.hero{padding-left:12vw;padding-right:12vw}.slide{flex-basis:300px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}.rl-js .rv{opacity:1;transform:none;filter:none}.bgl{transform:none}}
+${m.arFontCSS||''}.ar-verse,.ar-dua{direction:rtl;font-family:${m.arFam||"AtelierAmiri,Amiri,serif"};text-align:center;margin:12px auto 4px;line-height:1.7;text-shadow:0 1px 8px rgba(255,255,255,.85)}
+.ar-verse{font-size:clamp(20px,5.8vw,26px);color:var(--acc)}
+.ar-dua{font-size:clamp(19px,5.4vw,24px);color:var(--ink,var(--acc))}
+.ar-en{font-family:var(--fl);font-style:italic;font-size:clamp(14px,3.9vw,16px);line-height:1.6;margin:4px auto 10px;max-width:24em;text-shadow:0 1px 8px rgba(255,255,255,.85)}
+${m.cfg.align==='left'?':root{--al:left;--jc:flex-start;--mL:8vw;--mR:auto}':m.cfg.align==='right'?':root{--al:right;--jc:flex-end;--mL:auto;--mR:8vw}':':root{--al:center;--jc:center;--mL:auto;--mR:auto}'}.sec{justify-content:var(--jc)!important}.sec .inner,.sec .wide{margin-left:var(--mL)!important;margin-right:var(--mR)!important;text-align:var(--al)!important}
 ${m.customCSS}`};
 
 /* ------------------------------------------------------------------ markup */
+/* each page carries its own background: it scrolls with the page's content */
+function secLayers(html,LY){return html.replace(/(<section[^>]*?data-bg="(\w+)"[^>]*>)/g,(m0,tag,k)=>LY[k]?`${tag}<div class="sbgx">${LY[k]}</div>`:tag)}
+function layerMap(){const o={};for(const line of bgLayers().split('\n')){const k=(line.match(/data-k="(\w+)"/)||[])[1];if(k&&line.startsWith('<div class="bgl'))o[k]=line}return o}
 function body(m){
  const w=m.w;
+  const verseBlock=(m.verseAr||m.verseEn)?`<div class="hv" style="--d:1.7s">${m.verseAr?`<p class="ar-verse" lang="ar" dir="rtl">${esc(m.verseAr)}</p>`:''}${m.verseEn?`<p class="ar-en">${esc(m.verseEn)}</p>`:''}</div>`:'';
+ const duaBlock=(m.blAr||m.blEn)?`<div class="rv">${m.blAr?`<p class="ar-dua" lang="ar" dir="rtl">${esc(m.blAr)}</p>`:''}${m.blEn?`<p class="ar-en">“${esc(m.blEn)}”</p>`:''}</div>`:'';
+
  const logo='';
  const l1=m.p1&&/^\s*d\s*\/\s*o\b/i.test(m.p1)?'':`<p class="lbl hv" data-rs="rsLabel1" style="--d:.7s">${esc(m.l1)}</p>`;
  const l2=m.p2&&/^\s*s\s*\/\s*o\b/i.test(m.p2)?'':`<p class="lbl hv" data-rs="rsLabel2" style="--d:1.35s">${esc(m.l2)}</p>`;
@@ -339,7 +363,7 @@ function body(m){
  ${l2}${ed('name2','h1','nm hv',esc(m.n2),' style="--d:1.5s"')}
  ${m.p2?ed('parents2','p','par hv',esc(m.p2),' style="--d:1.65s"'):''}
  ${m.message?ed('message','p','msg hv',esc(m.message),' style="--d:1.85s"'):''}
- ${ed('rsScroll','div','scr hv',esc(m.scroll),' style="--d:2.1s"')}
+ ${verseBlock}${ed('rsScroll','div','scr hv',esc(m.scroll),' style="--d:2.1s"')}
  </div></section>`;
  const dateSec=`<section class="sec" id="date" data-bg="date"><div class="inner panel">
  ${ed('rsDateKicker','p','kick rv',esc(m.dateKick))}${ed('rsDateTitle','h2','ttl rv',esc(m.dateTitle),' style="--d:.1s"')}
@@ -351,10 +375,10 @@ function body(m){
  const slides=m.photos.map((src,i)=>`<div class="slide" data-i="${i}"><img src="${esc(src)}" alt="Wedding photo ${i+1}" loading="lazy"></div>`).join('');
  const story=m.photos.length?`<section class="sec" id="story" data-bg="story"><div class="story-wrap"><div class="inner">${ed('rsStoryKicker','p','kick rv',esc(m.storyKick))}${ed('rsStoryTitle','h2','ttl rv',esc(m.storyTitle),' style="--d:.1s"')}<div class="divider rv"><i></i></div></div>
  <div class="slider rv" id="rl-slider" style="--d:.15s">${slides}</div>${m.photos.length>1?`<div class="dots">${m.photos.map((_,i)=>`<b${i?'':' class="on"'}></b>`).join('')}</div>`:''}</div></section>`:'';
- const tl=m.schedule.length?`<section class="sec" id="day" data-bg="day"><div class="inner panel">${ed('rsDayKicker','p','kick rv',esc(m.dayKick))}${ed('rsDayTitle','h2','ttl rv',esc(m.dayTitle),' style="--d:.1s"')}<div class="divider rv"><i></i></div><div class="tl" data-rs="schedule">${m.schedule.map((s,i)=>`<div class="tl-row rv" style="--d:${(i*.1).toFixed(1)}s"><div class="tl-t">${esc(s.time||'')}</div><div><p class="tl-n">${esc(s.title)}</p>${s.detail?`<p class="tl-d">${esc(s.detail)}</p>`:''}</div></div>`).join('')}</div></div></section>`:'';
+ const tl=m.schedule.length?`<section class="sec" id="day" data-bg="day"><div class="inner panel">${ed('rsDayKicker','p','kick rv',esc(m.dayKick))}${ed('rsDayTitle','h2','ttl rv',esc(m.dayTitle),' style="--d:.1s"')}<div class="divider rv"><i></i></div><div class="tl" data-rs="schedule">${m.schedule.map((s,i)=>`<div class="tl-row rv" style="--d:${(i*.1).toFixed(1)}s"><div class="tl-t">${esc(s.time||'')}</div><div><p class="tl-n">${esc(s.title).replace(/\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2}\b)/i,'<br>$1')}</p>${s.detail?`<p class="tl-d">${esc(s.detail)}</p>`:''}</div></div>`).join('')}</div></div></section>`:'';
  const cards=m.events.length?`<section class="sec" id="events" data-bg="events"><div class="inner panel">${ed('rsEventsTitle','h2','ttl rv',esc(m.evTitle))}<div class="divider rv"><i></i></div><div class="cards" data-rs="eventsText">${m.events.map((e,i)=>`<article class="ecard rv" style="--d:${(i*.12).toFixed(2)}s"><h3>${esc(e.title)}</h3>${e.date?`<div class="ed">${esc(e.date)}</div>`:''}${e.place?`<p class="ep">${esc(e.place)}</p>`:''}${e.map?`<a class="mapbtn" href="${esc(e.map)}" target="_blank" rel="noopener noreferrer">View on map</a>`:''}</article>`).join('')}</div></div></section>`:'';
  const end=`<section class="sec" id="with-love" data-bg="end"><div class="inner panel">
- ${m.family?ed('family','p','fam rv',esc(m.family)):''}
+ ${duaBlock}${m.family?ed('family','p','fam rv',esc(m.family)):''}
  ${m.rsvp?`<a class="rsvp rv" href="${esc(m.rsvp)}" target="_blank" rel="noopener noreferrer">RSVP</a>`:''}
  ${ed('rsClosing','p','close rv',esc(m.closing),' style="--d:.1s"')}
  <div class="divider rv"><i></i></div>
@@ -363,7 +387,8 @@ function body(m){
  </div></section>`;
  const gate=m.gate?`<div id="rl-gate" class="gate" role="dialog" aria-modal="true" aria-label="Open the invitation"><canvas id="rl-gc"></canvas><div class="g-ui"><button type="button" class="g-hit" id="rl-open"><span class="g-kick">You are invited</span>${m.openLogo?`<span class="g-ring g-om"><img src="${esc(m.openLogo)}" alt=""></span>`:'<span class="g-ring"></span>'}<span class="g-tap" data-rs="rsOpen">${esc(m.open)}</span><span class="g-orn"></span></button></div><button type="button" class="g-skip" id="rl-skip">Skip</button></div>`:'';
  const audio=m.music?`<audio id="rl-music" loop preload="none" src="${esc(m.music)}"></audio><button type="button" class="mbtn on" id="rl-mbtn" aria-label="Play or pause music">\u266A</button>`:'';
- return `${bgLayers()}${drape()}<canvas id="rl-sp" aria-hidden="true"></canvas>${logo}${gate}<main>${hero}${dateSec}${story}${tl}${cards}${end}</main><div class="credit">Made with Mubiey Studio</div>${audio}`;
+ const LY=layerMap();
+ return `${drape()}<canvas id="rl-sp" aria-hidden="true"></canvas>${logo}${gate}<main>${secLayers(hero+dateSec+story+tl+cards+end,LY)}</main><div class="credit">Made with Mubiey Studio</div>${audio}`;
 }
 
 /* ------------------------------------------------------------------ browser runtime (runs inside the invitation) */
@@ -496,10 +521,14 @@ function runtime(){
 /* ------------------------------------------------------------------ document */
 function render(d){
  const m=model(d);
+ m.verseAr=str(d.verseArabic,300);m.verseEn=str(d.verse,300);m.blAr=str(d.blessingArabic,400);m.blEn=str(d.blessing,400);
+ const arf=arFont(d);m.arFam=arf.fam;m.arFontCSS=arf.css;
  const rt={prev:m.prev,autoplay:m.autoplay,dateIso:m.dateIso,glitter:ASSET+'glitter.jpg',preload:[ASSET+'curtain.jpg',ASSET+'smoke-a.png',ASSET+'smoke-b.png',ASSET+'sparkle.jpg',ASSET+'velvet.jpg',ASSET+'stage.jpg']};
  const cls=[m.gate?'rl-locked rl-wait':'',m.prev?'rl-prev':'',m.gate?'':'rl-flat rl-stage'].filter(Boolean).join(' ');
- return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${esc(m.n1)} &amp; ${esc(m.n2)} \u2014 Wedding invitation</title><script>document.documentElement.classList.add('rl-js')<\/script><style>${fontCSS()}${CSS(m)}</style><noscript><style>.gate{display:none}body.rl-locked{overflow:auto}.rv,.hv{opacity:1!important;transform:none!important;filter:none!important}</style></noscript></head><body class="${cls}">${body(m)}<script>window.RL=${json(rt)};<\/script><script>(${runtime.toString().replace(/<\/script/gi,'<\\/script')})();<\/script></body></html>`;
+ return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${esc(m.n1)} &amp; ${esc(m.n2)} \u2014 Wedding invitation</title><script>document.documentElement.classList.add('rl-js')<\/script><style>${fontCSS(needFonts(m))}${CSS(m)}${m.cfg.gold?`:root{--gold:${m.cfg.gold};--gold2:${m.cfg.gold}}`:''}:root{--olsz:${m.cfg.olSize||100}}</style><noscript><style>.gate{display:none}body.rl-locked{overflow:auto}.rv,.hv{opacity:1!important;transform:none!important;filter:none!important}</style></noscript></head><body class="${cls}">${body(m)}<script>window.RL=${json(rt)};<\/script><script>(${runtime.toString().replace(/<\/script/gi,'<\\/script')})();<\/script></body></html>`;
 }
-window.MubieyRuby={id:TEMPLATE,readCfg,GROUPS,FONT_KEYS,model,h:{esc,str,when,safeMap,safeHttps,fontCSS,customFontCSS,stack,rnd,json,ed,parseEvents,DEFAULT_FONT,ASSET_ROOT:ASSET.replace(/assets\/ruby\/$/,'')}};
+const AR_FONT_KEYS=['amiri','ruqaa','kufi','nastaliq','lateef','scheherazade','katibeh','mirza','rakkas','lalezar'];
+function arFont(d){return {fam:"AtelierAmiri,Amiri,'Noto Naskh Arabic',serif",css:''}} /* the chosen font is applied globally by arabic-font.js (lang="ar" / dir="rtl") */
+window.MubieyRuby={needFonts,arFont,id:TEMPLATE,goldCSS:(g)=>g?`:root{--acc:${g};--gold:${g};--gold2:${g};--gold3:${g}}`:'',readCfg,GROUPS,FONT_KEYS,model,h:{esc,str,when,safeMap,safeHttps,fontCSS,customFontCSS,stack,rnd,json,ed,parseEvents,DEFAULT_FONT,ASSET_ROOT:ASSET.replace(/assets\/ruby\/$/,'')}};
 invitationDocument=function(data){return data&&data.template===TEMPLATE?render(data):baseDocument.apply(this,arguments)};
 })();

@@ -4,6 +4,10 @@ const Studio=window.Studio;
 const mediaRef=/^\/media\/[a-f0-9-]{36}\/[a-f0-9-]{36}$/i;
 const arabicFonts=['amiri','ruqaa','kufi','nastaliq','lateef','scheherazade','katibeh','mirza','rakkas','lalezar'];
 const gradients=['','linear-gradient(135deg,#fff8ec,#f3e6c8)','linear-gradient(135deg,#102b27,#31594b)','linear-gradient(135deg,#f8e9e9,#e9c7c9)','linear-gradient(135deg,#101c31,#293c5b)','linear-gradient(135deg,#fff1d5,#e8c486)'];
+const backgroundPresets=['islamic-arch-lanterns','watercolor-lantern-florals'];
+const templateBackgrounds={'islamic-arch-lanterns':'islamic-arch-lanterns','watercolor-lantern-florals':'watercolor-lantern-florals'};
+const backgroundPath=/^\/images\/backgrounds\/[A-Za-z0-9][A-Za-z0-9._/-]*$/;
+const isBackgroundPath=value=>backgroundPath.test(value||'')&&!value.includes('//')&&!value.split('/').some(part=>part==='.'||part==='..');
 const emptyArabic=()=>({font:'amiri',size:null,weight:null,lineHeight:null,align:null,color:null,customFont:null});
 const state={arabic:emptyArabic(),pages:[],pendingFont:null,pendingEnglishFont:null,pendingLogos:new Map(),pendingBackgrounds:new Map(),savedEnglishFont:null,selectedPage:0,saving:false};
 const baseDocument=window.invitationDocument;
@@ -11,7 +15,7 @@ const el=id=>document.getElementById(id);
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,Number(value)||0));
 const hex=value=>/^#[0-9a-f]{6}$/i.test(value||'')?value:'#000000';
 const rgba=(color,alpha)=>{const value=hex(color);return `rgba(${parseInt(value.slice(1,3),16)},${parseInt(value.slice(3,5),16)},${parseInt(value.slice(5,7),16)},${clamp(alpha,0,1)})`};
-const safeImage=value=>mediaRef.test(value||'')||/^blob:https?:\/\/[a-z0-9.-]+(?::\d+)?\/[a-z0-9-]+$/i.test(value||'')||/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/]+=*$/i.test(value||'');
+const safeImage=value=>mediaRef.test(value||'')||isBackgroundPath(value)||/^blob:https?:\/\/[a-z0-9.-]+(?::\d+)?\/[a-z0-9-]+$/i.test(value||'')||/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/]+=*$/i.test(value||'');
 const safeFont=value=>mediaRef.test(value||'')||/^blob:https?:\/\/[a-z0-9.-]+(?::\d+)?\/[a-z0-9-]+$/i.test(value||'')||/^data:font\/(?:woff2|woff|ttf|otf);base64,[a-z0-9+/]+=*$/i.test(value||'');
 const previewImage=value=>{
  const local=String(value||'').match(/^local-photo:(\d+)$/);
@@ -33,11 +37,15 @@ function customizationCSS(data){
  if(/^#[0-9a-f]{6}$/i.test(settings.color||''))declarations.push(`color:${settings.color}!important`);
  if(declarations.length)css+=`${selectors}{${declarations.join(';')};direction:rtl!important;unicode-bidi:plaintext;text-rendering:optimizeLegibility;font-kerning:normal;font-feature-settings:"ccmp","mark","mkmk","rlig","calt"}`;
  const pages=Array.isArray(data.pageBackgrounds)?data.pageBackgrounds:[];
- pages.forEach((page,index)=>{
-  if(!page||typeof page!=='object')return;
-  if(!Object.keys(page).length)return;
+ const sectionCount=(baseDocument(data).match(/<section\b/gi)||[]).length;
+ const count=Math.max(pages.length,sectionCount);
+ Array.from({length:count},(_,index)=>index).forEach(index=>{
+  const page=pages[index]&&typeof pages[index]==='object'?pages[index]:{};
   const resolvedImage=previewImage(page.image),image=safeImage(resolvedImage)?resolvedImage:'';
   const solid=hex(page.color);
+  const preset=page.preset==='none'?'':backgroundPresets.includes(page.preset)?page.preset:templateBackgrounds[data.template]||'';
+  const presetImage=!image&&preset?window.MubieyHeritageBackgrounds?.image(preset):'';
+  if(!Object.keys(page).length&&!presetImage)return;
   const layers=[];
   if(image){
    layers.push(`linear-gradient(${rgba(solid,1-clamp(page.imageOpacity??1,0,1))},${rgba(solid,1-clamp(page.imageOpacity??1,0,1))})`);
@@ -46,13 +54,14 @@ function customizationCSS(data){
   }
   if(page.gradient&&gradients.includes(page.gradient))layers.unshift(page.gradient);
   const declarations=[`background-color:${solid}`];
-  if(layers.length)declarations.push(`background-image:${layers.join(',')}`);
+  if(layers.length)declarations.push(`--mubiey-page-background:${layers.join(',')}`);
+  else if(presetImage)declarations.push(`--mubiey-page-background:url("${presetImage}")`);
+  else if(page.gradient&&gradients.includes(page.gradient))declarations.push(`--mubiey-page-background:${page.gradient}`);
   if(image){
-   declarations.push(`background-size:${page.size==='contain'?'contain':page.size==='custom'?`${clamp(page.customSize||100,25,300)}% auto`:'cover'}`);
-   declarations.push(`background-position:${clamp(page.x??50,0,100)}% ${clamp(page.y??50,0,100)}%`);
-   declarations.push('background-repeat:no-repeat');
+   if(page.size==='contain'||page.size==='custom')declarations.push(`background-size:${page.size==='custom'?`${clamp(page.customSize||100,25,300)}% auto`:'contain'}`);
+   if(Number(page.x??50)!==50||Number(page.y??50)!==50)declarations.push(`background-position:${clamp(page.x??50,0,100)}% ${clamp(page.y??50,0,100)}%`);
   }
-  css+=`[data-mubiey-page="${index+1}"]{${declarations.join(';')}}`;
+  css+=`.invitation-page.page${index+1}{${declarations.join(';')}}`;
  });
  return css;
 }
@@ -60,12 +69,21 @@ window.invitationDocument=function(data){
  let html=baseDocument.apply(this,arguments);
  if(typeof html!=='string')return html;
  let page=0;
- html=html.replace(/<section\b[^>]*>/gi,tag=>tag.replace(/\sdata-mubiey-page=(["']).*?\1/i,'')+` data-mubiey-page="${++page}"`);
+ html=html.replace(/<section\b[^>]*>/gi,tag=>{
+  const index=page++;
+  const background=data?.pageBackgrounds?.[index];
+  const preset=background?.preset==='none'?'':backgroundPresets.includes(background?.preset)?background.preset:templateBackgrounds[data?.template]||'';
+  const backgroundClass=preset==='islamic-arch-lanterns'?'mubiey-bg-islamic-arch':preset==='watercolor-lantern-florals'?'mubiey-bg-watercolor-lanterns':'';
+  const pageClass=`invitation-page page${index+1}${backgroundClass&&!background?.image?` ${backgroundClass}`:''}`;
+  const classAttribute=/\sclass=(["'])(.*?)\1/i;
+  if(classAttribute.test(tag))return tag.replace(classAttribute,(_match,quote,value)=>` class=${quote}${value} ${pageClass}${quote}`);
+  return tag.replace(/>$/,` class="${pageClass}">`);
+ });
  const css=customizationCSS(data||{});
- if(!css)return html;
- const style=`<style id="mubiey-invitation-customization">${css}</style>`;
+ const backgroundStylesheet='<link rel="stylesheet" href="/invitation-backgrounds.css">';
+ const style=css?`<style id="mubiey-invitation-customization">${css}</style>`:'';
  const head=html.search(/<\/head>/i);
- return head<0?html:html.slice(0,head)+style+html.slice(head);
+ return head<0?html:html.slice(0,head)+backgroundStylesheet+style+html.slice(head);
 };
 
 function currentData(){try{return typeof collect==='function'?collect():{}}catch{return{}}}
@@ -85,6 +103,7 @@ function readPageControls(){
  page.overlayOpacity=Number(el('page-bg-overlay-opacity').value);
  page.color=el('page-bg-color').value;
  page.gradient=el('page-bg-gradient').value;
+ page.preset=el('page-bg-preset').value;
 }
 function renderGalleryOptions(){
  const select=el('page-bg-image');
@@ -105,6 +124,7 @@ function renderPageControls(){
  const page=pageAt(state.selectedPage);
  const pending=state.pendingBackgrounds.get(state.selectedPage);
  el('page-bg-image').value=pending?.url||page.image||'';
+ el('page-bg-path').value=isBackgroundPath(page.image)?page.image:'';
  el('page-bg-size').value=page.size||'cover';
  el('page-bg-x').value=String(page.x??50);
  el('page-bg-y').value=String(page.y??50);
@@ -114,6 +134,7 @@ function renderPageControls(){
  el('page-bg-overlay-opacity').value=String(page.overlayOpacity??0);
  el('page-bg-color').value=page.color||'#ffffff';
  el('page-bg-gradient').value=page.gradient||'';
+ el('page-bg-preset').value=page.preset||'';
  el('page-bg-status').textContent=pending?`Ready to upload: ${pending.file.name}`:page.image?'Using a saved invitation photo.':'No page background image selected.';
  el('page-bg-x-value').textContent=`${el('page-bg-x').value}%`;
  el('page-bg-y-value').textContent=`${el('page-bg-y').value}%`;
@@ -156,7 +177,7 @@ function addPanels(){
  const backgrounds=document.createElement('section');
  backgrounds.className='panel';
  backgrounds.id='page-backgrounds-panel';
- backgrounds.innerHTML=`<h2>Page Backgrounds</h2><p class="help">Customize each rendered invitation page independently. Uploaded images keep their original format and resolution.</p><div class="field-grid"><label>Invitation page<select id="page-bg-page"></select></label><label>Choose from invitation photos<select id="page-bg-image"><option value="">No image</option></select></label><label class="wide">Upload a page background (JPG, PNG, WebP)<input id="page-bg-file" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"></label><p id="page-bg-status" class="help wide" aria-live="polite"></p><label>Image sizing<select id="page-bg-size"><option value="cover">Cover</option><option value="contain">Contain</option><option value="custom">Custom</option></select></label><label>Custom image width (%)<input id="page-bg-custom-size" type="number" min="25" max="300" step="1" value="100"></label><label>Horizontal position <span id="page-bg-x-value">50%</span><input id="page-bg-x" type="range" min="0" max="100" value="50"></label><label>Vertical position <span id="page-bg-y-value">50%</span><input id="page-bg-y" type="range" min="0" max="100" value="50"></label><label>Image opacity <span id="page-bg-opacity-value">100%</span><input id="page-bg-image-opacity" type="range" min="0" max="1" step="0.05" value="1"></label><label>Overlay color<input id="page-bg-overlay-color" type="color" value="#000000"></label><label>Overlay opacity <span id="page-bg-overlay-value">0%</span><input id="page-bg-overlay-opacity" type="range" min="0" max="1" step="0.05" value="0"></label><label>Solid background color<input id="page-bg-color" type="color" value="#ffffff"></label><label>Optional gradient<select id="page-bg-gradient">${gradients.map((gradient,index)=>`<option value="${gradient}">${['None','Ivory gold','Garden emerald','Blush rose','Midnight blue','Saffron'][index]}</option>`).join('')}</select></label><div class="actions wide"><button type="button" id="page-bg-reset" class="quiet">Reset this page</button></div></div>`;
+ backgrounds.innerHTML=`<h2>Page Backgrounds</h2><p class="help">Customize each rendered invitation page independently. Upload an image, choose an invitation photo, enter an image path from /images/backgrounds/, or select a lantern design.</p><div class="field-grid"><label>Invitation page<select id="page-bg-page"></select></label><label>Background design<select id="page-bg-preset"><option value="">Use template background</option><option value="none">No decorative background</option><option value="islamic-arch-lanterns">Islamic arch + lanterns</option><option value="watercolor-lantern-florals">Watercolor lantern florals</option></select></label><label>Choose from invitation photos<select id="page-bg-image"><option value="">No image</option></select></label><label class="wide">Background image path<input id="page-bg-path" type="text" inputmode="url" autocomplete="off" placeholder="/images/backgrounds/your-image.jpg"></label><label class="wide">Upload a page background (JPG, PNG, WebP)<input id="page-bg-file" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"></label><p id="page-bg-status" class="help wide" aria-live="polite"></p><label>Image sizing<select id="page-bg-size"><option value="cover">Cover</option><option value="contain">Contain</option><option value="custom">Custom</option></select></label><label>Custom image width (%)<input id="page-bg-custom-size" type="number" min="25" max="300" step="1" value="100"></label><label>Horizontal position <span id="page-bg-x-value">50%</span><input id="page-bg-x" type="range" min="0" max="100" value="50"></label><label>Vertical position <span id="page-bg-y-value">50%</span><input id="page-bg-y" type="range" min="0" max="100" value="50"></label><label>Image opacity <span id="page-bg-opacity-value">100%</span><input id="page-bg-image-opacity" type="range" min="0" max="1" step="0.05" value="1"></label><label>Overlay color<input id="page-bg-overlay-color" type="color" value="#000000"></label><label>Overlay opacity <span id="page-bg-overlay-value">0%</span><input id="page-bg-overlay-opacity" type="range" min="0" max="1" step="0.05" value="0"></label><label>Solid background color<input id="page-bg-color" type="color" value="#ffffff"></label><label>Optional gradient<select id="page-bg-gradient">${gradients.map((gradient,index)=>`<option value="${gradient}">${['None','Ivory gold','Garden emerald','Blush rose','Midnight blue','Saffron'][index]}</option>`).join('')}</select></label><div class="actions wide"><button type="button" id="page-bg-reset" class="quiet">Reset this page</button></div></div>`;
  photosPanel.after(arabic,backgrounds);
  el('arabic-font-choice').addEventListener('change',()=>setArabic('font',el('arabic-font-choice').value));
  el('arabic-font-size').addEventListener('input',()=>{const value=clamp(el('arabic-font-size').value,10,72);el('arabic-font-size').value=String(value);setArabic('size',value)});
@@ -187,7 +208,14 @@ function addPanels(){
   }
  });
  el('page-bg-page').addEventListener('change',()=>{readPageControls();state.selectedPage=Number(el('page-bg-page').value);renderPageControls()});
- el('page-bg-image').addEventListener('change',()=>{state.pendingBackgrounds.delete(state.selectedPage);pageAt(state.selectedPage).image=el('page-bg-image').value;renderPageControls();mark()});
+ el('page-bg-image').addEventListener('change',()=>{const pending=state.pendingBackgrounds.get(state.selectedPage);if(pending?.url)URL.revokeObjectURL(pending.url);state.pendingBackgrounds.delete(state.selectedPage);pageAt(state.selectedPage).image=el('page-bg-image').value;renderPageControls();mark()});
+ el('page-bg-path').addEventListener('change',()=>{
+  const image=el('page-bg-path').value.trim();
+  if(image&&!isBackgroundPath(image)){toast('Use an image path under /images/backgrounds/ without spaces or parent-folder segments.');renderPageControls();return}
+  const pending=state.pendingBackgrounds.get(state.selectedPage);if(pending?.url)URL.revokeObjectURL(pending.url);
+  state.pendingBackgrounds.delete(state.selectedPage);pageAt(state.selectedPage).image=image;renderPageControls();mark();
+ });
+ el('page-bg-preset').addEventListener('change',()=>{pageAt(state.selectedPage).preset=el('page-bg-preset').value;renderPageControls();mark()});
  el('page-bg-file').addEventListener('change',()=>{
   const file=el('page-bg-file').files?.[0];if(!file)return;
   if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size===0||file.size>15*1048576){toast('Choose a JPG, PNG or WebP image smaller than 15 MB.');el('page-bg-file').value='';return}
@@ -237,6 +265,8 @@ function installEditor(){
   if(!data.customFont&&state.savedEnglishFont)data.customFont=state.savedEnglishFont;
   const arabic={...state.arabic};
   if(state.saving&&state.pendingFont)arabic.customFont=null;
+  const velvetFont=document.getElementById('arabicFont')?.value;
+  if(velvetFont&&velvetFont!=='amiri'&&arabic.font!=='custom')arabic.font=velvetFont;   /* the "Arabic calligraphy font" choice on the invitation wins */
   data.arabicTypography=arabic;
   data.arabicFont=arabic.font==='custom'?(state.arabic.customFont?.fallback||'amiri'):arabic.font;
   data.pageBackgrounds=state.pages.map((page,index)=>{

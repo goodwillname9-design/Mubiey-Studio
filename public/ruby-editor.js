@@ -12,8 +12,9 @@ const $=s=>document.querySelector(s);
 const preset=$('#live-preset');
 if(!preset||typeof fields==='undefined'||typeof markDirty!=='function')return;
 const RUBY='ruby-luxury',ivory=()=>(window.MubieyIvory&&window.MubieyIvory.ids)||[];
-const mine=v=>v===RUBY||ivory().includes(v),hasCal=v=>ivory().includes(v);
-const ensure=()=>{[RUBY,...ivory()].forEach(id=>{const t=INVITATION_TEMPLATES.find(x=>x.id===id);if(t&&![...preset.options].some(o=>o.value===id)){const o=new Option(t.name,id);o.dataset.layout='0';preset.add(o)}})};
+const flora=()=>(window.MubieyFlora&&window.MubieyFlora.ids)||[];
+const mine=v=>v===RUBY||ivory().includes(v)||flora().includes(v),hasCal=v=>ivory().includes(v);
+const ensure=()=>{[RUBY,...ivory(),...flora()].forEach(id=>{const t=INVITATION_TEMPLATES.find(x=>x.id===id);if(t&&![...preset.options].some(o=>o.value===id)){const o=new Option(t.name,id);o.dataset.layout='0';preset.add(o)}})};
 ensure();new MutationObserver(ensure).observe(preset,{childList:true});
 const host=$('#save')?.closest('.panel');if(!host)return;
 const GROUPS=[['names','Names (couple, “Tap to open”, signature)'],['heads','Headings (titles, month, event names)'],['lines','Lines (parents, message, family, closing)'],['small','Small capital labels & buttons']];
@@ -35,11 +36,16 @@ for(const [g,label] of GROUPS){
  r.querySelector('select').onchange=e=>{read();cfg.f[g]=e.target.value;write()};
  r.querySelector('input').oninput=e=>{read();cfg.s[g]=Number(e.target.value);r.querySelector('[data-n]').textContent=cfg.s[g]+'%';write()};
 }
+const alRow=document.createElement('div');alRow.className='wide';alRow.style.gridColumn='1/-1';alRow.innerHTML='<strong>Text alignment</strong><div style="margin-top:6px"><select id="alignPick"><option value="center">Centre</option><option value="left">Left</option><option value="right">Right</option></select></div><p class="help">Lines the wording up on the left, centre or right of each page.</p>';grid.append(alRow);
+alRow.querySelector('#alignPick').onchange=e=>{read();cfg.align=e.target.value;write()};
+const goldRow=document.createElement('div');goldRow.className='wide';goldRow.style.gridColumn='1/-1';goldRow.innerHTML='<strong>Gold colour</strong><div style="display:flex;gap:10px;align-items:center;margin-top:6px"><input type="color" id="goldPick" value="#c9a24d"><button type="button" id="goldReset">Use the design colour</button></div><p class="help">Changes the gold of text, lines, the seal ring and borders in this invitation only.</p>';grid.append(goldRow);
+goldRow.querySelector('#goldPick').oninput=e=>{read();cfg.gold=e.target.value;write()};goldRow.querySelector('#goldReset').onclick=()=>{read();delete cfg.gold;write();paint()};
 const resetBtn=document.createElement('button');resetBtn.type='button';resetBtn.textContent='Reset fonts & sizes';resetBtn.style.gridColumn='1/-1';resetBtn.onclick=()=>{read();cfg.f={};cfg.s={};write();paint()};grid.append(resetBtn);
-const ol=document.createElement('div');ol.className='wide';ol.style.gridColumn='1/-1';ol.innerHTML='<strong>Opening logo (replaces the golden seal)</strong><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px"><img id="olThumb" alt="" style="height:52px;width:52px;object-fit:contain;border-radius:50%;background:#fffaf0;display:none"><input id="olFile" type="file" accept="image/png,image/jpeg,image/webp"><button type="button" id="olRemove" class="danger" hidden>Remove</button></div><p class="help">Same size as the seal. No logo = the golden seal stays. PNG with transparent background looks best.</p>';
+const ol=document.createElement('div');ol.className='wide';ol.style.gridColumn='1/-1';ol.innerHTML='<strong>Opening logo (replaces the golden seal)</strong><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px"><img id="olThumb" alt="" style="height:52px;width:52px;object-fit:contain;border-radius:50%;background:#fffaf0;display:none"><input id="olFile" type="file" accept="image/png,image/jpeg,image/webp"><button type="button" id="olRemove" class="danger" hidden>Remove</button></div><label style="display:block;margin-top:8px">Logo size inside the circle <input type="range" id="olSizeR" min="50" max="150" step="5" value="100"> <span id="olSizeN">100%</span></label><p class="help">100% fills the circle. Above 100% the logo grows past the circle edge. No logo = the golden seal stays.</p>';
 grid.append(ol);
 const olHidden=document.createElement('input');olHidden.type='hidden';olHidden.id='openLogo';panel.append(olHidden);fields.push('openLogo');
 const olThumb=ol.querySelector('#olThumb'),olRemove=ol.querySelector('#olRemove');
+ol.querySelector('#olSizeR').oninput=e=>{read();cfg.olSize=Number(e.target.value);ol.querySelector('#olSizeN').textContent=cfg.olSize+'%';write()};
 function olSync(){const ok=/^data:image\//.test(olHidden.value);olThumb.src=ok?olHidden.value:'';olThumb.style.display=ok?'block':'none';olRemove.hidden=!ok}
 async function olPrepare(file){
  if(!/^image\/(png|jpeg|webp)$/.test(file.type))throw Error('Choose a PNG, JPG or WebP logo.');
@@ -51,7 +57,7 @@ async function olPrepare(file){
  }finally{URL.revokeObjectURL(url)}}
 ol.querySelector('#olFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{olHidden.value=await olPrepare(f);olSync();markDirty()}catch(err){alert(err.message)}};
 olRemove.onclick=()=>{olHidden.value='';olSync();markDirty()};
-function paint(){read();olSync();for(const [g] of GROUPS){const s=grid.querySelector(`select[data-g="${g}"]`),r=grid.querySelector(`input[data-s="${g}"]`);s.value=cfg.f[g]||'';r.value=cfg.s[g]||100;grid.querySelector(`[data-n="${g}"]`).textContent=(cfg.s[g]||100)+'%'}}
+function paint(){read();{const ap=grid.querySelector('#alignPick');if(ap)ap.value=cfg.align||'center'}{const os=grid.querySelector('#olSizeR');if(os){os.value=cfg.olSize||100;grid.querySelector('#olSizeN').textContent=(cfg.olSize||100)+'%'}}{const gp=grid.querySelector('#goldPick');if(gp)gp.value=cfg.gold||'#c9a24d'}olSync();for(const [g] of GROUPS){const s=grid.querySelector(`select[data-g="${g}"]`),r=grid.querySelector(`input[data-s="${g}"]`);s.value=cfg.f[g]||'';r.value=cfg.s[g]||100;grid.querySelector(`[data-n="${g}"]`).textContent=(cfg.s[g]||100)+'%'}}
 
 /* ---------- calendar panel ---------- */
 const cal=document.createElement('section');cal.className='panel';cal.id='iv-cal-panel';cal.hidden=true;

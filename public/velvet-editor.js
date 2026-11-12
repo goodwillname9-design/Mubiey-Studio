@@ -52,10 +52,16 @@ addSel('bgPhoto','999 · Calendar & start-screen background photo',PH('None (dar
 
 /* ---- ready-made Arabic texts (always check wording with a trusted source before printing) ---- */
 const VERSES=[
+ ['Surah Al-Baqarah 2:187','هُنَّ لِبَاسٌ لَّكُمْ وَأَنتُمْ لِبَاسٌ لَّهُنَّ','They are clothing for you and you are clothing for them.'],
+ ['Surah An-Nisa 4:19','وَعَاشِرُوهُنَّ بِالْمَعْرُوفِ','And live with them in kindness.'],
  ['Surah An-Naba 78:8 (default)','وَخَلَقْنَاكُمْ أَزْوَاجًا','And we created you in pairs'],
  ['Surah Adh-Dhariyat 51:49','وَمِن كُلِّ شَيْءٍ خَلَقْنَا زَوْجَيْنِ لَعَلَّكُمْ تَذَكَّرُونَ','And of everything We created pairs, that perhaps you will remember.']
 ];
 const BLESSINGS=[
+ ['Hadith dua for the couple','اللَّهُمَّ بَارِكْ لَهُمَا وَبَارِكْ عَلَيْهِمَا وَجَمَعَ بَيْنَهُمَا فِي خَيْرٍ','May Allah bless them both, shower His blessings upon them, and bring them together in goodness.'],
+ ['Surah Al-Kahf 18:10','رَبَّنَا آتِنَا مِن لَّدُنكَ رَحْمَةً وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا','Our Lord, grant us mercy from Yourself and prepare for us right guidance in our affair.'],
+ ['Surah Al-Baqarah 2:201','رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ','Our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire.'],
+ ['Surah Al-Ahqaf 46:15 (gratitude)','رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَىٰ وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ','My Lord, enable me to be grateful for Your favour which You have bestowed upon me and upon my parents, and to do righteousness of which You will approve.'],
  ['Barakallahu laka (default)','بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ','May Allah bless you both, shower His blessings upon you, and bring you together in goodness.'],
  ['Surah Ar-Rum 30:21','وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً','And among His signs is that He created for you spouses from among yourselves that you may find tranquility in them; and He placed between you affection and mercy.'],
  ['Surah Al-Furqan 25:74','رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا','Our Lord, grant us from our spouses and offspring comfort to our eyes, and make us leaders for the righteous.']
@@ -108,4 +114,26 @@ previewBtn.onclick=async()=>{
  }catch{const t=$('#toast');if(t){t.textContent='Could not open the preview. Please try again.';t.classList.add('show')}}
 };
 holder.append(previewBtn);grid.append(holder);
+})();
+
+/* show each template's own fields only: the photo-journey, verse and dua pickers belong to the velvet designs
+   (and the verse/dua lines also to Step Up). Under other designs they looked editable but did nothing. */
+(()=>{
+ const preset=document.querySelector('#live-preset');if(!preset)return;
+ const VEL=['111','222','333','444','555','777','888','999','heavy-luxury'];
+ const PHOTO=['scene1','scene2','scene3','scene4','focus1','focus2','focus3','focus4','bgPhoto'];
+ const ARABIC=['verseArabic','verse','blessingArabic','blessing'];
+ const show=(l,on)=>{if(l)l.style.display=on?'':'none'};
+ function sync(){
+  const v=preset.value,velvet=VEL.includes(v),arab=true;
+  PHOTO.forEach(id=>show(document.getElementById(id)?.closest('label'),velvet));
+  ARABIC.forEach(id=>show(document.getElementById(id)?.closest('label'),arab));
+  document.querySelectorAll('.field-grid label').forEach(l=>{
+   const t=l.textContent;
+   if(/999 ·/.test(t))show(l,velvet);
+   else if(/ready-made (verse|dua)|Arabic calligraphy font/.test(t))show(l,arab);
+  });
+ }
+ preset.addEventListener('change',sync);
+ setInterval(sync,700);sync();
 })();

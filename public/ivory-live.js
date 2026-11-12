@@ -28,7 +28,7 @@ const THEMES={
  '2008':{name:'Powder Blue', dark:0,fill:'#dfe6ee',ink:'#2a4766',txt:'#36485a',acc:'#a9965f',acc2:'#dcc88e',pan:'rgba(244,248,252,.76)',heart:'#27567f',heart2:'#5f93c4',f:'sepia(.5) hue-rotate(168deg) saturate(.75) brightness(1.02)',hero:'arch',date:'env',story:'arch',day:'env',events:'arch',end:'env',gate:'sepia(.5) hue-rotate(168deg) saturate(.75) brightness(1.02)'},
  '2009':{name:'Champagne Noir',dark:1,fill:'#14110f',ink:'#f2e2c0',txt:'#eadbc2',acc:'#d8b667',acc2:'#f3dc9b',pan:'rgba(20,16,14,.66)',heart:'#a1203a',heart2:'#e0566f',f:'brightness(.3) sepia(.12) saturate(1.1) contrast(1.2)',hero:'arch',date:'env',story:'arch',day:'env',events:'arch',end:'arch',gate:'brightness(.38) sepia(.1) saturate(1.1) contrast(1.15)'}
 };
-const SCENES={arch:'arch.jpg',sage:'sage.jpg',env:'envelope.jpg'};
+const SCENES={arch:'arch.jpg',sage:'sage.jpg',env:'sage.jpg'}; /* the envelope is only the opening picture */
 /* lantern + candle flame positions on the arch picture (% of its width / height) */
 const FLAMES=[[90.3,23,1.6],[85.9,33.7,1.4],[11.1,92.6,1.5],[17.8,95.1,1.1],[92,92.6,1.5],[83.8,95.2,1.1],[2.8,94,.8],[6.6,96,.8],[96,90.6,.8],[96.6,96.4,.8]];
 
@@ -58,7 +58,10 @@ function calendarHtml(cal,m){
  return `<div class="cal-m">${MONTHS[cal.mo-1].toUpperCase()} <small>${cal.y}</small></div><div class="cal-w">${['S','M','T','W','T','F','S'].map(x=>`<i>${x}</i>`).join('')}</div><div class="cal-g">${cells}</div>${cap?`<p class="cal-cap">${esc(cap)}</p>`:''}${cal.note?`<p class="cal-note" data-cal="note">${esc(cal.note)}</p>`:''}`;
 }
 
+/* per-page backgrounds (same choices as Floral: frame / ribbon / damask, or your own picture) */
+function pageBg(d){let j={};try{j=JSON.parse(typeof d.floraBg==='string'&&d.floraBg?d.floraBg:'{}')||{}}catch{j={}}const F={frame:'frame.jpg',ribbon:'ribbon.jpg',damask:'damask.jpg'};const out={};for(const k of ['hero','date','story','day','events','end']){const v=j[k];if(typeof v==='string'&&v.startsWith('data:image/')&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(v)&&v.length<120000)out[k]=v;else if(F[v])out[k]=R.h.ASSET_ROOT+'assets/flora/'+F[v]}return out}
 /* ------------------------------------------------------------------ styles */
+
 const CSS=(m,t)=>{
  const f=m.fonts,s=m.cfg.s;
  return `
@@ -71,6 +74,15 @@ body{margin:0;background:var(--fill);color:var(--txt);font:400 calc(18px*var(--s
 body.iv-locked{overflow:hidden;height:100svh}
 /* ---------- fixed scenes ---------- */
 .bgs{position:fixed;inset:0;z-index:0;background:var(--fill);overflow:hidden}
+${m.arFontCSS||''}.ar-verse,.ar-dua{direction:rtl;font-family:${m.arFam||"AtelierAmiri,Amiri,serif"};text-align:center;margin:12px auto 4px;line-height:1.7;text-shadow:0 1px 8px rgba(255,255,255,.85)}
+.ar-verse{font-size:clamp(20px,5.8vw,26px);color:var(--acc)}
+.ar-dua{font-size:clamp(19px,5.4vw,24px);color:var(--ink,var(--acc))}
+.ar-en{font-family:var(--fl);font-style:italic;font-size:clamp(14px,3.9vw,16px);line-height:1.6;margin:4px auto 10px;max-width:24em;text-shadow:0 1px 8px rgba(255,255,255,.85)}
+.sbgx{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.sbgx .bgl{opacity:1!important;transform:none!important}
+.sbgx .scene{transform:translateX(-50%) scale(1)!important}
+.sec{isolation:isolate}
+
 .bgl{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease;will-change:opacity}
 .bgl.on{opacity:1}
 .scene{position:absolute;left:50%;top:0;height:100%;width:var(--SW);transform:translateX(-50%) scale(1.07);transition:transform 7s cubic-bezier(.2,.6,.2,1)}
@@ -106,9 +118,10 @@ body.iv-ready .bism{opacity:1}
 .g-ui{position:absolute;left:50%;top:0;height:100%;width:var(--SW);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:calc(var(--H)*.2);z-index:3;transition:opacity .5s ease}
 .gate.open .g-ui{opacity:0}
 .omw{position:absolute;left:50%;top:0;height:100%;width:var(--SW);transform:translateX(-50%);pointer-events:none;z-index:5}
-.om{position:absolute;left:50.5%;top:49.8%;width:33%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fffaf0,#efe2c4 80%);box-shadow:0 6px 18px rgba(60,40,10,.35),inset 0 0 0 3px #d9b46a,inset 0 0 0 6px #fff4d6,inset 0 0 0 7px #b88c3e;padding:12%;animation:iv-om 2.4s ease-in-out infinite alternate}
-.om img{width:100%;height:100%;object-fit:contain;border-radius:50%;display:block}
-.gate.open .om{animation:iv-omout 1.1s cubic-bezier(.3,.6,.2,1) forwards}
+.om{position:absolute;left:50.5%;top:49.8%;width:33%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fffaf0,#efe2c4 80%);box-shadow:0 6px 18px rgba(60,40,10,.35),inset 0 0 0 3px #d9b46a,inset 0 0 0 6px #fff4d6,inset 0 0 0 7px #b88c3e;padding:0;overflow:visible;animation:iv-om 2.4s ease-in-out infinite alternate}
+.om img{position:absolute;left:50%;top:50%;width:calc(var(--olsz,100)*1%);height:calc(var(--olsz,100)*1%);transform:translate(-50%,-50%);object-fit:contain;display:block;border-radius:50%;mix-blend-mode:multiply}
+.om.lift{position:fixed;animation:none;z-index:140;transition:left 1.3s cubic-bezier(.3,.6,.2,1),top 1.3s cubic-bezier(.3,.6,.2,1),width 1.3s cubic-bezier(.3,.6,.2,1),height 1.3s cubic-bezier(.3,.6,.2,1),transform 1.3s cubic-bezier(.3,.6,.2,1)}
+.om.lift.corner{left:14px!important;top:calc(14px + env(safe-area-inset-top,0px))!important;width:60px!important;height:60px!important;transform:none!important;padding:6px;box-shadow:0 3px 12px rgba(0,0,0,.25)}
 @keyframes iv-om{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.03)}}
 @keyframes iv-omout{to{transform:translate(-50%,-190%) scale(1.2);opacity:0}}
 .g-hit{all:unset;position:absolute;left:50.5%;top:49.8%;width:calc(var(--SW)*.38);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;cursor:pointer;z-index:4}
@@ -129,15 +142,15 @@ body:not(.iv-ready) .hv{opacity:0}
 body.iv-ready .hv{animation:iv-up 1.4s cubic-bezier(.2,.7,.2,1) var(--d,0s) both}
 .intro{font:700 calc(clamp(9.5px,2.6vw,11.5px)*var(--ss))/2 var(--fs);font-style:var(--sts);letter-spacing:.22em;text-transform:uppercase;color:var(--ink);margin:0 auto 12px;opacity:.9}
 .lbl{font:700 calc(9.5px*var(--ss))/1.5 var(--fs);font-style:var(--sts);letter-spacing:.34em;text-transform:uppercase;color:var(--acc);margin:6px 0 0}
-.nm{margin:0;font:400 calc(clamp(40px,12.5vw,64px)*var(--sn))/1.1 var(--fn);font-style:var(--stn);color:var(--ink);overflow-wrap:anywhere;padding:.04em .05em;background:linear-gradient(105deg,var(--ink) 0%,var(--ink) 38%,${t.dark?'#fff3cc':'var(--acc)'} 50%,var(--ink) 62%,var(--ink) 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:iv-foil 7s ease-in-out infinite alternate}
+.nm{margin:0;font:400 calc(clamp(40px,12.5vw,64px)*var(--sn))/1.1 var(--fn);font-style:var(--stn);color:var(--ink);overflow-wrap:normal;word-break:normal;max-height:2.3em;padding:.04em .05em;background:linear-gradient(105deg,var(--ink) 0%,var(--ink) 38%,${t.dark?'#fff3cc':'var(--acc)'} 50%,var(--ink) 62%,var(--ink) 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:iv-foil 7s ease-in-out infinite alternate}
 .par{font:400 calc(clamp(14.5px,3.9vw,17px)*var(--sl))/1.5 var(--fl);font-style:var(--stl);color:var(--txt);margin:3px 0 0}
 .amp{font:400 calc(clamp(26px,7.5vw,36px)*var(--sn))/1 var(--fn);font-style:var(--stn);color:var(--acc);margin:6px 0;display:flex;align-items:center;justify-content:center;gap:12px}
 .amp:before,.amp:after{content:'';width:min(14vw,60px);height:1px;background:linear-gradient(90deg,transparent,var(--acc))}.amp:after{transform:scaleX(-1)}
 .msg{font:400 calc(clamp(15.5px,4.2vw,18px)*var(--sl))/1.75 var(--fl);font-style:var(--stl);color:var(--txt);margin:16px auto 0;white-space:pre-wrap;overflow-wrap:anywhere}
 .scr{margin-top:22px;font:700 calc(9.5px*var(--ss))/1 var(--fs);letter-spacing:.4em;text-transform:uppercase;color:var(--acc);display:flex;flex-direction:column;align-items:center;gap:8px}
 .scr:after{content:'';width:1px;height:34px;background:linear-gradient(var(--acc),transparent);animation:iv-scroll 2.2s ease-in-out infinite}
-.panel{position:relative;padding:38px 20px 36px;border:1px solid var(--acc);border-radius:16px;background:var(--pan);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 18px 44px rgba(60,30,20,${t.dark?.5:.16})}
-.panel:before{content:'';position:absolute;inset:6px;border:1px solid var(--acc);opacity:.35;border-radius:11px;pointer-events:none}
+.panel{position:relative;padding:30px 12px 28px;border:0;background:none;box-shadow:none}
+
 .kick{font:700 calc(10.5px*var(--ss))/1.5 var(--fs);font-style:var(--sts);letter-spacing:.36em;text-transform:uppercase;color:var(--acc);margin:0 0 6px}
 .ttl{font:400 calc(clamp(26px,7vw,34px)*var(--sh))/1.2 var(--fh);font-style:var(--sth);color:var(--ink);margin:8px 0 4px;overflow-wrap:anywhere}
 .divider{display:flex;align-items:center;justify-content:center;gap:10px;margin:12px auto 22px;width:min(54vw,210px)}
@@ -192,7 +205,7 @@ body.iv-ready .hv{animation:iv-up 1.4s cubic-bezier(.2,.7,.2,1) var(--d,0s) both
 .tl-n{font:400 calc(clamp(18px,4.8vw,22px)*var(--sh))/1.25 var(--fh);color:var(--ink);margin:0;overflow-wrap:anywhere}
 .tl-d{font:400 calc(14.5px*var(--sl))/1.5 var(--fl);font-style:var(--stl);margin:2px 0 0;overflow-wrap:anywhere}
 .cards{display:grid;gap:14px;margin:4px auto 0}
-.ecard{position:relative;padding:24px 14px 22px;border:1px solid var(--acc);border-radius:6px;background:rgba(255,255,255,${t.dark?.04:.35})}
+.ecard{position:relative;padding:18px 0 16px;border:0;background:none;border-bottom:1px solid rgba(120,90,50,.25)}
 .ecard h3{font:400 calc(clamp(21px,5.6vw,26px)*var(--sh))/1.25 var(--fh);font-style:var(--sth);color:var(--ink);margin:0 0 4px;overflow-wrap:anywhere}
 .ecard .ed{font:700 calc(10.5px*var(--ss))/1.7 var(--fs);letter-spacing:.18em;color:var(--acc);text-transform:uppercase}
 .ecard .ep{font:400 calc(16px*var(--sl))/1.5 var(--fl);font-style:var(--stl);margin:6px 0 14px;overflow-wrap:anywhere;white-space:pre-line}
@@ -231,6 +244,7 @@ body.iv-ready .hv{animation:iv-up 1.4s cubic-bezier(.2,.7,.2,1) var(--d,0s) both
 @keyframes iv-rise{0%{opacity:0;transform:translate(0,0) scale(.5)}15%{opacity:.9}100%{opacity:0;transform:translate(var(--dx),-70px) scale(1.1) rotate(var(--r))}}
 @media(max-width:380px){.tl:before{left:78px}.tl-row{grid-template-columns:62px 1fr;gap:26px}.tl-row:before{left:74px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}.iv-js .rv{opacity:1;transform:none;filter:none}.cal .dy b,.cal-g b,.cal .peony,.cal .swans,.cal-m,.cal-cap,.cal-note{opacity:1!important}.dy .hrt{transform:none}.dy .rng circle{stroke-dashoffset:0}}
+${m.cfg.align==='left'?':root{--al:left;--jc:flex-start;--mL:8vw;--mR:auto}':m.cfg.align==='right'?':root{--al:right;--jc:flex-end;--mL:auto;--mR:8vw}':':root{--al:center;--jc:center;--mL:auto;--mR:auto}'}.sec{justify-content:var(--jc)!important}.sec .inner,.sec .wide{margin-left:var(--mL)!important;margin-right:var(--mR)!important;text-align:var(--al)!important}
 ${m.customCSS}`};
 
 /* ------------------------------------------------------------------ markup */
@@ -238,14 +252,20 @@ function sceneLayer(key,k,t,m,hero){
  const veil=t.dark?'rgba(10,8,6,.18)':(k==='env'?'rgba(255,250,240,.28)':'transparent');
  const flames=hero&&k==='arch'?`<div class="fx">${FLAMES.map(([x,y,s],i)=>`<i class="flame" style="left:${x}%;top:${y}%;--s:${s};--d:${(i*.37).toFixed(2)}s"></i>`).join('')}<i class="sweep"></i></div>`:'<div class="fx"><i class="sweep"></i></div>';
  const bism=hero&&m.bismImg?`<i class="bism" style="${k==='sage'?'left:38%;top:4.5%;width:24%':''}"></i>`:'';
- return `<div class="bgl${hero?' on':''}" data-k="${key}" style="--veil:${veil}"><div class="scene"><div class="img" style="background-image:url('${A}${SCENES[k]}')"></div>${flames}${bism}</div><i class="veil"></i></div>`;
+ return `<div class="bgl${hero?' on':''}" data-k="${key}" style="--veil:${veil}"><div class="scene"><div class="img" style="background-image:url('${(m.bgOver&&m.bgOver[key])||(A+SCENES[k])}')"></div>${flames}${bism}</div><i class="veil"></i></div>`;
 }
 function petals(t){
  const cols=t.dark?['#f3dc9b']:['#f6d9d6','#fff','#f3e6cf','#e9d6d0'];
  return `<div class="petals" aria-hidden="true">${Array.from({length:11},(_,i)=>`<i style="left:${(i*9.3+R.h.rnd(i,0,5)).toFixed(1)}%;--w:${(7+R.h.rnd(i+3,0,8)).toFixed(1)}px;--t:${(11+R.h.rnd(i+5,0,9)).toFixed(1)}s;--d:${(R.h.rnd(i+9,0,12)).toFixed(1)}s;--x:${(R.h.rnd(i+2,-60,60)).toFixed(0)}px;--r:${(R.h.rnd(i+7,120,420)).toFixed(0)}deg;--pc:${cols[i%cols.length]}"></i>`).join('')}</div>`;
 }
+/* each page carries its own background: it scrolls with the page's content */
+function secLayers(html,LY){return html.replace(/(<section[^>]*?data-bg="(\w+)"[^>]*>)/g,(m0,tag,k)=>LY[k]?`${tag}<div class="sbgx">${LY[k]}</div>`:tag)}
 function body(m,t,cal){
  const w=m.w;
+  const verseBlock=(m.verseAr||m.verseEn)?`<div class="hv" style="--d:1.7s">${m.verseAr?`<p class="ar-verse" lang="ar" dir="rtl">${esc(m.verseAr)}</p>`:''}${m.verseEn?`<p class="ar-en">${esc(m.verseEn)}</p>`:''}</div>`:'';
+ const duaBlock=(m.blAr||m.blEn)?`<div class="rv">${m.blAr?`<p class="ar-dua" lang="ar" dir="rtl">${esc(m.blAr)}</p>`:''}${m.blEn?`<p class="ar-en">“${esc(m.blEn)}”</p>`:''}</div>`:'';
+
+ const prevChip=(m.prev&&m.openLogo&&!m.gate)?`<div class="om lift corner" style="animation:none"><img src="${esc(m.openLogo)}" alt=""></div>`:'';
  const l1=m.p1&&/^\s*d\s*\/\s*o\b/i.test(m.p1)?'':`<p class="lbl hv" data-rs="rsLabel1" style="--d:.55s">${esc(m.l1)}</p>`;
  const l2=m.p2&&/^\s*s\s*\/\s*o\b/i.test(m.p2)?'':`<p class="lbl hv" data-rs="rsLabel2" style="--d:1.1s">${esc(m.l2)}</p>`;
  const hero=`<section class="sec hero" id="top" data-bg="hero"><div class="inner">
@@ -257,7 +277,7 @@ function body(m,t,cal){
  ${l2}${ed('name2','h1','nm hv fit',esc(m.n2),' style="--d:1.25s"')}
  ${m.p2?ed('parents2','p','par hv',esc(m.p2),' style="--d:1.4s"'):''}
  ${m.message?ed('message','p','msg hv',esc(m.message),' style="--d:1.6s"'):''}
- ${ed('rsScroll','div','scr hv',esc(m.scroll),' style="--d:1.85s"')}
+ ${verseBlock}${ed('rsScroll','div','scr hv',esc(m.scroll),' style="--d:1.85s"')}
  </div></section>`;
  const dateSec=`<section class="sec" id="date" data-bg="date"><div class="inner wide">
  ${ed('rsDateKicker','p','kick rv',esc(m.dateKick))}${ed('rsDateTitle','h2','ttl rv',esc(m.dateTitle),' style="--d:.1s"')}
@@ -268,10 +288,10 @@ function body(m,t,cal){
  </div></section>`;
  const slides=m.photos.map((src,i)=>`<div class="slide" data-i="${i}"><img src="${esc(src)}" alt="Wedding photo ${i+1}" loading="lazy"></div>`).join('');
  const story=m.photos.length?`<section class="sec" id="story" data-bg="story"><div style="width:100%"><div class="inner">${ed('rsStoryKicker','p','kick rv',esc(m.storyKick))}${ed('rsStoryTitle','h2','ttl rv',esc(m.storyTitle),' style="--d:.1s"')}<div class="divider rv"><i></i></div></div><div class="slider rv" id="iv-slider" style="--d:.15s">${slides}</div>${m.photos.length>1?`<div class="dots">${m.photos.map((_,i)=>`<b${i?'':' class="on"'}></b>`).join('')}</div>`:''}</div></section>`:'';
- const tl=m.schedule.length?`<section class="sec" id="day" data-bg="day"><div class="inner wide panel">${ed('rsDayKicker','p','kick rv',esc(m.dayKick))}${ed('rsDayTitle','h2','ttl rv',esc(m.dayTitle),' style="--d:.1s"')}<div class="divider rv"><i></i></div><div class="tl" data-rs="schedule">${m.schedule.map((s,i)=>`<div class="tl-row rv" style="--d:${(i*.1).toFixed(1)}s"><div class="tl-t">${esc(s.time||'')}</div><div><p class="tl-n">${esc(s.title)}</p>${s.detail?`<p class="tl-d">${esc(s.detail)}</p>`:''}</div></div>`).join('')}</div></div></section>`:'';
+ const tl=m.schedule.length?`<section class="sec" id="day" data-bg="day"><div class="inner wide panel">${ed('rsDayKicker','p','kick rv',esc(m.dayKick))}${ed('rsDayTitle','h2','ttl rv',esc(m.dayTitle),' style="--d:.1s"')}<div class="divider rv"><i></i></div><div class="tl" data-rs="schedule">${m.schedule.map((s,i)=>`<div class="tl-row rv" style="--d:${(i*.1).toFixed(1)}s"><div class="tl-t">${esc(s.time||'')}</div><div><p class="tl-n">${esc(s.title).replace(/\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2}\b)/i,'<br>$1')}</p>${s.detail?`<p class="tl-d">${esc(s.detail)}</p>`:''}</div></div>`).join('')}</div></div></section>`:'';
  const cards=m.events.length?`<section class="sec" id="events" data-bg="events"><div class="inner wide panel">${ed('rsEventsTitle','h2','ttl rv',esc(m.evTitle))}<div class="divider rv"><i></i></div><div class="cards" data-rs="eventsText">${m.events.map((e,i)=>`<article class="ecard rv" style="--d:${(i*.12).toFixed(2)}s"><h3>${esc(e.title)}</h3>${e.date?`<div class="ed">${esc(e.date)}</div>`:''}${e.place?`<p class="ep">${esc(e.place)}</p>`:''}${e.map?`<a class="mapbtn" href="${esc(e.map)}" target="_blank" rel="noopener noreferrer">View on map</a>`:''}</article>`).join('')}</div></div></section>`:'';
  const end=`<section class="sec" id="with-love" data-bg="end"><div class="inner wide panel">
- ${m.family?ed('family','p','fam rv',esc(m.family)):''}
+ ${duaBlock}${m.family?ed('family','p','fam rv',esc(m.family)):''}
  ${m.rsvp?`<a class="rsvp rv" href="${esc(m.rsvp)}" target="_blank" rel="noopener noreferrer">RSVP</a>`:''}
  ${ed('rsClosing','p','close rv',esc(m.closing),' style="--d:.1s"')}
  <div class="divider rv"><i></i></div>
@@ -282,7 +302,8 @@ function body(m,t,cal){
  const gate=m.gate?`<div id="iv-gate" class="gate" role="dialog" aria-modal="true" aria-label="Open the invitation"><div class="envbox"><i class="flap b"></i><i class="flap l"></i><i class="flap r"></i><i class="flap t"></i><i class="seal-ring"></i><i class="seal-flash"></i></div>${omw}<div class="g-ui"><span class="g-kick">You are invited</span><span class="g-tap" data-rs="rsOpen">${esc(m.open)}</span></div><button type="button" class="g-hit" id="iv-open" aria-label="Open the invitation"></button><button type="button" class="g-skip" id="iv-skip">Skip</button></div>`:'';
  const audio=m.music?`<audio id="iv-music" loop preload="none" src="${esc(m.music)}"></audio><button type="button" class="mbtn on" id="iv-mbtn" aria-label="Play or pause music">\u266A</button>`:'';
  const layers=`<div class="bgs" aria-hidden="true">${sceneLayer('hero',t.hero,t,m,true)}${sceneLayer('date',t.date,t,m)}${sceneLayer('story',t.story,t,m)}${sceneLayer('day',t.day,t,m)}${sceneLayer('events',t.events,t,m)}${sceneLayer('end',t.end,t,m)}${petals(t)}</div>`;
- return `${layers}<canvas id="iv-sp" aria-hidden="true"></canvas>${gate}<main>${hero}${dateSec}${story}${tl}${cards}${end}</main><div class="credit">Made with Mubiey Studio</div>${audio}`;
+  const LY={hero:sceneLayer('hero',t.hero,t,m,true),date:sceneLayer('date',t.date,t,m),story:sceneLayer('story',t.story,t,m),day:sceneLayer('day',t.day,t,m),events:sceneLayer('events',t.events,t,m),end:sceneLayer('end',t.end,t,m)};
+ return `<div style="position:fixed;inset:0;z-index:2;pointer-events:none">${petals(t)}</div><canvas id="iv-sp" aria-hidden="true"></canvas>${gate}${prevChip}<main>${secLayers(hero+dateSec+story+tl+cards+end,LY)}</main><div class="credit">Made with Mubiey Studio</div>${audio}`;
 }
 
 /* ------------------------------------------------------------------ browser runtime */
@@ -311,7 +332,7 @@ function runtime(){
   return{burst(x,y,n,sp0){if(reduce)return;sp0=sp0||240;for(let i=0;i<n;i++){const a=Math.random()*6.283,v=30+Math.random()*sp0;fx.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-50,s:5+Math.random()*10,k:Math.floor(Math.random()*SPR.length),life:1+Math.random()*1.4,max:2.4})}}};
  })();
  /* ---- text safe-zone: shrink names that would not fit on one line, the rest wraps ---- */
- const fit=()=>$$('.fit').forEach(el=>{el.style.fontSize='';const cs=parseFloat(getComputedStyle(el).fontSize);let f=cs,n=0;while(el.scrollWidth>el.clientWidth+1&&f>cs*.62&&n++<30){f*=.95;el.style.fontSize=f+'px'}});
+ const fit=()=>$$('.fit').forEach(el=>{el.style.fontSize='';const cs=parseFloat(getComputedStyle(el).fontSize);const lh=parseFloat(getComputedStyle(el).lineHeight)||cs*1.1;let f=cs,n=0;while((el.scrollWidth>el.clientWidth+1||el.scrollHeight>lh*2+2)&&f>cs*.5&&n++<40){f*=.95;el.style.fontSize=f+'px'}});
  fit();addEventListener('resize',fit);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);setTimeout(fit,600);
  /* ---- opening ---- */
  const gate=$('#iv-gate');const ready=()=>{B.classList.add('iv-ready');fit()};
@@ -319,7 +340,7 @@ function runtime(){
  else{
   B.classList.add('iv-locked');let opened=false,finished=false;const timers=[];const later=(f,ms)=>timers.push(setTimeout(f,ms));
   const done=()=>{if(finished)return;finished=true;timers.forEach(clearTimeout);gate.classList.add('gone');B.classList.remove('iv-locked');ready();scrollTo(0,0)};
-  const go=()=>{if(opened)return;opened=true;if(Rt.autoplay)play();gate.classList.add('open');
+  const go=()=>{if(opened)return;opened=true;if(Rt.autoplay)play();gate.classList.add('open');const om=$('.om');if(om){const r=om.getBoundingClientRect();document.body.append(om);om.classList.add('lift');om.style.left=r.left+'px';om.style.top=r.top+'px';om.style.width=r.width+'px';om.style.height=r.height+'px';om.style.transform='none';requestAnimationFrame(()=>requestAnimationFrame(()=>om.classList.add('corner')))}
    if(reduce){later(done,300);return}
    const x=innerWidth/2,y=innerHeight*.498;sp.burst(x,y,70,360);later(()=>sp.burst(x,y,40,260),450);
    later(()=>{B.classList.add('iv-ready')},900);later(done,2300)};
@@ -360,10 +381,13 @@ function render(d){
  const t=THEMES[d.template],m=R.model(d),cal=readCal(d);
  const muslim=!['Hindu','Christian'].includes(d.tradition),custom=str(d.rsBismillah,200);
  m.bismImg=muslim&&!custom;m.bismText=custom;
+ m.bgOver=pageBg(d);
+ m.verseAr=str(d.verseArabic,300);m.verseEn=str(d.verse,300);m.blAr=str(d.blessingArabic,400);m.blEn=str(d.blessing,400);
+ 
  m.dateKick=str(d.rsDateKicker,60)||'Save the date';m.dateTitle=str(d.rsDateTitle,60)||'Mark the date';
  const rt={prev:m.prev,autoplay:m.autoplay,dateIso:m.dateIso,dark:t.dark};
  const cls=['iv-js',m.gate?'iv-locked':'',m.prev?'iv-prev':''].filter(Boolean).join(' ');
- return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${esc(m.n1)} &amp; ${esc(m.n2)} \u2014 Wedding invitation</title><script>document.documentElement.classList.add('iv-js')<\/script><style>${fontCSS()}${CSS(m,t)}</style><noscript><style>.gate{display:none}body.iv-locked{overflow:auto}.rv,.hv{opacity:1!important;transform:none!important;filter:none!important}</style></noscript></head><body class="${cls}">${body(m,t,cal)}<script>window.IV=${json(rt)};<\/script><script>(${runtime.toString().replace(/<\/script/gi,'<\\/script')})();<\/script></body></html>`;
+ return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>${esc(m.n1)} &amp; ${esc(m.n2)} \u2014 Wedding invitation</title><script>document.documentElement.classList.add('iv-js')<\/script><style>${fontCSS(R.needFonts(m))}${CSS(m,t)}${m.cfg.gold?`:root{--acc:${m.cfg.gold};--acc2:${m.cfg.gold}}`:''}:root{--olsz:${m.cfg.olSize||100}}</style><noscript><style>.gate{display:none}body.iv-locked{overflow:auto}.rv,.hv{opacity:1!important;transform:none!important;filter:none!important}</style></noscript></head><body class="${cls}">${body(m,t,cal)}<script>window.IV=${json(rt)};<\/script><script>(${runtime.toString().replace(/<\/script/gi,'<\\/script')})();<\/script></body></html>`;
 }
 window.MubieyIvory={ids:Object.keys(THEMES),themes:THEMES,readCal};
 invitationDocument=function(data){return data&&THEMES[data.template]?render(data):baseDocument.apply(this,arguments)};

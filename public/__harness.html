@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>harness</title>
+<style>html,body{margin:0;height:100%;background:#000}iframe{position:fixed;inset:0;border:0;width:100%;height:100%}</style></head><body>
+<script src="/shared.js"></script><script src="/live-presets.js"></script><script src="/invitation-renderer.js"></script><script src="/atelier.js"></script><script src="/atelier-experience.js"></script><script src="/royal-curtain.js"></script><script src="/velvet-scroll.js"></script><script src="/royal-stage.js"></script><script src="/art-live.js"></script><script src="/ruby-luxury.js"></script><script src="/ivory-live.js"></script><script src="/flora-live.js"></script>
+<script>
+(async()=>{
+ const q=new URLSearchParams(location.search);
+ await atelierFontsReady();
+ const d={template:'2005',name1:q.get('n1')||'Aisha',name2:q.get('n2')||'Rayyan',parents1:'d/o Mr. Abdul Rahman & Mrs. Fathima',parents2:'s/o Mr. Yusuf & Mrs. Zubaida',
+  date:'2027-02-14T16:30:00+03:00',timeText:'4:30 PM onwards',message:'Two families, one beautiful beginning.',venue:'Al Noor Grand Hall',address:'Salmiya, Kuwait',mapUrl:'https://maps.google.com/?q=Kuwait',
+  venueGroom:'Royal Pearl Banquet',addressGroom:'Hawally, Kuwait',receptionDate:'15 February 2027',receptionTime:'8:00 PM',
+  schedule:[{title:'Nikah',time:'4:30 PM',detail:'Solemnised in the presence of family'},{title:'Photos',time:'6:00 PM',detail:'With the couple'},{title:'Dinner',time:'8:00 PM',detail:''}],
+  photos:[...Array(4)].map((_,i)=>'/__demo/p'+(i+1)+'.jpg'),
+  tradition:'Muslim',font:q.get('font')||'allura',animation:q.get('anim')!=='0',_editorPreview:q.get('prev')==='1',musicAutoplay:false,family:'With love,\nThe Rahman & Yusuf families',rsvpUrl:'https://wa.me/96500000000',
+  rubyCfg:q.get('cfg')||'',openLogo:q.get('ol')||''};
+ // demo photos must be data urls for the model filter; convert
+ d.photos=await Promise.all(d.photos.map(async u=>{const b=await (await fetch(u)).blob();return await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}));
+ if(q.get('logo')==='1'){const c=document.createElement('canvas');c.width=300;c.height=120;const g=c.getContext('2d');g.fillStyle='#f3dca1';g.font='700 64px Georgia';g.fillText('M·S',20,80);d.photos.push(c.toDataURL('image/png'));d.rubyCfg=JSON.stringify({logo:true,logoSize:100})}
+ window.__d=d;
+ const f=document.createElement('iframe');f.id='f';f.srcdoc=invitationDocument(d);document.body.append(f);
+ window.__ready=true;
+})();
+</script></body></html>

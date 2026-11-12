@@ -1,0 +1,22 @@
+/* Set a value to url("/images/backgrounds/page1.jpg") to change that page's default image path. */
+body.page1,.invitation-page.page1{--mubiey-page-background:none}
+body.page2,.invitation-page.page2{--mubiey-page-background:none}
+body.page3,.invitation-page.page3{--mubiey-page-background:none}
+body.page4,.invitation-page.page4{--mubiey-page-background:none}
+body.page5,.invitation-page.page5{--mubiey-page-background:none}
+body.page6,.invitation-page.page6{--mubiey-page-background:none}
+body.page7,.invitation-page.page7{--mubiey-page-background:none}
+body.page8,.invitation-page.page8{--mubiey-page-background:none}
+body.page9,.invitation-page.page9{--mubiey-page-background:none}
+body.page10,.invitation-page.page10{--mubiey-page-background:none}
+body.page11,.invitation-page.page11{--mubiey-page-background:none}
+body.page12,.invitation-page.page12{--mubiey-page-background:none}
+
+.invitation-page{
+ background-image:var(--mubiey-page-background);
+ background-size:cover;
+ background-position:center;
+ background-repeat:no-repeat;
+ background-attachment:fixed;
+}
+@media(max-width:600px){.invitation-page{background-attachment:fixed}}

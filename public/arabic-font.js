@@ -37,7 +37,8 @@ invitationDocument=function(d){
  const html=base.apply(this,arguments);
  try{
   if(typeof html!=='string')return html;
-  const k=norm(d&&d.arabicFont);wanted=k;
+  const pick=(d&&d.arabicFont&&d.arabicFont!=='amiri')?d.arabicFont:((d&&d.arabicTypography&&d.arabicTypography.font)||(d&&d.arabicFont));
+  const k=norm(pick);wanted=k;
   if(k==='amiri')return html;
   if(cache[k]===undefined)load(k).then(refreshPreview);   /* e.g. a saved invitation was just opened */
   const css=fontCSS(k,html),i=html.search(/<\/head>/i);
@@ -55,4 +56,21 @@ if(typeof atelierReady==='function'){
  atelierReady=async function(){const r=await baseReady.apply(this,arguments);try{const s=document.getElementById('arabicFont');await load((s&&s.value)||wanted)}catch{}return r};
 }
 })();
-if(typeof document!=='undefined'&&document.readyState==='loading'&&document.currentScript)document.write('<script src="/invitation-customization.js"><\/script>');
+if(typeof document!=='undefined'&&document.readyState==='loading'&&document.currentScript)document.write('<script src="/heritage-backgrounds.js"><\/script><script src="/invitation-customization.js"><\/script>');
+
+/* Two selectors pick the calligraphy font: the velvet panel (#arabicFont) and the customization panel
+   (#arabic-font-choice). Keep them in step: whichever one the user just changed is copied to the other. */
+(()=>{
+ if(typeof setInterval!=='function'||typeof document==='undefined')return;
+ let last=null;
+ setInterval(()=>{
+  const a=document.getElementById('arabicFont'),b=document.getElementById('arabic-font-choice');
+  if(!a||!b)return;
+  const cur=[a.value,b.value];
+  if(last){
+   if(cur[0]!==last[0]&&cur[0]!==cur[1]){b.value=cur[0];b.dispatchEvent(new Event('change'))}
+   else if(cur[1]!==last[1]&&cur[1]!==cur[0]){a.value=cur[1];a.dispatchEvent(new Event('change'))}
+  }
+  last=[a.value,b.value];
+ },400);
+})();
