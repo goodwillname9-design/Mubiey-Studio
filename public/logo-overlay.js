@@ -16,8 +16,11 @@ invitationDocument=function(d){
   if(typeof html!=='string'||typeof logo!=='string'||logo.length>200000||!RE.test(logo))return html;
   const tag=`<img id="mubiey-logo" alt="Logo" src="${logo}" draggable="false">`;
   const style=css(H[d.logoSize]||H.md);
+  const pages=String(d.logoPages??'1').split(/[^0-9]+/).map(Number).filter(n=>n>0&&n<=50);
+  const pageJs=`<script>(function(){var P=${JSON.stringify(pages)};var img=document.getElementById('mubiey-logo');if(!img)return;var secs=[].slice.call(document.querySelectorAll('section'));function upd(){var mid=innerHeight/2,cur=-1;secs.forEach(function(s,i){var r=s.getBoundingClientRect();if(r.top<=mid&&r.bottom>mid)cur=i});var gate=document.querySelector('.gate:not(.gone)');img.style.display=(!gate&&cur>=0&&P.indexOf(cur+1)>=0)?'':'none'}addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);upd();setTimeout(upd,1200)})();<\/script>`;
   let out=html.replace(/<body\b[^>]*>/i,m=>m+tag);
   if(out===html)return html;                                   /* no <body>: leave the design untouched */
+  out=out.replace(/<\/body>/i,pageJs+'</body>');
   const i=out.search(/<\/head>/i);
   return i<0?out.replace(/<body\b[^>]*>/i,m=>style+m):out.slice(0,i)+style+out.slice(i);
  }catch{return html}

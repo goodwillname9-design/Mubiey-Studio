@@ -34,7 +34,12 @@ const INVITATION_TEMPLATES=[
  {id:'4003',name:'4003 \u00b7 Floral Envelope Sage Garden (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'},
  {id:'4004',name:'4004 \u00b7 Floral Envelope Blush Rose (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'},
  {id:'4005',name:'4005 \u00b7 Floral Envelope Midnight Champagne (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'},
- {id:'4006',name:'4006 \u00b7 Floral Envelope Ivory Champagne (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'}
+ {id:'4006',name:'4006 \u00b7 Floral Envelope Ivory Champagne (pearl envelope, flowers & gold butterfly)',layout:0,group:'stage'},
+ {id:'5001',name:'5001 \u00b7 Velvet Envelope Burgundy Velvet (sparkles, roses & velvet)',layout:0,group:'stage'},
+ {id:'5002',name:'5002 \u00b7 Velvet Envelope Rose Gold (sparkles, roses & velvet)',layout:0,group:'stage'},
+ {id:'5003',name:'5003 \u00b7 Velvet Envelope Midnight Blue (sparkles, roses & velvet)',layout:0,group:'stage'},
+ {id:'5004',name:'5004 \u00b7 Velvet Envelope Emerald Night (sparkles, roses & velvet)',layout:0,group:'stage'},
+ {id:'5005',name:'5005 \u00b7 Velvet Envelope Champagne Blush (sparkles, roses & velvet)',layout:0,group:'stage'}
 ];
 const INVITATION_ADDONS=[
  {id:'gold-seal-envelope',name:'Gold Seal Envelope \u00b7 Custom monogram seal',layout:0,group:'envelope'},

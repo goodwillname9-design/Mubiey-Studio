@@ -25,7 +25,16 @@ const THEMES={
  '3004':{name:'Sage Mist',    ink:'#2f3e31',acc:'#78906f',acc2:'#d6e2c8',pan:'rgba(248,252,246,0)',filt:'hue-rotate(58deg) saturate(.55) brightness(1.02)',veil:'rgba(246,252,244,.08)',dark:0,gate:'hue-rotate(58deg) saturate(.55)'},
  '3005':{name:'Lilac Dusk',   ink:'#3a2c46',acc:'#8c6f98',acc2:'#e3d3ee',pan:'rgba(252,249,255,0)',filt:'hue-rotate(-38deg) saturate(.7) brightness(.98)',veil:'rgba(250,246,255,.08)',dark:0,gate:'hue-rotate(-38deg) saturate(.7)'}
 };
-const SRC={frame:'frame.jpg',ribbon:'ribbon.jpg',damask:'damask.jpg',pearl:'pearl.jpg',rose:'rose.jpg',blossom:'blossom.jpg',bloom:'bloom.jpg'};
+const SRC={frame:'frame.jpg',ribbon:'ribbon.jpg',damask:'damask.jpg',pearl:'pearl.jpg',rose:'rose.jpg',blossom:'blossom.jpg',bloom:'bloom.jpg',crown:'crown.jpg',burgundy:'burgundy.jpg'};
+const VELVET_SEAL={x:50,y:51.4,d:12};
+const VEL={
+ '5001':{name:'Burgundy Velvet',ink:'#f6e6d2',acc:'#e0b765',acc2:'#fff0c2',filt:'none',veil:'rgba(20,0,6,.12)',gate:'none',dark:1,def:{hero:'crown',date:'burgundy',story:'crown',day:'burgundy',events:'crown',end:'burgundy'},tapTop:'calc(var(--H)*.84)'},
+ '5002':{name:'Rose Gold',ink:'#4a1f2a',acc:'#b5765e',acc2:'#f6d2bf',filt:'sepia(.25) saturate(.95) hue-rotate(-12deg) brightness(1.05)',veil:'rgba(255,240,236,.10)',gate:'sepia(.25) hue-rotate(-12deg)',def:{hero:'crown',date:'burgundy',story:'burgundy',day:'crown',events:'burgundy',end:'crown'},tapTop:'calc(var(--H)*.84)'},
+ '5003':{name:'Midnight Blue',ink:'#e8ecf7',acc:'#b8c4e6',acc2:'#e8eeff',filt:'hue-rotate(185deg) saturate(.7) brightness(.85)',veil:'rgba(8,12,30,.18)',gate:'hue-rotate(185deg) saturate(.7)',dark:1,def:{hero:'crown',date:'burgundy',story:'crown',day:'burgundy',events:'crown',end:'burgundy'},tapTop:'calc(var(--H)*.84)'},
+ '5004':{name:'Emerald Night',ink:'#e6f2ea',acc:'#9fd3b1',acc2:'#d4f2df',filt:'hue-rotate(120deg) saturate(.6) brightness(.85)',veil:'rgba(4,20,12,.16)',gate:'hue-rotate(120deg) saturate(.6)',dark:1,def:{hero:'crown',date:'burgundy',story:'burgundy',day:'crown',events:'burgundy',end:'crown'},tapTop:'calc(var(--H)*.84)'},
+ '5005':{name:'Champagne Blush',ink:'#4f3a3a',acc:'#c59a62',acc2:'#fbe7cf',filt:'sepia(.12) saturate(.7) brightness(1.18) contrast(.92)',veil:'rgba(255,248,242,.14)',gate:'sepia(.1) brightness(1.1)',def:{hero:'crown',date:'crown',story:'burgundy',day:'crown',events:'burgundy',end:'crown'},tapTop:'calc(var(--H)*.84)'}
+};
+for(const k of Object.keys(VEL))THEMES[k]=Object.assign({},VEL[k],{seal:VELVET_SEAL,gateImg:'velvetgate.jpg',spk:true,bf:false,fullGate:true});
 const PEARL_SEAL={x:50,y:74,d:24};
 const NEW={
  '4001':{name:'Pearl & Gold',     ink:'#4a3a2a',acc:'#b8922e',acc2:'#f5e3a6',filt:'none',                                  veil:'rgba(255,252,246,.06)',gate:'none',           def:{hero:'rose',date:'blossom',story:'bloom',day:'blossom',events:'rose',end:'bloom'},bf:true,tapTop:'calc(var(--H)*.08)'},
@@ -90,7 +99,7 @@ body.fl-locked{overflow:hidden;height:100svh}
 .gate{position:fixed;inset:0;z-index:100;background:#f3e9e4;overflow:hidden}
 .gate.gone{display:none}
 .gate.open{pointer-events:none;background:transparent;transition:background .8s ease .4s}
-.envimg{position:absolute;left:50%;top:0;height:100%;width:var(--SW);transform:translateX(-50%);background:url('${A}${t.gateImg||'envelope.jpg'}') center/100% 100% no-repeat;filter:${t.gate||'none'};transition:opacity 1.3s ease .6s,transform 1.6s cubic-bezier(.2,.7,.2,1) .2s}
+.envimg{position:absolute;left:50%;top:0;height:100%;width:${t.fullGate?'100%':'var(--SW)'};transform:translateX(-50%);background:url('${A}${t.gateImg||'envelope.jpg'}') center/${t.fullGate?'cover':'100% 100%'} no-repeat;filter:${t.gate||'none'};transition:opacity 1.3s ease .6s,transform 1.6s cubic-bezier(.2,.7,.2,1) .2s}
 .gate.open .envimg{opacity:0;transform:translateX(-50%) scale(1.08)}
 .sealc{position:absolute;left:${S.x}%;top:${S.y}%;width:${S.d}%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;animation:fl-seal 2.4s ease-out infinite}
 .gate.open .sealc{animation:none;opacity:0;transition:opacity .25s}
@@ -100,7 +109,7 @@ body.fl-locked{overflow:hidden;height:100svh}
 .omg img{position:absolute;left:50%;top:50%;width:calc(var(--olsz,100)*1%);height:calc(var(--olsz,100)*1%);transform:translate(-50%,-50%);object-fit:contain;display:block;border-radius:50%;mix-blend-mode:multiply}
 .omg.lift{position:fixed;animation:none;transition:left 1.3s cubic-bezier(.3,.6,.2,1),top 1.3s cubic-bezier(.3,.6,.2,1),width 1.3s cubic-bezier(.3,.6,.2,1),height 1.3s cubic-bezier(.3,.6,.2,1),transform 1.3s cubic-bezier(.3,.6,.2,1),padding .6s;z-index:140}
 .omg.lift.corner{left:14px!important;top:calc(14px + env(safe-area-inset-top,0px))!important;width:60px!important;height:60px!important;transform:none!important;padding:6px;box-shadow:0 3px 12px rgba(0,0,0,.25)}
-.tap{position:absolute;left:0;right:0;top:${t.tapTop||'calc(var(--H)*.8)'};text-align:center;z-index:3;transition:opacity .5s}
+.tap{position:absolute;left:0;right:0;top:${t.tapTop||'calc(var(--H)*.8)'};display:flex;flex-direction:column;align-items:center;text-align:center;z-index:3;transition:opacity .5s}
 .gate.open .tap{opacity:0}
 .kick{font:700 calc(10px*var(--ss))/1.5 var(--fs);font-style:var(--sts);letter-spacing:.42em;text-transform:uppercase;color:#7a4f5e;text-shadow:0 1px 8px #fff9;display:block;margin-bottom:4px}
 .tapw{all:unset;display:block;margin:6px auto 0;cursor:pointer;font:400 calc(clamp(30px,9vw,44px)*var(--sn))/1.1 var(--fn);font-style:var(--stn);color:#6a3b4b;text-shadow:0 1px 10px ${SHL};animation:fl-bob 2.8s ease-in-out infinite}
@@ -177,6 +186,12 @@ body:not(.fl-ready) .hv{opacity:0}
 .sign{font:400 calc(clamp(36px,10vw,50px)*var(--sn))/1.15 var(--fn);font-style:var(--stn);color:var(--ink);margin:10px 0 4px;text-shadow:0 1px 12px ${SH};max-height:2.3em}
 .rsvp{display:inline-block;margin:4px 0 18px;padding:12px 28px;border-radius:40px;border:1px solid var(--acc);background:var(--acc);color:#fff;text-decoration:none;font:700 calc(10.5px*var(--ss))/1.3 var(--fs);letter-spacing:.3em}
 .small{font:700 calc(9.5px*var(--ss))/1.5 var(--fs);letter-spacing:.24em;color:var(--acc);text-transform:uppercase;text-shadow:0 1px 8px ${SH}}
+.spk{position:absolute;inset:-12%;pointer-events:none;z-index:-1;background:url('${A}sparkle.png') repeat;background-size:360px auto;opacity:.85;animation:fl-spk 26s linear infinite}
+.spk.s2{background-size:240px auto;opacity:.6;animation:fl-spk 40s linear infinite reverse;animation-delay:-9s}
+.spk.gs{z-index:2;inset:0;background-size:420px auto;opacity:0;animation:fl-spk 14s linear infinite}
+.spk.burst{animation:fl-burst 1.8s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes fl-spk{from{background-position:0 0}to{background-position:-720px 1100px}}
+@keyframes fl-burst{0%{transform:scale(.7);opacity:1}70%{opacity:1}100%{transform:scale(1.9);opacity:0}}
 .credit{position:relative;z-index:3;padding:14px;text-align:center;background:#f6efe7;color:#9a7a6a;font:10px Arial,sans-serif;letter-spacing:2px}
 .lightbox{position:fixed;inset:0;z-index:150;background:#000e;display:none;align-items:center;justify-content:center;padding:18px}.lightbox.on{display:flex}.lightbox img{max-width:100%;max-height:100%;border-radius:10px}
 .mbtn{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:120;width:44px;height:44px;border-radius:50%;border:1px solid var(--acc);background:rgba(255,255,255,.85);color:var(--ink);font-size:18px;cursor:pointer;display:none}.mbtn.on{display:block}
@@ -198,16 +213,19 @@ ${secRules}
 ${m.cfg.align==='left'?':root{--al:left;--jc:flex-start;--mL:8vw;--mR:auto}':m.cfg.align==='right'?':root{--al:right;--jc:flex-end;--mL:auto;--mR:8vw}':':root{--al:center;--jc:center;--mL:auto;--mR:auto}'}.sec{justify-content:var(--jc)!important}.sec .inner,.sec .wide{margin-left:var(--mL)!important;margin-right:var(--mR)!important;text-align:var(--al)!important}
 ${m.customCSS}`};
 
+/* sparkles: two drifting layers (twinkle, never stop); a burst when the cover opens */
+const SPK='<div class="spk s1" aria-hidden="true"></div><div class="spk s2" aria-hidden="true"></div>';
 /* ------------------------------------------------------------------ markup */
 function body(m,t,bg){
  const w=m.w;
+ const __spk=t.spk?SPK:'';
   const verseBlock=(m.verseAr||m.verseEn)?`<div class="hv" style="--d:1.7s">${m.verseAr?`<p class="ar-verse" lang="ar" dir="rtl">${esc(m.verseAr)}</p>`:''}${m.verseEn?`<p class="ar-en">${esc(m.verseEn)}</p>`:''}</div>`:'';
  const duaBlock=(m.blAr||m.blEn)?`<div class="rv">${m.blAr?`<p class="ar-dua" lang="ar" dir="rtl">${esc(m.blAr)}</p>`:''}${m.blEn?`<p class="ar-en">“${esc(m.blEn)}”</p>`:''}</div>`:'';
 
  const prevChip=(m.prev&&m.openLogo&&!m.gate)?`<div class="omg lift corner" style="animation:none"><img src="${esc(m.openLogo)}" alt=""></div>`:'';
  const l1=m.p1&&/^\s*d\s*\/\s*o\b/i.test(m.p1)?'':`<p class="lbl hv" data-rs="rsLabel1" style="--d:.5s">${esc(m.l1)}</p>`;
  const l2=m.p2&&/^\s*s\s*\/\s*o\b/i.test(m.p2)?'':`<p class="lbl hv" data-rs="rsLabel2" style="--d:1s">${esc(m.l2)}</p>`;
- const hero=`<section class="sec sec-hero" id="top" data-bg="hero">${bflies(5,11,t)}${dust(14,31)}<div class="sbg" data-par></div><div class="inner">
+ const hero=`<section class="sec sec-hero" id="top" data-bg="hero">${bflies(5,11,t)}${dust(14,31)}<div class="sbg" data-par></div>${__spk}<div class="inner">
  ${m.bismText?ed('rsBismillah','p','bism hv',esc(m.bismText),' style="--d:.1s" lang="ar" dir="rtl"'):''}
  ${ed('rsIntro','p','intro hv',esc(m.intro),' style="--d:.2s"')}
  ${l1}${ed('name1','h1','nm hv fit2',esc(m.n1),' style="--d:.6s"')}
@@ -220,12 +238,12 @@ function body(m,t,bg){
  </div></section>`;
  const cdHtml=m.dateIso?`<div class="cd rv" id="fl-cd"><div><b id="cd-d">0</b><small>Days</small></div><div><b id="cd-h">0</b><small>Hours</small></div><div><b id="cd-m">0</b><small>Min</small></div><div><b id="cd-s">0</b><small>Sec</small></div></div>`:'';
  const dateBlock=w?`<div class="bigm rv">${esc(w.day)}</div><div class="bigdate rv">${esc(w.date)}</div><div class="bigm rv">${esc(w.month)} ${esc(w.year)}</div>${m.timeText?`<p class="bigw rv">${esc(m.timeText)}</p>`:''}`:`<p class="bigw rv">Date to be announced</p>`;
- const dateSec=`<section class="sec sec-date" id="date" data-bg="date">${bflies(3,41,t)}${dust(10,51)}<div class="sbg" data-par></div><div class="inner">${ed('rsDateKicker','p','kick2 rv',esc(m.dateKick))}${ed('rsDateTitle','h2','ttl rv',esc(m.dateTitle),' style="--d:.1s"')}<div class="dv rv"><i></i></div>${dateBlock}${cdHtml}</div></section>`;
+ const dateSec=`<section class="sec sec-date" id="date" data-bg="date">${bflies(3,41,t)}${dust(10,51)}<div class="sbg" data-par></div>${__spk}<div class="inner">${ed('rsDateKicker','p','kick2 rv',esc(m.dateKick))}${ed('rsDateTitle','h2','ttl rv',esc(m.dateTitle),' style="--d:.1s"')}<div class="dv rv"><i></i></div>${dateBlock}${cdHtml}</div></section>`;
  const slides=m.photos.map((src,i)=>`<div class="slide" data-i="${i}"><img src="${esc(src)}" alt="Wedding photo ${i+1}" loading="lazy"></div>`).join('');
- const story=m.photos.length?`<section class="sec sec-story" id="story" data-bg="story">${dust(9,61)}<div class="sbg" data-par></div><div style="width:100%;position:relative"><div class="inner">${ed('rsStoryKicker','p','kick2 rv',esc(m.storyKick))}${ed('rsStoryTitle','h2','ttl rv',esc(m.storyTitle),' style="--d:.1s"')}<div class="dv rv"><i></i></div></div><div class="slider rv" id="fl-slider" style="--d:.15s">${slides}</div>${m.photos.length>1?`<div class="dots">${m.photos.map((_,i)=>`<b${i?'':' class="on"'}></b>`).join('')}</div>`:''}</div></section>`:'';
- const tl=m.schedule.length?`<section class="sec sec-day" id="day" data-bg="day">${bflies(3,71,t)}${dust(8,81)}<div class="sbg" data-par></div><div class="inner">${ed('rsDayKicker','p','kick2 rv',esc(m.dayKick))}${ed('rsDayTitle','h2','ttl rv',esc(m.dayTitle),' style="--d:.1s"')}<div class="dv rv"><i></i></div><div class="tl" data-rs="schedule">${m.schedule.map((s,i)=>`<div class="tl-r rv" style="--d:${(i*.1).toFixed(1)}s"><div class="tl-t">${esc(s.time||'')}</div><div><p class="tl-n">${brk(s.title)}</p>${s.detail?`<p class="tl-d">${esc(s.detail)}</p>`:''}</div></div>`).join('')}</div></div></section>`:'';
- const cards=m.events.length?`<section class="sec sec-events" id="events" data-bg="events">${dust(8,91)}<div class="sbg" data-par></div><div class="inner">${ed('rsEventsTitle','h2','ttl rv',esc(m.evTitle))}<div class="dv rv"><i></i></div><div data-rs="eventsText">${m.events.map((e,i)=>`<article class="ev rv" style="--d:${(i*.12).toFixed(2)}s"><h3>${esc(e.title)}</h3>${e.date?`<div class="ed">${esc(e.date)}</div>`:''}${e.place?`<p class="ep">${esc(e.place)}</p>`:''}${e.map?`<a class="mapbtn" href="${esc(e.map)}" target="_blank" rel="noopener noreferrer">View on map</a>`:''}</article>`).join('')}</div></div></section>`:'';
- const end=`<section class="sec sec-end" id="with-love" data-bg="end">${bflies(4,101,t)}${dust(10,111)}<div class="sbg" data-par></div><div class="inner">
+ const story=m.photos.length?`<section class="sec sec-story" id="story" data-bg="story">${dust(9,61)}<div class="sbg" data-par></div>${__spk}<div style="width:100%;position:relative"><div class="inner">${ed('rsStoryKicker','p','kick2 rv',esc(m.storyKick))}${ed('rsStoryTitle','h2','ttl rv',esc(m.storyTitle),' style="--d:.1s"')}<div class="dv rv"><i></i></div></div><div class="slider rv" id="fl-slider" style="--d:.15s">${slides}</div>${m.photos.length>1?`<div class="dots">${m.photos.map((_,i)=>`<b${i?'':' class="on"'}></b>`).join('')}</div>`:''}</div></section>`:'';
+ const tl=m.schedule.length?`<section class="sec sec-day" id="day" data-bg="day">${bflies(3,71,t)}${dust(8,81)}<div class="sbg" data-par></div>${__spk}<div class="inner">${ed('rsDayKicker','p','kick2 rv',esc(m.dayKick))}${ed('rsDayTitle','h2','ttl rv',esc(m.dayTitle),' style="--d:.1s"')}<div class="dv rv"><i></i></div><div class="tl" data-rs="schedule">${m.schedule.map((s,i)=>`<div class="tl-r rv" style="--d:${(i*.1).toFixed(1)}s"><div class="tl-t">${esc(s.time||'')}</div><div><p class="tl-n">${brk(s.title)}</p>${s.detail?`<p class="tl-d">${esc(s.detail)}</p>`:''}</div></div>`).join('')}</div></div></section>`:'';
+ const cards=m.events.length?`<section class="sec sec-events" id="events" data-bg="events">${dust(8,91)}<div class="sbg" data-par></div>${__spk}<div class="inner">${ed('rsEventsTitle','h2','ttl rv',esc(m.evTitle))}<div class="dv rv"><i></i></div><div data-rs="eventsText">${m.events.map((e,i)=>`<article class="ev rv" style="--d:${(i*.12).toFixed(2)}s"><h3>${esc(e.title)}</h3>${e.date?`<div class="ed">${esc(e.date)}</div>`:''}${e.place?`<p class="ep">${esc(e.place)}</p>`:''}${e.map?`<a class="mapbtn" href="${esc(e.map)}" target="_blank" rel="noopener noreferrer">View on map</a>`:''}</article>`).join('')}</div></div></section>`:'';
+ const end=`<section class="sec sec-end" id="with-love" data-bg="end">${bflies(4,101,t)}${dust(10,111)}<div class="sbg" data-par></div>${__spk}<div class="inner">
  ${duaBlock}${m.family?ed('family','p','fam rv',esc(m.family)):''}
  ${m.rsvp?`<a class="rsvp rv" href="${esc(m.rsvp)}" target="_blank" rel="noopener noreferrer">RSVP</a>`:''}
  ${ed('rsClosing','p','close rv',esc(m.closing),' style="--d:.1s"')}
@@ -233,7 +251,7 @@ function body(m,t,bg){
  <p class="sign rv fit2" data-rs="name1">${esc(m.n1)} &amp; ${esc(m.n2)}</p>
  ${m.from?ed('wishesFrom','p','small rv',esc(m.from)):''}
  </div></section>`;
- const gate=m.gate?`<div id="fl-gate" class="gate" role="dialog" aria-modal="true" aria-label="Open the invitation"><div class="envimg"></div><i class="sealc"></i><i class="flash"></i>${m.openLogo?`<div class="omg" id="fl-om"><img src="${esc(m.openLogo)}" alt=""></div>`:''}<div class="tap"><span class="kick">You are invited</span><button type="button" class="tapw" id="fl-open" data-rs="rsOpen">${esc(m.open)}</button></div><button type="button" class="g-hit" id="fl-hit" aria-label="Open the invitation"></button><button type="button" class="g-skip" id="fl-skip">Skip</button></div>`:'';
+ const gate=m.gate?`<div id="fl-gate" class="gate" role="dialog" aria-modal="true" aria-label="Open the invitation"><div class="envimg"></div>${t.spk?'<div class="spk gs" aria-hidden="true"></div>':''}<i class="sealc"></i><i class="flash"></i>${m.openLogo?`<div class="omg" id="fl-om"><img src="${esc(m.openLogo)}" alt=""></div>`:''}<div class="tap"><span class="kick">You are invited</span><button type="button" class="tapw" id="fl-open" data-rs="rsOpen">${esc(m.open)}</button></div><button type="button" class="g-hit" id="fl-hit" aria-label="Open the invitation"></button><button type="button" class="g-skip" id="fl-skip">Skip</button></div>`:'';
  const audio=m.music?`<audio id="fl-music" loop preload="none" src="${esc(m.music)}"></audio><button type="button" class="mbtn on" id="fl-mbtn" aria-label="Play or pause music">\u266A</button>`:'';
  const defs=`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="fl-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${t.acc2}"/><stop offset=".5" stop-color="#fff6dc"/><stop offset="1" stop-color="${t.acc}"/></linearGradient></defs></svg>`;
  return `${defs}${gate}${prevChip}<main>${hero}${dateSec}${story}${tl}${cards}${end}</main><div class="credit">Made with Mubiey Studio</div>${audio}`;
@@ -255,7 +273,7 @@ function runtime(){
  else{
   B.classList.add('fl-locked');let opened=false,finished=false;const timers=[];const later=(f,ms)=>timers.push(setTimeout(f,ms));
   const done=()=>{if(finished)return;finished=true;timers.forEach(clearTimeout);gate.classList.add('gone');B.classList.remove('fl-locked');ready();scrollTo(0,0)};
-  const go=()=>{if(opened)return;opened=true;if(Rt.autoplay&&audio)audio.play().catch(()=>{});gate.classList.add('open');
+  const go=()=>{if(opened)return;opened=true;if(Rt.autoplay&&audio)audio.play().catch(()=>{});gate.classList.add('open');const spb=$('.spk.gs');if(spb)spb.classList.add('burst');
    const om=$('#fl-om');
    if(om){const r=om.getBoundingClientRect();document.body.append(om);om.classList.add('lift');om.style.left=r.left+'px';om.style.top=r.top+'px';om.style.width=r.width+'px';om.style.height=r.height+'px';om.style.transform='none';
     requestAnimationFrame(()=>requestAnimationFrame(()=>om.classList.add('corner')))}

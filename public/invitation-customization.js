@@ -224,6 +224,7 @@ function addPanels(){
   const pending={file,url:URL.createObjectURL(file)};
   state.pendingBackgrounds.set(state.selectedPage,pending);
   pageAt(state.selectedPage).image=pending.url;
+  const pageNo=state.selectedPage;const rd=new FileReader();rd.onload=()=>{if(state.pendingBackgrounds.get(pageNo)===pending){pageAt(pageNo).image=rd.result;renderPageControls();mark()}};rd.readAsDataURL(file);
   renderPageControls();mark();el('page-bg-file').value='';
  });
  for(const id of ['page-bg-size','page-bg-x','page-bg-y','page-bg-custom-size','page-bg-image-opacity','page-bg-overlay-color','page-bg-overlay-opacity','page-bg-color','page-bg-gradient']){

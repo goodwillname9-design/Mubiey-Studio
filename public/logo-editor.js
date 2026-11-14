@@ -18,6 +18,18 @@ box.innerHTML='<h2 style="margin-top:22px">Invitation logo & gold seal</h2>'
  +'<div id="logoRow" hidden style="display:flex;align-items:center;gap:12px;margin:10px 0"><img id="logoThumb" alt="Logo preview" style="max-height:64px;max-width:160px;object-fit:contain;background:#ffffff14;border:1px solid #80623b;border-radius:6px;padding:6px"><button type="button" id="logoRemove" class="danger">Remove logo</button></div>'
  +'<div class="field-grid"><label>Logo size<select id="logoSize"><option value="">Medium (default)</option><option value="sm">Small</option><option value="lg">Large</option></select></label></div>';
 const hidden=document.createElement('input');hidden.type='hidden';hidden.id='logo';box.append(hidden);
+const pageRow=document.createElement('div');pageRow.style.cssText='margin:10px 0';
+const pageHidden=document.createElement('input');pageHidden.type='hidden';pageHidden.id='logoPages';box.append(pageHidden);
+pageRow.innerHTML='<strong>Show the top-left logo on these pages</strong><p class="help" style="margin:4px 0">Page 1 is the opening page. The seal / opening logo is separate.</p><div id="logoPageChecks" style="display:flex;flex-wrap:wrap;gap:8px 14px"></div>';
+box.append(pageRow);
+const pageChecks=pageRow.querySelector('#logoPageChecks');
+for(let n=1;n<=8;n++){const l=document.createElement('label');l.style.cssText='display:flex;align-items:center;gap:4px';l.innerHTML='<input type="checkbox" value="'+n+'"> '+(n===1?'Page 1 (opening)':'Page '+n);pageChecks.append(l)}
+const readPages=()=>[...pageChecks.querySelectorAll('input:checked')].map(i=>i.value).join(',');
+const paintPages=()=>{const v=(pageHidden.value||'1').split(',');pageChecks.querySelectorAll('input').forEach(i=>{i.checked=v.includes(i.value)})};
+pageChecks.addEventListener('change',()=>{pageHidden.value=readPages();markDirty()});
+pageHidden.value='1';paintPages();
+fields.push('logoPages');
+setInterval(()=>{if(!pageChecks.contains(document.activeElement))paintPages()},700);
 anchor.after(box);
 fields.push('logo','logoSize');
 

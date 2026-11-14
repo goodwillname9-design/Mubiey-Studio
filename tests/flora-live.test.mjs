@@ -122,3 +122,14 @@ test('text alignment choice (left, centre, right) is applied on every new design
  assert.match(render(c,{...base,template:'3001',rubyCfg:JSON.stringify({align:'right'})}),/--al:right/);
  assert.match(render(c,{...base,template:'ruby-luxury'}),/--al:center/);
 });
+
+test('top-left logo shows only on the chosen pages (default: the opening page)',()=>{
+ const c=context();
+ const PNG2='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jhFoAAAAASUVORK5CYII=';
+ const def=render(c,{...base,template:'3001',logo:PNG2});
+ assert.match(def,/var P=\[1\]/,'default: page 1 only');
+ const two=render(c,{...base,template:'3001',logo:PNG2,logoPages:'1,3'});
+ assert.match(two,/var P=\[1,3\]/);
+ const none=render(c,{...base,template:'3001',logo:PNG2,logoPages:''});
+ assert.match(none,/var P=\[\]/,'empty: no page');
+});

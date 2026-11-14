@@ -19,7 +19,7 @@ const render=(c,data)=>{c.data=data;return vm.runInContext('invitationDocument(d
 
 test('new invitation designs are selectable without changing the curated template catalog',()=>{
  const c=context();
- assert.equal(vm.runInContext('INVITATION_TEMPLATES.length',c),35);
+ assert.equal(vm.runInContext('INVITATION_TEMPLATES.length',c),40);
  assert.deepEqual(JSON.parse(JSON.stringify(vm.runInContext('INVITATION_ADDONS.map(({id})=>id)',c))),['gold-seal-envelope','islamic-arch-lanterns','watercolor-lantern-florals']);
  const root={exports:{}};
  vm.runInNewContext(fs.readFileSync('live-presets.js','utf8'),{module:root});
